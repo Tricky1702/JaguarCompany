@@ -27,7 +27,7 @@ strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Script to initialise the Jaguar Company.";
-    this.version = "2.2";
+    this.version = "2.1";
 
     /* Private variables. */
     var p_main = {},

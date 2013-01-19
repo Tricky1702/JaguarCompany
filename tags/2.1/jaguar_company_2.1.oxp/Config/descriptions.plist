@@ -1,0 +1,340 @@
+/* descriptions.plist for the Jaguar Company.
+ *
+ * Copyright © 2012 Richard Thomas Harrison (Tricky)
+ *
+ * This work is licensed under the Creative Commons
+ * Attribution-Noncommercial-Share Alike 3.0 Unported License.
+ *
+ * To view a copy of this license, visit
+ * http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
+ * to Creative Commons, 171 Second Street, Suite 300, San Francisco,
+ * California, 94105, USA.
+ *
+ * Description vocabulary for the Jaguar Company.
+ * Layout and messages inspired from the Random Hits OXP friendly fire warnings.
+ */
+
+{
+    "jaguar_company_player_help" =
+    (
+        "Commander [commander_name], [jaguar_company_player_help_thanks]",
+        "Cmdr [commander_name], [jaguar_company_player_help_thanks]",
+        "[commander_name], [jaguar_company_player_help_thanks]",
+    );
+
+    "jaguar_company_player_help_thanks" =
+    (
+        "thank you for the assistance.",
+        "thanks!",
+        "thank you! Help at last!",
+        "nice shot!",
+        "keep it up.",
+        "give 'em hell!",
+        "we won't forget this."
+    );
+
+    "jaguar_company_player_help_buoy" =
+    (
+        "Use beacon code 'J' on your ASC to find our base.",
+        "The comms buoy at our base broadcasts on beacon code 'J'."
+    );
+
+    "jaguar_company_player_help_blackbox" =
+    (
+        "Go to our base to receive a little thank you gift."
+    );
+
+    "jaguar_company_friendly_fire" =
+    (
+        "[jaguar_company_friendly_fire1] [jaguar_company_insult]!",
+        "[jaguar_company_friendly_fire2]",
+        "[jaguar_company_friendly_fire1] [jaguar_company_insult]! [jaguar_company_friendly_fire2]",
+        "[jaguar_company_friendly_fire2] [jaguar_company_friendly_fire1] [jaguar_company_insult]!"
+    );
+
+    "jaguar_company_player_friendly_fire" =
+    (
+        "Commander [commander_name], [jaguar_company_friendly_fire1] [jaguar_company_insult]!",
+        "Cmdr [commander_name], [jaguar_company_friendly_fire1] [jaguar_company_insult]!",
+        "[commander_name], [jaguar_company_friendly_fire1] [jaguar_company_insult]!",
+        "[jaguar_company_friendly_fire1] Commander [commander_name]!",
+        "[jaguar_company_friendly_fire1] Cmdr [commander_name]!",
+        "[jaguar_company_friendly_fire1] [commander_name]!",
+        "Commander [commander_name], [jaguar_company_friendly_fire2]",
+        "Cmdr [commander_name], [jaguar_company_friendly_fire2]",
+        "[commander_name], [jaguar_company_friendly_fire2]"
+    );
+
+    "jaguar_company_friendly_fire1" =
+    (
+        "Blue on Blue",
+        "I'm on your side",
+        "[jaguar_company_friendly_fire1a] your [jaguar_company_friendly_fire1b]",
+        "[jaguar_company_friendly_fire1a] the friendly fire"
+    );
+
+    "jaguar_company_friendly_fire1a" =
+    (
+        Watch,
+        Mind
+    );
+
+    "jaguar_company_friendly_fire1b" =
+    (
+        fire,
+        aim
+    );
+
+    "jaguar_company_friendly_fire2" =
+    (
+        "Stop it!",
+        "Cease your attack!",
+        "Be more careful!",
+        "Check your targets!",
+        "Are you blind?",
+        "Do I look like a [jaguar_company_criminal]?",
+        "Try hitting the hostile!",
+        "Were you born blind?",
+        "Which station master let you out?",
+        "Try using the force and see if that helps!",
+        "Don't do that again!"
+    );
+
+    "jaguar_company_hostile_fire" =
+    (
+        "[jaguar_company_hostile_fire1]!",
+        "[jaguar_company_hostile_fire1] [jaguar_company_criminal]!"
+    );
+
+    "jaguar_company_player_hostile_fire" =
+    (
+        "Commander [commander_name]! [jaguar_company_hostile_fire1]!",
+        "Cmdr [commander_name]! [jaguar_company_hostile_fire1]!",
+        "[commander_name]! [jaguar_company_hostile_fire1]!",
+        "Commander [commander_name]! [jaguar_company_hostile_fire1] [jaguar_company_criminal]!",
+        "Cmdr [commander_name]! [jaguar_company_hostile_fire1] [jaguar_company_criminal]!",
+        "[commander_name]! [jaguar_company_hostile_fire1] [jaguar_company_criminal]!",
+        "[jaguar_company_hostile_fire1] Commander [commander_name]!",
+        "[jaguar_company_hostile_fire1] Cmdr [commander_name]!",
+        "[jaguar_company_hostile_fire1] [commander_name]!"
+    );
+
+    "jaguar_company_hostile_fire1" =
+    (
+        "[jaguar_company_pre_hostile_fire] die",
+        "[jaguar_company_pre_hostile_fire] be judged",
+        "Your time has come",
+        "You cannot escape justice",
+        "Now you will pay",
+        "It's execution time",
+        "I'm gonna rip your shields off",
+        "I hope your life insurance is up to date",
+        "You are scheduled for termination"
+    );
+
+    "jaguar_company_pre_hostile_fire" =
+    (
+        "Time to",
+        "Prepare to",
+        "Get ready to"
+    );
+
+    "jaguar_company_death" =
+    (
+        "Oh sh...",
+        "Say goodb...",
+        "I leave all...",
+        "*(^%*& *bzzt*",
+        "What?",
+        "Today is a good day...",
+        "You have no hono...",
+        "My god, it's full of..."
+    );
+
+    "jaguar_company_base_greeting" =
+    (
+        "Greetings Commander [commander_name].",
+        "Greetings Cmdr [commander_name].",
+        "Greetings [commander_name].",
+        "Welcome Commander [commander_name].",
+        "Welcome Cmdr [commander_name].",
+        "Welcome [commander_name].",
+        "Ahoy Commander [commander_name]!",
+        "Ahoy Cmdr [commander_name]!",
+        "Ahoy [commander_name]!"
+    );
+
+    "jaguar_company_base_thankyou" =
+    (
+        "Thank you for giving a helping hand to our pilots.",
+        "Jaguar Company salutes your brave efforts"
+    );
+
+    "jaguar_company_base_docked" =
+    (
+        "Welcome to the base of operations for Jaguar Company.",
+        "Enjoy your stay at the base of Jaguar Company."
+    );
+
+    "jaguar_company_base_visited" =
+    (
+        "Welcome back.",
+        "We are glad that you decided to come back to us."
+    );
+
+    "jaguar_company_base_docked_thanks" =
+    (
+        "[jaguar_company_base_docked] [jaguar_company_base_thankyou]"
+    );
+
+    "jaguar_company_base_visited_thanks" =
+    (
+        "[jaguar_company_base_visited] [jaguar_company_base_thankyou]"
+    );
+
+    "jaguar_company_base_thanks_no_black_box1" =
+    (
+        "[jaguar_company_base_docked_thanks] [jaguar_company_base_fit_black_box1] [jaguar_company_base_fit_black_box2]"
+    );
+
+    "jaguar_company_base_thanks_no_black_box2" =
+    (
+        "[jaguar_company_base_docked_thanks] [jaguar_company_base_fit_black_box1]"
+    );
+
+    "jaguar_company_base_fit_black_box1" =
+    (
+        "We have fitted a little black box to your ship that will help you to locate the patrol ships of Jaguar Company in the future. This can be activated or deactivated at any time once selected."
+    );
+
+    "jaguar_company_base_fit_black_box2" =
+    (
+        "Cycle the advanced space compass to beacon code 'T' after activation."
+    );
+
+    "jaguar_company_base_thanks_black_box_damaged" =
+    (
+        "[jaguar_company_base_visited_thanks] [jaguar_company_base_fix_black_box]"
+    );
+
+    "jaguar_company_base_fix_black_box" =
+    (
+        "Our base master has noticed that your black box locator is damaged and has tasked his workers to fix it."
+    );
+
+    "jaguar_company_base_market" =
+    (
+        "We don't like [jaguar_company_base_market_illegal] here, which is why you won't get a good price for your illegal goods. Anything you do sell to us will be handed over to the relevant authorities.",
+        "Life can be hard living in this rock, which is why we pay above market prices for any [jaguar_company_base_market_a].",
+        "We are always on the lookout for good quality food and clothing.",
+        "Good quality drink is always in demand here.",
+        "Come and see us at any time if you want any cheap metals or minerals.",
+        "Alien technology? You will make our day if you have any to sell."
+    );
+
+    "jaguar_company_base_market_a" =
+    (
+        food,
+        clothing,
+        alcohol,
+        luxuries
+    );
+
+    "jaguar_company_base_market_illegal" =
+    (
+        slavers,
+        "slave traders",
+        "drug dealers"
+    );
+
+    "jaguar_company_base_market_want" =
+    (
+        "Your manifest shows that you have some items in your hold that interest us:"
+    );
+
+    "jaguar_company_base_market_want_a" =
+    (
+        "We will give you a good price for your [jaguar_company_commodity].",
+        "We can make your trade run worth-while for your [jaguar_company_commodity].",
+        "There is a market here for your [jaguar_company_commodity]."
+    );
+
+    "jaguar_company_insult" =
+    (
+        blockhead,
+        bonehead,
+        buffoon,
+        chump,
+        dolt,
+        dork,
+        dunce,
+        dunderhead,
+        fathead,
+        fool,
+        gimboid,
+        halfwit,
+        idiot,
+        ignoramus,
+        imbecile,
+        jackass,
+        jerk,
+        lamebrain,
+        loser,
+        "megaweed head",
+        moron,
+        muppet,
+        nerd,
+        newbie,
+        nincompoop,
+        ninny,
+        nitwit,
+        noob,
+        numbskull,
+        oaf,
+        simpleton,
+        smeghead,
+        sucker,
+        twerp,
+        twit
+    );
+
+    "jaguar_company_criminal" =
+    (
+        bandit,
+        beast,
+        blackguard,
+        bounder,
+        brigand,
+        cad,
+        criminal,
+        crook,
+        delinquent,
+        desperado,
+        devil,
+        felon,
+        fiend,
+        freebooter,
+        gangster,
+        knave,
+        lawbreaker,
+        lowlife,
+        marauder,
+        miscreant,
+        mobster,
+        offender,
+        outlaw,
+        rapscallion,
+        rascal,
+        renegade,
+        reprobate,
+        rogue,
+        ruffian,
+        scallywag,
+        scoundrel,
+        scumbag,
+        swine,
+        vagabond,
+        villain,
+        wrongdoer
+    );
+}

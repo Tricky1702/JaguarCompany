@@ -27,7 +27,7 @@ strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the asteroids cluttering the space around the base.";
-    this.version = "1.1";
+    this.version = "1.0";
 
     /* Ship event callbacks. */
 
@@ -50,8 +50,7 @@ strict: true, curly: true */
         /* No longer needed after setting up. */
         delete this.shipSpawned;
 
-        if (!base || !base.isValid ||
-            (!asteroid.hasRole("jaguar_company_asteroid") && !asteroid.hasRole("jaguar_company_boulder"))) {
+        if (!base || !asteroid.hasRole("jaguar_company_asteroid") || !asteroid.hasRole("jaguar_company_boulder")) {
             /* Not an asteroid spawned by the base. */
             return;
         }
@@ -65,6 +64,7 @@ strict: true, curly: true */
 
         /* Don't drift. Just leave it rotating. */
         asteroid.velocity = new Vector3D(0, 0, 0);
+
         /* Work out if it is near to the base during spawning. */
         distance = asteroid.position.distanceTo(base.position);
 
@@ -96,7 +96,8 @@ strict: true, curly: true */
                 }
 
                 if (mainScript.$logging && mainScript.$logExtra) {
-                    log(this.name, "shipSpawned::Moving " + asteroid.displayName + " to " + asteroid.position + "\n" +
+                    log(this.name, "shipSpawned::\n" +
+                        "Moving " + asteroid.displayName + " to " + asteroid.position + "\n" +
                         "* Moved: " + asteroidMoved + " times\n" +
                         "* Safe distance: " + safeDistance + "\n" +
                         "* Old distance: " + oldDistance + "\n" +

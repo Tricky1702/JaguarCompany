@@ -27,7 +27,7 @@ strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the Jaguar Company Base Buoy.";
-    this.version = "1.2";
+    this.version = "1.1";
 
     /* Private variable. */
     var p_buoy = {};
@@ -52,7 +52,7 @@ strict: true, curly: true */
         };
 
         /* Register this buoy as a friendly. */
-        p_buoy.attackersScript.$addFriendly(this.ship);
+        p_base.attackersScript.$addFriendly(this.ship);
         /* Wait 5 seconds then find the witchpoint. */
         p_buoy.nextTarget = "WITCHPOINT";
         this.$buoyTimerReference = new Timer(this, this.$buoyTimer, 5);

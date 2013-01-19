@@ -27,7 +27,7 @@ strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the Jaguar Company Base.";
-    this.version = "1.4";
+    this.version = "1.3";
 
     /* Private variable. */
     var p_base = {};
@@ -91,12 +91,12 @@ strict: true, curly: true */
             this.ship.orientation = this.ship.orientation.rotate(cross, -angle);
 
             /* Add some clutter within 20km around the base.
-             * 20 to 27 asteroids and 10 to 17 boulders
+             * 20 to 27 asteroids and 20 to 27 boulders
              * - gives the miners something to do. (Also apparently any Thargoids!)
              */
             num = Math.floor(system.scrambledPseudoRandomNumber(p_base.mainScript.$salt) * 8) + 20;
             system.addShips("jaguar_company_asteroid", num, this.ship.position, 20000);
-            num = Math.floor(system.scrambledPseudoRandomNumber(p_base.mainScript.$salt / 2) * 8) + 10;
+            num = Math.floor(system.scrambledPseudoRandomNumber(p_base.mainScript.$salt / 2) * 8) + 20;
             system.addShips("jaguar_company_boulder", num, this.ship.position, 20000);
 
             /* Reset the launch status of the buoy. */

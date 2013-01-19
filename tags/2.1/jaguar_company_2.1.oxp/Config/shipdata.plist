@@ -1,0 +1,1232 @@
+/* shipdata.plist for the Jaguar Company.
+ *
+ * Copyright © 2012 Richard Thomas Harrison (Tricky)
+ *
+ * This work is licensed under the Creative Commons
+ * Attribution-Noncommercial-Share Alike 3.0 Unported License.
+ *
+ * To view a copy of this license, visit
+ * http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
+ * to Creative Commons, 171 Second Street, Suite 300, San Francisco,
+ * California, 94105, USA.
+ *
+ * Ship data for the Jaguar Company.
+ */
+
+{
+    /* Based on the basic Cobra MK III but with placement tweaks for Griff's model
+     * and alterations to some other properties.
+     */
+    "jaguar_company_template" =
+    {
+        like_ship = "cobra3-alternate";
+
+        accuracy = 7.5;
+        aft_eject_position = "0.0 -17.0 -40.0";
+        energy_recharge_rate = 4;
+        exhaust =
+        (
+            " 10.7601 6.3008 -31.8587 6.3 5.6 9.0",
+            "-10.7601 6.3008 -31.8587 6.3 5.6 9.0"
+        );
+        frangible = no;
+        has_ecm = yes;
+        has_energy_unit = yes;
+        has_escape_pod = yes;
+        has_fuel_injection = yes;
+        has_scoop = yes;
+        has_shield_booster = yes;
+        has_shield_enhancer = 0.8;
+        is_template = yes;
+        laser_color = "redColor";
+        max_cargo = 35;
+        max_energy = 256;
+        max_flight_speed = 350;
+        max_missiles = 4;
+        missile_launch_position = "0.0 -13.7 21.06";
+        missiles = 0;
+        name = "Jaguar Company";
+        pilot = "jaguar-company-pilot";
+        scoop_position = "0.0 -9.57 7.66";
+        smooth = no;
+        thrust = 32;
+        forward_weapon_type = "WEAPON_MILITARY_LASER";
+        aft_weapon_type = "WEAPON_MILITARY_LASER";
+        weapon_position_forward   = " -0.0961 0.9367  43.4655";
+        weapon_position_aft       = "  0.0    0.0    -32.5";
+        weapon_position_port      = "-40.0    2.17    -4.33";
+        weapon_position_starboard = " 40.0    2.17    -4.33";
+    };
+
+    "jaguar_company_patrol" =
+    {
+        like_ship = "jaguar_company_template";
+
+        ai_type = "jaguar_company_patrolAI.plist";
+        auto_ai = no;
+        materials =
+        {
+            "jaguar_company_griff_cobra_mk3_mainhull_diffuse_spec.png" =
+            {
+                /* Material dictionary. */
+                diffuse_map = "jaguar_company_griff_cobra_mk3_mainhull_diffuse_spec.png";
+                specular_color = (0.2, 0.2, 0.2, 1);  // Applies when specular map is not used (no shaders)
+                shininess = 5;
+                emission_map =
+                {
+                    name = "jaguar_company_griff_cobra_mk3_mainhull_normal.png";
+                    extract_channel = "a";
+                };
+                emission_modulate_color = (0.9313, 1.0, 0.7992, 1);
+
+                /* Shader dictionary. */
+                vertex_shader = "jaguar_company_griff_normalmap_ships.vertex";
+                fragment_shader = "jaguar_company_cobra_mk3.fragment";
+                textures =
+                (
+                    "jaguar_company_griff_cobra_mk3_mainhull_diffuse_spec.png",
+                    "jaguar_company_griff_cobra_mk3_mainhull_normal.png",
+                    "jaguar_company_griff_cobra_mk3_mainhull_effects.png",
+                    "jaguar_company_decal.png"
+                );
+                uniforms =
+                {
+                    /* Texture bindings. */
+                    uColorMap =
+                    {
+                        type = texture;
+                        value = 0;
+                    };
+                    uNormalMap =
+                    {
+                        type = texture;
+                        value = 1;
+                    };
+                    uEffectsMap =
+                    {
+                        type = texture;
+                        value = 2;
+                    };
+                    uDecalMap =
+                    {
+                        type = texture;
+                        value = 3;
+                    };
+                    /* NPC ships don't have "alertCondition" so try to simulate it with the next 3 properties. */
+                    uHostileTarget = "hasHostileTarget";
+                    uStationAegis = "withinStationAegis";
+                    uScannedShips = "numberOfScannedShips";
+                    uTime = "universalTime";
+                    uNearlyDead = "throwingSparks";
+                    uHullHeatLevel = "hullHeatLevel";
+                    uEnginePower = "speedFactor";
+                    uPaintColor1 =
+                    {
+                        type = vector;
+                        value = "0.75 0.0 0.0";
+                    };
+                    uPaintColor2 =
+                    {
+                        type = vector;
+                        value = "0.33 0.2 0.0";
+                    };
+                    /* Position & scale data for the placement of the decal on your ships hull, The first 2
+                     * numbers in the vector are the decals position, the next value is the decals scale
+                     * (bigger numbers make smaller decals).
+                     * Note that decal position is in relation to the UV map for the object and not the actual mesh
+                     */
+                    uDecal_XY_Scale =
+                    {
+                        type = vector;
+                        value = "0.18 0.22 9.0";
+                    };
+                    /* Rotation for the decal (in radians). */
+                    uDecalRotation =
+                    {
+                        type = float;
+                        value = 0.7;
+                    };
+                };
+            };
+        };
+        model = "jaguar_company_griff_cobra_mk3_mainhull.dat";
+        roles = "jaguar_company_patrol jaguar_company";
+        script = "jaguar_company_patrol.js";
+        script_info =
+        {
+            /* Stop inteference from Randomship Names OXP */
+            "randomshipnames" = no;
+            /* Number of missiles the ship starts off with. */
+            "initialMissiles" = 4;
+            /* This is the missile equipment key that the ship will fire. */
+            "missileRole" = "EQ_HARDENED_MISSILE";
+        };
+        subentities =
+        (
+            {
+                subentity_key = "jaguar_company_griff_normalmapped_cobra_mk3_front_gun";
+                orientation = (1, 0, 0, 0);
+                position = (0, 0, 0);
+            },
+            {
+                subentity_key = "jaguar_company_griff_ECM_Proof_missile";
+                orientation = (0.9902, 0, 0, 0.1391);
+                position = (-58.1034, -6.6364, -22.227);
+            },
+            {
+                subentity_key = "jaguar_company_griff_ECM_Proof_missile";
+                orientation = (0.9902, 0, 0, -0.1391);
+                position = (58.1034, -6.6364, -22.227);
+            },
+            {
+                subentity_key = "jaguar_company_griff_ECM_Proof_missile";
+                orientation = (0.9902, 0, 0, 0.1391);
+                position = (-50.9515, -8.3543, -22.227);
+            },
+            {
+                subentity_key = "jaguar_company_griff_ECM_Proof_missile";
+                orientation = (0.9902, 0, 0, -0.1391);
+                position = (50.9515, -8.3543, -22.227);
+            },
+            {
+                type = "flasher";
+                initially_on = no;
+                frequency = 2;
+                phase = 0.0;
+                position = (65.0, -2.52759, -32.4579);
+                color = "greenColor";
+                size = 8.0;
+            },
+            {
+                type = "flasher";
+                initially_on = no;
+                frequency = 2.0125;
+                phase = 0.125;
+                position = (-65.0, -2.52759, -32.4579);
+                color = "redColor";
+                size = 8.0;
+            }
+        );
+    };
+
+    "jaguar_company_patrol_scuffed" =
+    {
+        like_ship = "jaguar_company_template";
+
+        ai_type = "jaguar_company_patrolAI.plist";
+        auto_ai = no;
+        materials =
+        {
+            "jaguar_company_griff_cobra_mk3_scuffed_mainhull_diffuse_spec.png" =
+            {
+                /* Material dictionary. */
+                diffuse_map = "jaguar_company_griff_cobra_mk3_scuffed_mainhull_diffuse_spec.png";
+                specular_color = (0.2, 0.2, 0.2, 1);  // Applies when specular map is not used (no shaders)
+                shininess = 5;
+                emission_map =
+                {
+                    name = "jaguar_company_griff_cobra_mk3_scuffed_mainhull_normal.png";
+                    extract_channel = "a";
+                };
+                emission_modulate_color = (0.9313, 1.0, 0.7992, 1);
+
+                /* Shader dictionary. */
+                vertex_shader = "jaguar_company_griff_normalmap_ships.vertex";
+                fragment_shader = "jaguar_company_cobra_mk3.fragment";
+                textures =
+                (
+                    "jaguar_company_griff_cobra_mk3_scuffed_mainhull_diffuse_spec.png",
+                    "jaguar_company_griff_cobra_mk3_scuffed_mainhull_normal.png",
+                    "jaguar_company_griff_cobra_mk3_scuffed_mainhull_effects.png",
+                    "jaguar_company_decal.png"
+                );
+                uniforms =
+                {
+                    /* Texture bindings. */
+                    uColorMap =
+                    {
+                        type = texture;
+                        value = 0;
+                    };
+                    uNormalMap =
+                    {
+                        type = texture;
+                        value = 1;
+                    };
+                    uEffectsMap =
+                    {
+                        type = texture;
+                        value = 2;
+                    };
+                    uDecalMap =
+                    {
+                        type = texture;
+                        value = 3;
+                    };
+                    /* NPC ships don't have "alertCondition" so try to simulate it with the next 3 properties. */
+                    uHostileTarget = "hasHostileTarget";
+                    uStationAegis = "withinStationAegis";
+                    uScannedShips = "numberOfScannedShips";
+                    uTime = "universalTime";
+                    uNearlyDead = "throwingSparks";
+                    uHullHeatLevel = "hullHeatLevel";
+                    uEnginePower = "speedFactor";
+                    uPaintColor1 =
+                    {
+                        type = vector;
+                        value = "0.75 0.0 0.0";
+                    };
+                    uPaintColor2 =
+                    {
+                        type = vector;
+                        value = "0.33 0.2 0.0";
+                    };
+                    /* Position & scale data for the placement of the decal on your ships hull, The first 2
+                     * numbers in the vector are the decals position, the next value is the decals scale
+                     * (bigger numbers make smaller decals).
+                     * Note that decal position is in relation to the UV map for the object and not the actual mesh
+                     */
+                    uDecal_XY_Scale =
+                    {
+                        type = vector;
+                        value = "0.18 0.22 9.0";
+                    };
+                    /* Rotation for the decal (in radians). */
+                    uDecalRotation =
+                    {
+                        type = float;
+                        value = 0.7;
+                    };
+                };
+            };
+        };
+        model = "jaguar_company_griff_cobra_mk3_scuffed_mainhull.dat";
+        roles = "jaguar_company_patrol jaguar_company";
+        script = "jaguar_company_patrol.js";
+        script_info =
+        {
+            /* Stop inteference from Randomship Names OXP */
+            "randomshipnames" = no;
+            /* Number of missiles the ship starts off with. */
+            "initialMissiles" = 4;
+            /* This is the missile equipment key that the ship will fire. */
+            "missileRole" = "EQ_HARDENED_MISSILE";
+        };
+        subentities =
+        (
+            {
+                subentity_key = "jaguar_company_griff_normalmapped_cobra_mk3_scuffed_front_gun";
+                orientation = (1, 0, 0, 0);
+                position = (0, 0, 0);
+            },
+            {
+                subentity_key = "jaguar_company_griff_ECM_Proof_missile";
+                orientation = (0.9902, 0, 0, 0.1391);
+                position = (-58.1034, -6.6364, -22.227);
+            },
+            {
+                subentity_key = "jaguar_company_griff_ECM_Proof_missile";
+                orientation = (0.9902, 0, 0, -0.1391);
+                position = (58.1034, -6.6364, -22.227);
+            },
+            {
+                subentity_key = "jaguar_company_griff_ECM_Proof_missile";
+                orientation = (0.9902, 0, 0, 0.1391);
+                position = (-50.9515, -8.3543, -22.227);
+            },
+            {
+                subentity_key = "jaguar_company_griff_ECM_Proof_missile";
+                orientation = (0.9902, 0, 0, -0.1391);
+                position = (50.9515, -8.3543, -22.227);
+            },
+            {
+                type = "flasher";
+                initially_on = no;
+                frequency = 2;
+                phase = 0.0;
+                position = (65.0, -2.52759, -32.4579);
+                color = "greenColor";
+                size = 8.0;
+            },
+            {
+                type = "flasher";
+                initially_on = no;
+                frequency = 2.0125;
+                phase = 0.125;
+                position = (-65.0, -2.52759, -32.4579);
+                color = "redColor";
+                size = 8.0;
+            }
+        );
+    };
+
+    "jaguar_company_griff_normalmapped_cobra_mk3_front_gun" =
+    {
+        ai_type = "nullAI.plist";
+        forward_weapon_type = "WEAPON_NONE";
+        max_energy = 100;
+        model = "jaguar_company_griff_cobra_mk3_front_gun.dat";
+        name = "Cobra Mark III - Forward Weapon";
+        roles = "jaguar_company_front_gun";
+        smooth = no;
+        shaders =
+        {
+            "jaguar_company_griff_cobra_mk3_front_gun_diffuse_spec.png" =
+            {
+                /* Shader dictionary. */
+                vertex_shader = "jaguar_company_griff_normalmap_ships.vertex";
+                fragment_shader = "jaguar_company_griff_cobra_mk3_frontgun.fragment";
+                textures =
+                (
+                    "jaguar_company_griff_cobra_mk3_front_gun_diffuse_spec.png",
+                    "jaguar_company_griff_cobra_mk3_front_gun_normal.png"
+                );
+                uniforms =
+                {
+                    /* Texture bindings. */
+                    uColorMap =
+                    {
+                        type = texture;
+                        value = 0;
+                    };
+                    uNormalMap =
+                    {
+                        type = texture;
+                        value = 1;
+                    };
+                    uTime = "universalTime";
+                    hull_heat_level = "hullHeatLevel";
+                    laser_heat_level =
+                    {
+                        binding = "laserHeatLevel";
+                        bindToSubentity = NO;
+                    };
+                };
+            };
+        };
+    };
+
+    "jaguar_company_griff_normalmapped_cobra_mk3_scuffed_front_gun" =
+    {
+        ai_type = "nullAI.plist";
+        forward_weapon_type = "WEAPON_NONE";
+        max_energy = 100;
+        model = "jaguar_company_griff_cobra_mk3_scuffed_front_gun.dat";
+        name = "Cobra Mark III - Forward Weapon (Scuffed)";
+        roles = "jaguar_company_front_gun_scuffed";
+        smooth = no;
+        shaders =
+        {
+            "jaguar_company_griff_cobra_mk3_scuffed_front_gun_diffuse_spec.png" =
+            {
+                /* Shader dictionary. */
+                vertex_shader = "jaguar_company_griff_normalmap_ships.vertex";
+                fragment_shader = "jaguar_company_griff_cobra_mk3_scuffed_frontgun.fragment";
+                textures =
+                (
+                    "jaguar_company_griff_cobra_mk3_scuffed_front_gun_diffuse_spec.png",
+                    "jaguar_company_griff_cobra_mk3_scuffed_front_gun_normal.png"
+                );
+                uniforms =
+                {
+                    /* Texture bindings. */
+                    uColorMap =
+                    {
+                        type = texture;
+                        value = 0;
+                    };
+                    uNormalMap =
+                    {
+                        type = texture;
+                        value = 1;
+                    };
+                    uTime = "universalTime";
+                    hull_heat_level = "hullHeatLevel";
+                    laser_heat_level =
+                    {
+                        binding = "laserHeatLevel";
+                        bindToSubentity = NO;
+                    };
+                };
+            };
+        };
+    };
+
+    "jaguar_company_griff_ECM_Proof_missile" =
+    {
+        accuracy = 8.0;
+        ai_type = "hardMissileAI.plist";
+        cargo_type = "CARGO_NOT_CARGO";
+        energy_recharge_rate = 0;
+        /* Z position co-ord should really somewhere around -8.03078 */
+        exhaust = ("0.0 0.0 0.2 2.0 2.0 4.0");
+        forward_weapon_type = "WEAPON_NONE";
+        materials =
+        {
+            "jaguar_company_griff_ECM_Proof_missile_diffuse.png" =
+            {
+                /* Material dictionary. */
+                diffuse_map = "jaguar_company_griff_ECM_Proof_missile_diffuse.png";
+                /* Applies when specular map is not used (no shaders). */
+                specular_color = (0.6, 0.5, 0.5, 1);
+                shininess = 10;
+                emission_map =
+                {
+                    name = "jaguar_company_griff_ECM_Proof_missile_effects.png";
+                    extract_channel = "a";
+                };
+                emission_modulate_color = (1, 0.1, 0, 1);
+
+                /* Shader dictionary. */
+                vertex_shader = "jaguar_company_griff_normalmap_ships.vertex";
+                fragment_shader = "jaguar_company_griff_ECM_Proof_missile.fragment";
+                textures =
+                (
+                    "jaguar_company_griff_ECM_Proof_missile_diffuse.png",
+                    "jaguar_company_griff_ECM_Proof_missile_normal.png",
+                    {
+                        name = "jaguar_company_griff_ECM_Proof_missile_effects.png";
+                        repeat_s = "yes";
+                        repeat_t = "yes";
+                    }
+                );
+                uniforms =
+                {
+                    /* Texture bindings. */
+                    uColorMap =
+                    {
+                        type = texture;
+                        value = 0;
+                    };
+                    uNormalMap =
+                    {
+                        type = texture;
+                        value = 1;
+                    };
+                    uEffectsMap =
+                    {
+                        type = texture;
+                        value = 2;
+                    };
+                    uTime = "universalTime";
+                    hull_heat_level = "hullHeatLevel";
+                    engine_power =
+                    {
+                        binding = "speedFactor";
+                        bindToSubentity = YES;
+                    };
+                    /* The above bindToSubentity stops the engine glowing
+                     * when the missile is carried by its parent ship.
+                     */
+                };
+            };
+        };
+        max_energy = 5;
+        max_flight_pitch = 8;
+        max_flight_roll = 10;
+        max_flight_speed = 750;
+        missiles = 0;
+        model = "jaguar_company_griff_ECM_Proof_missile.dat";
+        name = "ECM Hardened Missile";
+        roles = "missile EQ_HARDENED_MISSILE";
+        scan_class = "CLASS_MISSILE";
+        smooth = yes;
+        thrust = 250;
+        unpiloted = yes;
+        weapon_energy = 4500;
+    };
+
+    jaguar_company_asteroid =
+    {
+        like_ship = "asteroid";
+
+        roles = "jaguar_company_asteroid asteroid(0)";
+        script = "jaguar_company_asteroid.js";
+    };
+
+    jaguar_company_boulder =
+    {
+        like_ship = "boulder";
+
+        roles = "jaguar_company_boulder boulder(0)";
+        script = "jaguar_company_asteroid.js";
+    };
+
+    "jaguar_company_tug" =
+    {
+        aft_eject_position = "0.0 -8.3 -23.45";
+        ai_type = "jaguar_company_tugAI.plist";
+        auto_ai = no;
+        cargo_type = "CARGO_NOT_CARGO";
+        energy_recharge_rate = 3;
+        exhaust =
+        (
+            " 2.1109 -1.97482 -19.0 2.0 2.0 3.0",
+            "-2.1109 -1.97482 -19.0 2.0 2.0 3.0"
+        );
+        forward_weapon_type = "WEAPON_BEAM_LASER";
+        frangible = no;
+        has_escape_pod = yes;
+        has_scoop = yes;
+        hyperspace_motor = yes;
+        max_cargo = 9;
+        max_energy = 150;
+        max_flight_pitch = 1;
+        max_flight_roll = 2;
+        max_flight_speed = 200;
+        missile_launch_position = "0.0 -6.79 21.0";
+        missiles = 0;
+        materials =
+        {
+            "jaguar_company_griff_transporter_diffuse.png" =
+            {
+                specular_color = (0.2, 0.2, 0.2, 1);
+                shininess = 5;
+                emission_map =
+                {
+                    name = "jaguar_company_griff_transporter_diffuse.png";
+                    extract_channel = "a";
+                };
+                emission_modulate_color = (0.75, 0.80, 0.80, 1);
+            };
+        };
+        model = "jaguar_company_griff_transporter.dat";
+        name = "Jaguar Company Tug";
+        pilot = "jaguar-company-pilot";
+        roles = "jaguar_company_tug jaguar_company";
+        scoop_position = "0.0 -6.0 -10.5";
+        script = "jaguar_company_tug.js";
+        subentities =
+        (
+            {
+                subentity_key = "jaguar_company_base_buoy_subent";
+                orientation = (1, 0, 0, 0);
+                position = (0, 0, 60);
+            }
+        );
+        thrust = 20;
+        weapon_position_forward   = " 0.0 -3.57123  20.76385";
+        weapon_position_aft       = " 0.0  0.0     -17.5";
+        weapon_position_port      = "-9.0  0.0      11.5";
+        weapon_position_starboard = " 9.0  0.0      11.5";
+    };
+
+    "jaguar_company_miner" =
+    {
+        aft_eject_position = "0.0 -8.3 -23.45";
+        ai_type = "jaguar_company_minerAI.plist";
+        auto_ai = no;
+        cargo_type = "CARGO_NOT_CARGO";
+        energy_recharge_rate = 3;
+        exhaust =
+        (
+            " 2.1109 -1.97482 -19.0 2.0 2.0 3.0",
+            "-2.1109 -1.97482 -19.0 2.0 2.0 3.0"
+        );
+        forward_weapon_type = "WEAPON_MINING_LASER";
+        frangible = no;
+        has_escape_pod = yes;
+        has_scoop = yes;
+        hyperspace_motor = yes;
+        max_cargo = 9;
+        max_energy = 150;
+        max_flight_pitch = 1;
+        max_flight_roll = 2;
+        max_flight_speed = 200;
+        missile_launch_position = "0.0 -6.79 21.0";
+        missiles = 0;
+        materials =
+        {
+            "jaguar_company_griff_transporter_diffuse.png" =
+            {
+                specular_color = (0.2, 0.2, 0.2, 1);
+                shininess = 5;
+                emission_map =
+                {
+                    name = "jaguar_company_griff_transporter_diffuse.png";
+                    extract_channel = "a";
+                };
+                emission_modulate_color = (0.75, 0.80, 0.80, 1);
+            };
+        };
+        model = "jaguar_company_griff_transporter.dat";
+        name = "Mining Transporter";
+        pilot = "jaguar-company-pilot";
+        roles = "jaguar_company_miner jaguar_company";
+        scoop_position = "0.0 -6.0 -10.5";
+        script = "jaguar_company_miner.js";
+        thrust = 20;
+        weapon_position_forward   = " 0.0 -3.57123  20.76385";
+        weapon_position_aft       = " 0.0  0.0     -17.5";
+        weapon_position_port      = "-9.0  0.0      11.5";
+        weapon_position_starboard = " 9.0  0.0      11.5";
+    };
+
+    "jaguar_company_base_buoy_template" =
+    {
+        ai_type = "nullAI.plist";
+        auto_ai = no;
+        bounty = 0;
+        cargo_type = "CARGO_NOT_CARGO";
+        energy_recharge_rate = 2;
+        forward_weapon_type = "WEAPON_NONE";
+        is_template = yes;
+        likely_cargo = 0;
+        materials =
+        {
+            "jaguar_company_base_buoy" =
+            {
+                diffuse_map = "jaguar_company_base_buoy_diffuse.png";
+                shininess = 8;
+                specular_color = (0.55, 0.58, 0.6, 1);
+            };
+        };
+        max_cargo = 0;
+        max_energy = 250;
+        max_flight_pitch = 0;
+        max_flight_roll = 2;
+        max_flight_speed = 0;
+        missiles = 0;
+        model = "jaguar_company_base_buoy.dat";
+        name = "Jaguar Company Base Buoy";
+        scan_class = "CLASS_BUOY";
+        smooth = yes;
+        thrust = 100;
+        unpiloted = yes;
+        weapon_energy = 0;
+    };
+
+    "jaguar_company_base_buoy_subent" =
+    {
+        like_ship = "jaguar_company_base_buoy_template";
+
+        roles = "jaguar_company_base_buoy_subent";
+        /* Looks like a regular rock on the scanner until you help out in combat. */
+        scanner_display_color1 = "whiteColor";
+        scanner_display_color2 = "whiteColor";
+    };
+
+    "jaguar_company_base_buoy_no_beacon" =
+    {
+        like_ship = "jaguar_company_base_buoy_template";
+
+        roles = "jaguar_company_base_buoy_no_beacon jaguar_company_base_buoy";
+        rotational_velocity = "0.86603 0.0 0.0 0.5";
+        /* Looks like a regular rock on the scanner until you help out in combat. */
+        scanner_display_color1 = "whiteColor";
+        scanner_display_color2 = "whiteColor";
+        script = "jaguar_company_base_buoy.js";
+        subentities =
+        (
+            {
+                type = "flasher";
+                color = "greenColor";
+                initially_on = no;
+                frequency = 1;
+                phase = 0;
+                position = (0, 29.932906, 18.938088);
+                size = 15;
+            },
+            {
+                type = "flasher";
+                color = "redColor";
+                initially_on = no;
+                frequency = 1;
+                phase = 0.5;
+                position = (0, -29.932906, 18.938088);
+                size = 15;
+            },
+            {
+                type = "flasher";
+                color = "redColor";
+                initially_on = no;
+                frequency = 0;
+                phase = 0;
+                position = (110.408198, 0.0, -61.441331);
+                size = 15;
+            }
+        );
+    };
+
+    "jaguar_company_base_buoy_beacon" =
+    {
+        like_ship = "jaguar_company_base_buoy_template";
+
+        beacon = "Jaguar Company Base Buoy";
+        roles = "jaguar_company_base_buoy_beacon jaguar_company_base_buoy";
+        rotational_velocity = "0.86603 0.0 0.0 0.5";
+        script = "jaguar_company_base_buoy.js";
+        subentities =
+        (
+            {
+                type = "flasher";
+                color = "greenColor";
+                initially_on = no;
+                frequency = 1;
+                phase = 0;
+                position = (0, 29.932906, 18.938088);
+                size = 15;
+            },
+            {
+                type = "flasher";
+                color = "redColor";
+                initially_on = no;
+                frequency = 1;
+                phase = 0.5;
+                position = (0, -29.932906, 18.938088);
+                size = 15;
+            },
+            {
+                type = "flasher";
+                color = "redColor";
+                initially_on = no;
+                frequency = 0;
+                phase = 0;
+                position = (110.408198, 0.0, -61.441331);
+                size = 15;
+            }
+        );
+    };
+
+    "jaguar_company_tracker" =
+    {
+        ai_type = "nullAI.plist";
+        auto_ai = no;
+        beacon = "Tracker: Jaguar Company Patrol";
+        bounty = 0;
+        cargo_type = "CARGO_NOT_CARGO";
+        density = 0.000001;
+        energy_recharge_rate = 20000;
+        forward_weapon_type = "WEAPON_NONE";
+        likely_cargo = 0;
+        materials =
+        {
+            "jaguar_company_invisible_tracker" =
+            {
+                diffuse_map = "jaguar_company_invisible_tracker_diffuse.png";
+                shininess = 1;
+                specular_color = (0, 0, 0, 1);
+            };
+        };
+        max_cargo = 0;
+        max_energy = 20000;
+        max_flight_pitch = 0;
+        max_flight_roll = 0;
+        max_flight_speed = 1;
+        missiles = 0;
+        model = "jaguar_company_invisible_tracker.dat";
+        name = "Tracker: Jaguar Company Patrol";
+        roles = "jaguar_company_tracker";
+        scan_class = "CLASS_NO_DRAW";
+        script = "jaguar_company_tracker.js";
+        smooth = no;
+        thrust = 0;
+        unpiloted = yes;
+        weapon_energy = 0;
+    };
+
+    "jaguar_company_base_template" =
+    {
+        accuracy = 7.5;
+        ai_type = "jaguar_company_baseAI.plist";
+        allows_auto_docking = no;
+        auto_ai = no;
+        cargo_type = "CARGO_NOT_CARGO";
+        energy_recharge_rate = 100;
+        equivalent_tech_level = 15;
+        forward_weapon_type = "WEAPON_NONE";
+        frangible = no;
+        has_ecm = yes;
+        has_escape_pod = no;
+        has_npc_traffic = yes;
+        has_patrols_ships = no;
+        has_scoop = no;
+        has_shipyard = 0.0;
+        interstellar_undocking = yes;
+        is_template = yes;
+        materials =
+        {
+            "jaguar_company_base" =
+            {
+                /* Material dictionary. */
+                diffuse_map = "jaguar_company_base_diffuse.png";
+                shininess = 2;
+                specular_color = (0.1, 0.1, 0.1, 1);
+
+                /* Shader dictionary. */
+                vertex_shader = "jaguar_company_base.vertex";
+                fragment_shader = "jaguar_company_base.fragment";
+                textures =
+                (
+                    "jaguar_company_base_diffuse.png",
+                    "jaguar_company_base_normal.png"
+                );
+                uniforms =
+                {
+                    /* Texture bindings. */
+                    uDiffuseTexture =
+                    {
+                        type = texture;
+                        value = 0;
+                    };
+                    uNormalTexture =
+                    {
+                        type = texture;
+                        value = 1;
+                    };
+                    uSpecExponent = 2.0;
+                };
+            };
+        };
+        max_defense_ships = 0;
+        max_energy = 25000;
+        max_flight_pitch = 0;
+        max_flight_roll = 0;
+        max_flight_speed = 0;
+        max_police = 0;
+        max_scavengers = 1;
+        missiles = 0;
+        model = "jaguar_company_base.dat";
+        name = "Jaguar Company Base";
+        requires_docking_clearance = yes;
+        rotating = no;
+        scan_class = "CLASS_STATION";
+        smooth = no;
+        subentities =
+        (
+            {
+                subentity_key = "jaguar_company_base_bay";
+                is_dock = yes;
+                orientation = (1, 0, 0, 0);
+                position = (0, 0, 0);
+            },
+            {
+                subentity_key = "jaguar_company_base_turret_holders";
+                orientation = (1, 0, 0, 0);
+                position = (0, 0, 0);
+            },
+            /* Front Left. */
+            {
+                subentity_key = "jaguar_company_base_turret1";
+                type = "ball_turret";
+                orientation = (1, 0, 0, 0);
+                position = (244.701057, 170.946766, 537.903804);
+                fire_rate = 0.75;
+                weapon_energy = 25.0;
+            },
+            /* Front Right. */
+            {
+                subentity_key = "jaguar_company_base_turret2";
+                type = "ball_turret";
+                orientation = (1, 0, 0, 0);
+                position = (-215.544845, 153.468942, 592.0113);
+                fire_rate = 0.75;
+                weapon_energy = 25.0;
+            },
+            /* Aft. */
+            {
+                subentity_key = "jaguar_company_base_turret3";
+                type = "ball_turret";
+                orientation = (0, 1, 0, 0);
+                position = (-14.462592, 11.316509, -598.445476);
+                fire_rate = 0.5;
+                weapon_energy = 15.0;
+            },
+            /* Top. */
+            {
+                subentity_key = "jaguar_company_base_turret4";
+                type = "ball_turret";
+                orientation = (1, 1, 0, 0);
+                position = (-14.985583, 570.13178, 107.355829);
+                fire_rate = 0.5;
+                weapon_energy = 15.0;
+            },
+            /* Bottom. */
+            {
+                subentity_key = "jaguar_company_base_turret5";
+                type = "ball_turret";
+                orientation = (-1, 1, 0, 0);
+                position = (79.081946, -702.147072, 41.443001);
+                fire_rate = 0.5;
+                weapon_energy = 15.0;
+            },
+            /* Left. (Looking from front) */
+            {
+                subentity_key = "jaguar_company_base_turret6";
+                type = "ball_turret";
+                orientation = (-1, 0, 1, 0);
+                position = (610.441365, -82.745437, -54.676959);
+                fire_rate = 0.5;
+                weapon_energy = 15.0;
+            },
+            /* Right. (Looking from front) */
+            {
+                subentity_key = "jaguar_company_base_turret7";
+                type = "ball_turret";
+                orientation = (1, 0, 1, 0);
+                position = (-673.718429, 4.86121, 78.219747);
+                fire_rate = 0.5;
+                weapon_energy = 15.0;
+            }
+        );
+        thrust = 100;
+        tunnel_aspect_ratio = 2.737;
+        tunnel_corners = 4;
+        tunnel_start_angle = 45;
+   };
+
+    "jaguar_company_base_no_discount" =
+    {
+        like_ship = "jaguar_company_base_template";
+
+        /* 250% markup on equipment. */
+        equipment_price_factor = 2.5;
+        market = "jaguar_company_base_normal_market";
+        roles = "jaguar_company_base_no_discount jaguar_company_base station";
+        /* Looks like a regular rock on the scanner until you help out in combat. */
+        scanner_display_color1 = "whiteColor";
+        scanner_display_color2 = "whiteColor";
+        script = "jaguar_company_base.js";
+        script_info =
+        {
+            /* Stop inteference from Randomship Names OXP */
+            "randomshipnames" = no;
+        };
+    };
+
+    "jaguar_company_base_discount" =
+    {
+        like_ship = "jaguar_company_base_template";
+
+        /* 5% discount on equipment. */
+        equipment_price_factor = 0.95;
+        market = "jaguar_company_base_helper_market";
+        roles = "jaguar_company_base_discount jaguar_company_base station";
+        script = "jaguar_company_base.js";
+        script_info =
+        {
+            /* Stop inteference from Randomship Names OXP */
+            "randomshipnames" = no;
+        };
+    };
+
+   "jaguar_company_base_bay" =
+    {
+        ai_type = "nullAI.plist";
+        materials =
+        {
+            "jaguar_company_base_bay" =
+            {
+                /* Material dictionary */
+                diffuse_map = "jaguar_company_base_bay_diffuse.png";
+                shininess = 2;
+                specular_color = (0.1, 0.1, 0.1, 1);
+
+                /* Shader dictionary. */
+                vertex_shader = "jaguar_company_base.vertex";
+                fragment_shader = "jaguar_company_base.fragment";
+                textures =
+                (
+                    "jaguar_company_base_bay_diffuse.png",
+                    "jaguar_company_base_bay_normal.png"
+                );
+                uniforms =
+                {
+                    /* Texture bindings. */
+                    uDiffuseTexture =
+                    {
+                        type = texture;
+                        value = 0;
+                    };
+                    uNormalTexture =
+                    {
+                        type = texture;
+                        value = 1;
+                    };
+                    uSpecExponent = 2.0;
+                };
+            };
+        };
+        model = "jaguar_company_base_bay.dat";
+        name = "Jaguar Company Base Docking Bay";
+        roles = "jaguar_company_base_bay docking-slit";
+        smooth = no;
+    };
+
+    "jaguar_company_base_turret1" =
+    {
+        ai_type = "nullAI.plist";
+        laser_color = "redColor";
+        materials =
+        {
+            "jaguar_company_base_turret_ball" =
+            {
+                /* Material dictionary */
+                diffuse_map = "jaguar_company_base_turret_ball_diffuse.png";
+                shininess = 16;
+                specular_color = (0.1, 0.1, 0.1, 1);
+
+                /* Shader dictionary. */
+                vertex_shader = "jaguar_company_base.vertex";
+                fragment_shader = "jaguar_company_base_effects.fragment";
+                textures =
+                (
+                    "jaguar_company_base_turret_ball_diffuse.png",
+                    "jaguar_company_base_turret_ball_normal.png",
+                    "jaguar_company_base_turret_ball_effects.png"
+                );
+                uniforms =
+                {
+                    /* Texture bindings. */
+                    uDiffuseTexture =
+                    {
+                        type = texture;
+                        value = 0;
+                    };
+                    uNormalTexture =
+                    {
+                        type = texture;
+                        value = 1;
+                    };
+                    uEffectsTexture =
+                    {
+                        type = texture;
+                        value = 2;
+                    };
+                    uSpecExponent = 16.0;
+                    uTime = "universalTime";
+                    uLightsActive = "lightsActive";
+                };
+            };
+            "jaguar_company_base_turret_gun" =
+            {
+                /* Material dictionary */
+                diffuse_map = "jaguar_company_base_turret_gun_diffuse.png";
+                shininess = 16;
+                specular_color = (0.1, 0.1, 0.1, 1);
+
+                /* Shader dictionary. */
+                vertex_shader = "jaguar_company_base.vertex";
+                fragment_shader = "jaguar_company_base_effects.fragment";
+                textures =
+                (
+                    "jaguar_company_base_turret_gun_diffuse.png",
+                    "jaguar_company_base_turret_gun_normal.png",
+                    "jaguar_company_base_turret_gun_effects.png"
+                );
+                uniforms =
+                {
+                    /* Texture bindings. */
+                    uDiffuseTexture =
+                    {
+                        type = texture;
+                        value = 0;
+                    };
+                    uNormalTexture =
+                    {
+                        type = texture;
+                        value = 1;
+                    };
+                    uEffectsTexture =
+                    {
+                        type = texture;
+                        value = 2;
+                    };
+                    uSpecExponent = 16.0;
+                    uTime = "universalTime";
+                    uLightsActive = "lightsActive";
+                };
+           };
+        };
+        model = "jaguar_company_base_turret.dat";
+        name = "Jaguar Company Base Ball Turret";
+        roles = "jaguar_company_base_turret";
+        smooth = no;
+        thrust = 0.5;
+    };
+
+    "jaguar_company_base_turret2" =
+    {
+        like_ship = "jaguar_company_base_turret1";
+        model = "jaguar_company_base_turret.dat";
+        roles = "jaguar_company_base_turret";
+    };
+
+    "jaguar_company_base_turret3" =
+    {
+        like_ship = "jaguar_company_base_turret1";
+        model = "jaguar_company_base_turret.dat";
+        roles = "jaguar_company_base_turret";
+    };
+
+    "jaguar_company_base_turret4" =
+    {
+        like_ship = "jaguar_company_base_turret1";
+        model = "jaguar_company_base_turret.dat";
+        roles = "jaguar_company_base_turret";
+    };
+
+    "jaguar_company_base_turret5" =
+    {
+        like_ship = "jaguar_company_base_turret1";
+        model = "jaguar_company_base_turret.dat";
+        roles = "jaguar_company_base_turret";
+    };
+
+    "jaguar_company_base_turret6" =
+    {
+        like_ship = "jaguar_company_base_turret1";
+        model = "jaguar_company_base_turret.dat";
+        roles = "jaguar_company_base_turret";
+    };
+
+    "jaguar_company_base_turret7" =
+    {
+        like_ship = "jaguar_company_base_turret1";
+        model = "jaguar_company_base_turret.dat";
+        roles = "jaguar_company_base_turret";
+    };
+
+    "jaguar_company_base_turret_holders" =
+    {
+        ai_type = "nullAI.plist";
+        materials =
+        {
+            "jaguar_company_base_turret_holder" =
+            {
+                /* Material dictionary. */
+                diffuse_map = "jaguar_company_base_turret_holder_diffuse.png";
+                shininess = 16;
+                specular_color = (0.1, 0.1, 0.1, 1);
+
+                /* Shader dictionary. */
+                vertex_shader = "jaguar_company_base.vertex";
+                fragment_shader = "jaguar_company_base.fragment";
+                textures =
+                (
+                    "jaguar_company_base_turret_holder_diffuse.png",
+                    "jaguar_company_base_turret_holder_normal.png"
+                );
+                uniforms =
+                {
+                    /* Texture bindings. */
+                    uDiffuseTexture =
+                    {
+                        type = texture;
+                        value = 0;
+                    };
+                    uNormalTexture =
+                    {
+                        type = texture;
+                        value = 1;
+                    };
+                    uSpecExponent = 16.0;
+                };
+            };
+        };
+        model = "jaguar_company_base_turret_holders.dat";
+        name = "Jaguar Company Base Ball Turret Holders";
+        roles = "jaguar_company_base_turret_holders";
+        smooth = no;
+    };
+}

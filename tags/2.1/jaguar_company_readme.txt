@@ -1,4 +1,4 @@
-Jaguar Company 2.2 (2012-12-02)
+Jaguar Company 2.1 (2012-12-02)
 
 Sometime ago I posted some images on the Screenshots thread ( http://aegidian.org/bb/viewtopic.php?f=2&t=4494 ) of the
 Oolite BB ( http://aegidian.org/bb/ ), of what is possible with Griff's multi-decal Player Cobra Mk III OXP.
@@ -10,6 +10,7 @@ TOC
 Overview
 Requirements
 Optional OXPs
+Downloads
 Install
 Uninstall
 Oolite v1.77 and newer
@@ -36,13 +37,19 @@ Optional OXPs
 This is highly recommended.
     Talkative Space Compass - Easy identification of the beacon codes. (Or a HUD that does similar reporting.)
 
+Downloads
+---------
+    https://www.box.com/s/xqun8pfj2qotdsx0xq11 (box.com)
+    https://dl.dropbox.com/u/31706855/Oolite/OXPs/jaguar_company_2.1.zip (dropbox.com)
+    rsync://ebspso.dnsalias.org/jaguar_company_2.1 or ebspso.dnsalias.org::jaguar_company_2.1 (rsync)
+
 Install
 -------
-After unzipping, move or copy the folder, "jaguar_company_2.2.oxp", into your AddOns directory.
+After unzipping, move or copy the folder, "jaguar_company_2.1.oxp", into your AddOns directory.
 
 Uninstall
 ---------
-Delete the directory, "jaguar_company_2.2.oxp", from your AddOns directory.
+Delete the directory, "jaguar_company_2.1.oxp", from your AddOns directory.
 
 Oolite v1.77 and newer
 ----------------------
@@ -51,11 +58,15 @@ in the Scripts directory.
 
 Version History
 ---------------
-v2.2 (2012-12-02)
-    Wrong variable in the buoy script.
-    Corrected a logic check in the asteroid script.
-    Optimized the cleanup code in jaguar_company_attackers.js
-    Fewer boulders.
+v2.1 (2012-12-02)
+    Thargoids and tharglets always returns true in $isHostile check.
+    There is a safe zone of 30km around the base.
+        NB: The safe zone does not extend to known attackers.
+    Took out some ship script event handlers and AI sendScriptMessage functions from the base, buoy, miner and tug ship
+      scripts that is inserted by $addFriendly.
+    Fixed colour bug with the tracker. Didn't start off red if the target was behind the player.
+    Fixed name error for $performJaguarCompanyAttackTarget in $addFriendly.
+    Fixed sun check error if no sun exists.
 
 For a full version history see jaguar_company_changelog.txt in the directory you loaded this readme file from.
 

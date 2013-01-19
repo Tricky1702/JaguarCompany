@@ -27,7 +27,7 @@ strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Script to initialise the Jaguar Company attackers.";
-    this.version = "1.2";
+    this.version = "1.1";
 
     /* Private variable. */
     var p_attackers = {};
@@ -543,12 +543,12 @@ strict: true, curly: true */
 
                 /* Remove the player from the real attackers array. */
                 this.$removeAttacker(attackerKey);
-            } else {
+            } else if (!attacker.hostile) {
                 /* Cache the length. */
                 victimsLength = attacker.victims.length;
 
                 if (p_attackers.logging && p_attackers.logExtra) {
-                    logMsg += ", checking victims...";
+                    logMsg += ", not hostile - checking victims...";
                 }
 
                 for (victimsCounter = 0; victimsCounter < victimsLength; victimsCounter += 1) {
@@ -571,7 +571,7 @@ strict: true, curly: true */
 
                         /* Remove the invalid victim from the real victims array. */
                         this.$removeVictimFromAttacker(victimKey, attackerKey);
-                    } else if (!attacker.hostile && clock.seconds - victim.attackTime > 5) {
+                    } else if (clock.seconds - victim.attackTime > 5) {
                         if (p_attackers.logging && p_attackers.logExtra) {
                             logMsg += ", removing (no longer attacked)";
                         }
