@@ -1,4 +1,4 @@
-Jaguar Company 1.7 (2012-07-21)
+Jaguar Company 1.6.2 (2012-07-14)
 
 A work in progress OXP.
 
@@ -38,21 +38,14 @@ Downloads
 
 Install
 -------
-After unzipping, move or copy the folder, "jaguar_company_1.7.oxp", into your AddOns directory.
+After unzipping, move or copy the folder, "jaguar_company_1.6.2.oxp", into your AddOns directory.
 
 Uninstall
 ---------
-Delete the directory, "jaguar_company_1.7.oxp", from your AddOns directory.
+Delete the directory, "jaguar_company_1.6.2.oxp", from your AddOns directory.
 
 Version History
 ---------------
-v1.7 (2012-07-21)
-    Simplified the intercept AI.
-    Heavily commented the scripts and AIs.
-    Stray comma in pirate-victim-roles.plist removed.
-    Used Obj2DatTexNorm.py on the models and preserved the material names.
-    Modified the shipdata to use the material names.
-    Relaxed distance code to cope with battalion sized groups. (64 ships tested)
 v1.6.2 (2012-07-14)
     Bug fix for the ship script.
     Bug fix to the waypoint AI. Never exited the stock AI.
@@ -93,17 +86,9 @@ v1.0 (2012-06-07)
 
 Future Versions
 ---------------
-Jaguar Company to start off docked at the base and dock when finished their patrol.
-Launch from the base to start patrol.
-Torus drive sync for the boring bits.
+Jaguar Company to start off docked at the base.
 Currently if you attack Jaguar Company and then run away they forget about you. This will need to be changed.
 AI for the base needs to be written.
-Black box base and Jaguar Company locator.
-Check for player helping. Can this be done?
-Market for the base.
-Discount for "friends".
-Welcome message on docking.
-Integration with Snoopers OXP if available.
 
 Copyright
 ---------

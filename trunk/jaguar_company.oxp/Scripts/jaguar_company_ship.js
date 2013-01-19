@@ -1,54 +1,68 @@
-/*jslint indent: 4, maxerr: 50, white: true, browser: false, undef: true, nomen: true, plusplus: true, bitwise: true, regexp: true, newcap: true, sloppy: false */
+/*jslint indent: 4, maxerr: 50, white: true, browser: false, evil: true, es5: true, undef: true, nomen: true, plusplus: true, bitwise: true, regexp: true, newcap: true, sloppy: false */
+/*jshint browser: false, devel: false, es5: true, node: false, bitwise: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true, strict: true, jquery: false */
 
 /* Jaguar Company
-**
-** Copyright (C) 2012 Tricky
-**
-** This work is licensed under the Creative Commons
-** Attribution-Noncommercial-Share Alike 3.0 Unported License.
-**
-** To view a copy of this license, visit
-** http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
-** to Creative Commons, 171 Second Street, Suite 300, San Francisco,
-** California, 94105, USA.
-**
-** Ship related functions for the patrol AI.
-** Missile subentity loading based on tgGeneric_externalMissiles.js by Thargoid
-*/
+ *
+ * Copyright (C) 2012 Tricky
+ *
+ * This work is licensed under the Creative Commons
+ * Attribution-Noncommercial-Share Alike 3.0 Unported License.
+ *
+ * To view a copy of this license, visit
+ * http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
+ * to Creative Commons, 171 Second Street, Suite 300, San Francisco,
+ * California, 94105, USA.
+ *
+ * Ship related functions for the patrol and intercept AIs.
+ * Missile subentity loading based on tgGeneric_externalMissiles.js by Thargoid
+ */
 
 this.name = "jaguar_company_ship.js";
 this.author = "Tricky";
 this.copyright = "© 2012 Tricky";
 this.license = "CC BY-NC-SA 3.0";
 this.description = "Ship script for the Jaguar Company.";
-this.version = "1.3";
+this.version = "1.6";
 
 (function () {
     "use strict";
 
-    this.$jaguarCompanyScript = worldScripts["Jaguar Company"];
+    /* Private variables. */
+    var $jaguarCompanyScript,
+    $distanceClose,
+    $distanceNearby,
+    $distanceFarAway,
+    $missileRole;
 
-    if (this.$jaguarCompanyScript.$logAIMessages) {
-        this.ship.reportAIMessages = true;
-    }
+    $jaguarCompanyScript = worldScripts["Jaguar Company"];
 
-    this.$currentRoute = "JAGUAR_COMPANY_BASE_TO_WP";
-    this.$attacking = false;
+    /* Standard distances. */
+    $distanceClose = 7500.0;
+    $distanceNearby = 15000.0;
+    $distanceFarAway = 22500.0;
 
-    /* Thargoid's missile code. */
-    this.shipSpawned = function shipSpawned() {
+    this.shipSpawned = function () {
         var initialMissiles,
         addCounter;
 
-        this.ship.displayName = this.$jaguarCompanyScript.$uniqueShipName();
+        if ($jaguarCompanyScript.$logAIMessages) {
+            this.ship.reportAIMessages = true;
+        }
 
+        /* Increase the number of ships in the system. */
+        $jaguarCompanyScript.$numShips++;
+
+        /* Get a unique name for the ship. */
+        this.ship.displayName = $jaguarCompanyScript.$uniqueShipName();
+
+        /* Thargoid's missile code. */
         /* just to ensure ship is fully loaded with selected missile type and nothing else. */
         if (this.ship.scriptInfo.missileRole) {
             /* missileRole should be defined in shipdata.plist */
-            this.$missileRole = this.ship.scriptInfo.missileRole;
+            $missileRole = this.ship.scriptInfo.missileRole;
         } else {
             /* default to standard missile if not. */
-            this.$missileRole = "EQ_HARDENED_MISSILE";
+            $missileRole = "EQ_HARDENED_MISSILE";
         }
 
         if (this.ship.scriptInfo.initialMissiles) {
@@ -63,21 +77,21 @@ this.version = "1.3";
         }
 
         for (addCounter = 0; addCounter < initialMissiles; addCounter++) {
-            this.ship.awardEquipment(this.$missileRole);
+            this.ship.awardEquipment($missileRole);
         }
     };
 
     /* Thargoid's missile code. */
-    this.shipFiredMissile = function shipFiredMissile(missile, target) {
+    this.shipFiredMissile = function (missile, target) {
         var subCounter,
         subEntities,
         subEntity;
 
-        function $localToGlobal(thisShip, position) {
+        function $localToGlobal(thisShip, subEntityPosition) {
             /* sub-ent position is relative to mother, but for swapping we need the absolute global position. */
             var orientation = thisShip.orientation;
 
-            return thisShip.position.add(position.rotateBy(orientation));
+            return thisShip.position.add(subEntityPosition.rotateBy(orientation));
         }
 
         subEntities = this.ship.subEntities;
@@ -108,7 +122,7 @@ this.version = "1.3";
     };
 
     /* Thargoid's missile code. */
-    this.shipTakingDamage = function shipTakingDamage(amount, fromEntity, damageType) {
+    this.shipTakingDamage = function (amount, fromEntity, damageType) {
         var subEntities,
         subEntity,
         missiles,
@@ -130,7 +144,7 @@ this.version = "1.3";
 
         /* Initially set subCounter to number of sub-ents minus 1 (as entity array goes up from zero). */
         for (subCounter = subEntities.length - 1; subCounter >= 0; subCounter--) {
-            if (subEntities[subCounter].hasRole(this.$missileRole)) {
+            if (subEntities[subCounter].hasRole($missileRole)) {
                 /* if the sub-ent is a missile, count it. */
                 missileSubs++;
             }
@@ -149,7 +163,7 @@ this.version = "1.3";
             if (missileSubs > 0) {
                 for (missileCounter = 0; missileCounter < missileSubs; missileCounter++) {
                     /* restock with the correct number of selected missile. */
-                    this.ship.awardEquipment(this.$missileRole);
+                    this.ship.awardEquipment($missileRole);
                 }
             }
 
@@ -166,7 +180,7 @@ this.version = "1.3";
                 for (subCounter = subEntities.length - 1; subCounter >= 0; subCounter--) {
                     subEntity = subEntities[subCounter];
 
-                    if (subEntity.hasRole(this.$missileRole)) {
+                    if (subEntity.hasRole($missileRole)) {
                         /* if the sub-ent is a missile, remove it. */
                         subEntity.remove();
 
@@ -179,18 +193,21 @@ this.version = "1.3";
         }
     };
 
-    this.shipDied = function shipDied(whom, why) {
-        this.$jaguarCompanyScript.$numShips--;
+    /* Decrease the number of ships in the system if we die. */
+    this.shipDied = function (whom, why) {
+        $jaguarCompanyScript.$numShips--;
 
-        if (this.$jaguarCompanyScript.$logging) {
-            log(this.name, "Ship: " + this.ship.displayName + " was destroyed by " + whom + ", reason: " + why);
+        if ($jaguarCompanyScript.$logging && $jaguarCompanyScript.$logExtra) {
+            log(this.name, "Ship: " + this.ship.displayName +
+                " was destroyed by " + whom.displayName +
+                ", reason: " + why);
         }
     };
 
     /* Not doing any exotic routes for now. */
     /* route: Base->WP, WP->PLANET, PLANET->WP, WP->Base */
-    this.$checkRoute = function $checkRoute() {
-        switch (this.$currentRoute) {
+    this.$checkCurrentRoute = function () {
+        switch ($jaguarCompanyScript.$getCurrentRoute()) {
         case "JAGUAR_COMPANY_BASE_TO_WP":
             this.ship.reactToAIMessage("JAGUAR_COMPANY_WITCHPOINT_FROM_BASE");
             break;
@@ -209,233 +226,304 @@ this.version = "1.3";
         }
     };
 
-    /* Change our current route. */
-    this.$changeRoute = function $changeRoute() {
-        switch (this.$currentRoute) {
-        case "JAGUAR_COMPANY_BASE_TO_WP":
-            this.$currentRoute = "JAGUAR_COMPANY_WP_TO_PLANET";
-            break;
-        case "JAGUAR_COMPANY_WP_TO_PLANET":
-            this.$currentRoute = "JAGUAR_COMPANY_PLANET_TO_WP";
-            break;
-        case "JAGUAR_COMPANY_PLANET_TO_WP":
-            this.$currentRoute = "JAGUAR_COMPANY_WP_TO_BASE";
-            break;
-        case "JAGUAR_COMPANY_WP_TO_BASE":
-            this.$currentRoute = "JAGUAR_COMPANY_BASE_TO_WP";
-            break;
-        default:
-            /* Should never trigger. Better safe than sorry though. */
-            this.$currentRoute = "JAGUAR_COMPANY_BASE_TO_WP";
+    /* Finished the current route, change to the next one. */
+    this.$finishedCurrentRoute = function () {
+        var otherShips,
+        otherShipsLength,
+        otherShipsCounter;
+
+        otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship);
+        /* Cache the length. */
+        otherShipsLength = otherShips.length;
+
+        if (otherShipsLength !== $jaguarCompanyScript.$numShips - 1) {
+            /* Wait until all ships have been spawned. */
+            return;
         }
-    };
 
-    /* Finished the current route, change to the next one and tell other ships to change. */
-    this.$finishedRoute = function $finishedRoute() {
-        var otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship),
-        otherShipCounter;
+        $jaguarCompanyScript.$changeCurrentRoute();
 
-        this.$changeRoute();
+        if (otherShipsLength === 0) {
+            /* Return immediately if we are on our own. */
+            return;
+        }
 
-        /* Tell all other ships to change route. */
-        for (otherShipCounter = 0; otherShipCounter < otherShips.length; otherShipCounter++) {
-            otherShips[otherShipCounter].AIState = "CHANGE_ROUTE";
+        for (otherShipsCounter = 0; otherShipsCounter < otherShipsLength; otherShipsCounter++) {
+            /* Force all other ships to regroup. This ship is already regrouping. */
+            otherShips[otherShipsCounter].reactToAIMessage("JAGUAR_COMPANY_REGROUP");
         }
     };
 
     /* Find the average distance to all the other ships. */
-    this.$queryAverageDistance = function $queryAverageDistance(ships) {
-        var averageDistance = 0.0,
-        logStr,
-        shipCounter;
+    this.$queryAverageDistance = function (otherShips) {
+        var averageDistance,
+        otherShipsLength,
+        otherShipsCounter,
+        otherShip,
+        distance;
 
-        if (this.$jaguarCompanyScript.$logging && this.$jaguarCompanyScript.$logExtra) {
-            logStr = this.ship.displayName + " => ";
-        }
+        averageDistance = 0.0;
+        /* Cache the length. */
+        otherShipsLength = otherShips.length;
 
-        for (shipCounter = 0; shipCounter < ships.length; shipCounter++) {
-            if (this.$jaguarCompanyScript.$logging && this.$jaguarCompanyScript.$logExtra) {
-                logStr += ships[shipCounter].displayName + " = " + this.ship.position.distanceTo(ships[shipCounter].position);
-
-                if (shipCounter !== ships.length - 1) {
-                    logStr += ", ";
-                }
-            }
-
-            /* Add up the distances. */
-            averageDistance += this.ship.position.distanceTo(ships[shipCounter].position);
+        for (otherShipsCounter = 0; otherShipsCounter < otherShipsLength; otherShipsCounter++) {
+            otherShip = otherShips[otherShipsCounter];
+            /* Centre to centre distance. */
+            distance = this.ship.position.distanceTo(otherShip.position);
+            /* Take off half the collision radius of this ship. */
+            distance -= (this.ship.collisionRadius / 2.0);
+            /* Take off half the collision radius of the other ship. */
+            distance -= (otherShip.collisionRadius / 2.0);
+            /* Add this distance to all the other distances. */
+            averageDistance += distance;
         }
 
         /* Average all the distances. */
-        averageDistance /= ships.length;
-
-        if (this.$jaguarCompanyScript.$logging && this.$jaguarCompanyScript.$logExtra) {
-            log(this.name, "Avg: " + averageDistance + " (" + logStr + ")");
-        }
+        averageDistance /= otherShipsLength;
 
         return averageDistance;
     };
 
     /* Find the others ships and set the target to the one furthest away. */
-    this.$locateJaguarCompany = function $locateJaguarCompany() {
-        var otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship);
+    this.$locateJaguarCompany = function () {
+        var otherShips,
+        otherShipsLength;
 
-        if (otherShips.length === 0) {
+        otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship);
+        /* Cache the length. */
+        otherShipsLength = otherShips.length;
+
+        if (otherShipsLength === 0) {
             /* We are on our own. */
             this.ship.reactToAIMessage("JAGUAR_COMPANY_NOT_FOUND");
 
             return;
         }
 
-        /* Even though the ships may have been added, all the ships may not have been spawned. */
-        if (otherShips.length !== this.$jaguarCompanyScript.$numShips - 1) {
+        if (otherShipsLength !== $jaguarCompanyScript.$numShips - 1) {
+            /* Wait until all the ships have been spawned. */
             return;
         }
 
         /* The last one in the ships array is the one furthest away. */
-        this.ship.target = otherShips[otherShips.length - 1];
+        this.ship.target = otherShips[otherShipsLength - 1];
         this.ship.reactToAIMessage("JAGUAR_COMPANY_FOUND");
     };
 
-    this.$checkJaguarCompanyDistance = function $checkJaguarCompanyDistance() {
-        var otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship),
-        distance;
+    this.$checkJaguarCompanyClosestDistance = function (minimumDistance) {
+        var actualDistance,
+        otherShips;
+
+        /* More ships will increase the distance. */
+        actualDistance = minimumDistance * Math.ceil($jaguarCompanyScript.$numShips / 16.0);
+        /* Take off the collision radius of this ship. */
+        actualDistance -= this.ship.collisionRadius;
+        otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship, actualDistance);
 
         if (otherShips.length === 0) {
-            /* We are on our own. */
-            return;
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_DISTANCE_OK");
+        } else {
+            /* If we are less than the minimum distance from the closest ship then we need to move away. */
+            this.ship.target = otherShips[0];
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_TOO_CLOSE");
         }
 
-        /* Even though the ships may have been added, all the ships may not have been spawned. */
-        if (otherShips.length !== this.$jaguarCompanyScript.$numShips - 1) {
+        return;
+    };
+
+    this.$checkJaguarCompanyAverageDistance = function () {
+        var otherShips,
+        otherShipsLength,
+        modifier,
+        averageDistance,
+        close,
+        nearby,
+        farAway;
+
+        otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship);
+        /* Cache the length. */
+        otherShipsLength = otherShips.length;
+
+        if (otherShipsLength === 0 ||
+            otherShipsLength !== $jaguarCompanyScript.$numShips - 1) {
+            /* Return immediately for any one of these conditions.
+             *
+             * 1. We are on our own.
+             * 2. Wait until all ships have been spawned.
+             */
             return;
         }
 
         /* Find the average distance to all the other ships. */
-        distance = this.$queryAverageDistance(otherShips);
+        averageDistance = this.$queryAverageDistance(otherShips);
+
+        /* The more ships there are the further the standard distances will need to be. */
+        modifier = Math.ceil($jaguarCompanyScript.$numShips / 16.0);
+        close = $distanceClose * modifier;
+        nearby = $distanceNearby * modifier;
+        farAway = $distanceFarAway * modifier;
 
         /* I would love to create a fuzzy logic controller for this. */
-        if (distance < 7500.0) {
-            /* If the average distance is less than 7.5km then we have regrouped. */
+        if (averageDistance < close) {
+            /* We have regrouped. */
             this.ship.reactToAIMessage("JAGUAR_COMPANY_REGROUPED");
-        } else if (distance >= 7500.0 && distance < 15000.0) {
-            /* If the average distance is between 7.5km and 15km then we are close. */
+        } else if (averageDistance >= close && averageDistance < nearby) {
+            /* We are close. */
             this.ship.reactToAIMessage("JAGUAR_COMPANY_CLOSE");
-        } else if (distance >= 15000.0 && distance < 22500.0) {
-            /* If the average distance is between 15km and 22.5km then we are nearby. */
+        } else if (averageDistance >= nearby && averageDistance < farAway) {
+            /* We are nearby. */
             this.ship.reactToAIMessage("JAGUAR_COMPANY_NEARBY");
         } else {
-            /* If the average distance is more than 22.5km then we are far away. */
+            /* We are far away. */
             this.ship.reactToAIMessage("JAGUAR_COMPANY_FAR_AWAY");
         }
     };
 
     /* Tell everyone to regroup if the average distance to all the other ships is too great. */
-    this.$checkJaguarCompanyRegroup = function $checkJaguarCompanyRegroup(maxDistance) {
-        var ships = system.shipsWithRole("jaguar_company_patrol", this.ship),
-        shipCounter;
+    this.$checkJaguarCompanyRegroup = function (maxDistance) {
+        var otherShips,
+        otherShipsLength,
+        otherShipsCounter,
+        modifier;
 
-        if (ships.length === 0) {
-            /* We are on our own. */
+        otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship);
+        /* Cache the length. */
+        otherShipsLength = otherShips.length;
+
+        if (otherShipsLength === 0 ||
+            otherShipsLength !== $jaguarCompanyScript.$numShips - 1) {
+            /* Return immediately for any one of these conditions.
+             *
+             * 1. We are on our own.
+             * 2. Wait until all ships have been spawned.
+             */
             return;
         }
 
-        /* Even though the ships may have been added, all the ships may not have been spawned. */
-        if (ships.length !== this.$jaguarCompanyScript.$numShips - 1) {
-            return;
-        }
+        /* The more ships there are the larger the modifier will need to be. */
+        modifier = Math.ceil($jaguarCompanyScript.$numShips / 16.0);
 
         /* Find the average distance to all the other ships. */
-        if (this.$queryAverageDistance(ships) >= maxDistance) {
+        if (this.$queryAverageDistance(otherShips) >= maxDistance * modifier) {
             /* Tell all ships, including ourself, to regroup. */
-            for (shipCounter = 0; shipCounter < ships.length; shipCounter++) {
-                ships[shipCounter].sendAIMessage("JAGUAR_COMPANY_REGROUP");
+            if ($jaguarCompanyScript.$logging && $jaguarCompanyScript.$logExtra) {
+                log(this.name, "Regroup sent by " + this.ship.displayName);
             }
 
             this.ship.reactToAIMessage("JAGUAR_COMPANY_REGROUP");
+
+            for (otherShipsCounter = 0; otherShipsCounter < otherShipsLength; otherShipsCounter++) {
+                otherShips[otherShipsCounter].reactToAIMessage("JAGUAR_COMPANY_REGROUP");
+            }
         }
     };
 
     /* This does something similar to the groupAttack AI command. */
-    this.$jaguarCompanyAttackTarget = function $jaguarCompanyAttackTarget() {
-        var otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship),
+    this.$jaguarCompanyAttackTarget = function () {
+        var otherShips,
         otherShip,
-        otherShipCounter;
+        otherShipsLength,
+        otherShipsCounter;
 
-        if (otherShips.length === 0) {
-            /* We are on our own. */
+        if (this.ship.target === null) {
+            /* Return immediately if we have no target. */
             return;
         }
 
-        /* Even though the ships may have been added, all the ships may not have been spawned. */
-        if (otherShips.length !== this.$jaguarCompanyScript.$numShips - 1) {
+        otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship);
+        /* Cache the length. */
+        otherShipsLength = otherShips.length;
+
+        if (otherShipsLength === 0 ||
+            otherShipsLength !== $jaguarCompanyScript.$numShips - 1) {
+            /* Return immediately for any one of these conditions.
+             *
+             * 1. We are on our own.
+             * 2. Wait until all ships have been spawned.
+             */
             return;
         }
 
-        for (otherShipCounter = 0; otherShipCounter < otherShips.length; otherShipCounter++) {
-            otherShip = otherShips[otherShipCounter];
+        if (this.ship.target.hasRole("jaguar_company")) {
+            /* Don't attack our own ships. */
+            this.ship.target = null;
 
-            /* Other ships may be busy killing baddies. */
-            if (!otherShip.$attacking) {
+            return;
+        }
+
+        if ($jaguarCompanyScript.$logging && $jaguarCompanyScript.$logExtra) {
+            log(this.name, "Attack sent by " + this.ship.displayName);
+        }
+
+        /* React to our own attack call. */
+        this.ship.reactToAIMessage("JAGUAR_COMPANY_ATTACK_TARGET");
+
+        for (otherShipsCounter = 0; otherShipsCounter < otherShipsLength; otherShipsCounter++) {
+            otherShip = otherShips[otherShipsCounter];
+
+            if (!otherShip.hasHostileTarget) {
+                /* The other ship is not currently in attack mode. */
                 otherShip.target = this.ship.target;
-                otherShip.sendAIMessage("JAGUAR_COMPANY_ATTACK_TARGET");
+                otherShip.reactToAIMessage("JAGUAR_COMPANY_ATTACK_TARGET");
             }
         }
-
-        /* Respond to our own attack call. */
-        this.ship.reactToAIMessage("JAGUAR_COMPANY_ATTACK_TARGET");
     };
 
-    this.$shipAttacking = function $shipAttacking() {
-        this.$attacking = true;
-    }
-
-    this.$shipStoppedAttacking = function $shipStoppedAttacking() {
-        this.$attacking = false;
-    }
-
     /* Locate the base. */
-    this.$locateJaguarCompanyBase = function $locateJaguarCompanyBase() {
-        var ships = system.shipsWithRole("jaguar_company_base", this.ship);
+    this.$locateJaguarCompanyBase = function () {
+        var base = system.shipsWithRole("jaguar_company_base", this.ship);
 
-        if (ships.length === 0) {
+        if (base.length === 0) {
             /* If it has gone, just patrol the witchpoint to the planet lane. */
-            this.$currentRoute = "JAGUAR_COMPANY_WP_TO_PLANET";
+            $jaguarCompanyScript.$changeCurrentRoute();
             this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE_NOT_FOUND");
         } else {
             /* Set the target to the base. */
-            this.ship.target = ships[0];
+            this.ship.target = base[0];
             this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE_FOUND");
         }
     };
 
     /* Won't be needed when v1.78 comes out. */
-    this.$detectCascadeWeapon = function $detectCascadeWeapon() {
-        var cascadeWeapon, mines, missiles;
+    this.$detectCascadeWeapon = function () {
+        var cascadeWeapon,
+        mines,
+        minesLength,
+        mineDistance,
+        missiles,
+        missilesLength,
+        missileDistance;
 
         /* Let v1.77+ handle it. */
         if (0 >= oolite.compareVersion("1.77")) {
             return;
         }
 
-        mines = system.shipsWithRole("EQ_QC_MINE", this.ship, 25600.0);
-        missiles = system.shipsWithRole("EQ_CASCADE_MISSILE", this.ship, 25600.0);
+        /* Find any quirium cascade mines or missiles within scanner range of this ship. */
+        mines = system.shipsWithRole("EQ_QC_MINE", this.ship, this.ship.scannerRange);
+        missiles = system.shipsWithRole("EQ_CASCADE_MISSILE", this.ship, this.ship.scannerRange);
+        minesLength = mines.length;
+        missilesLength = missiles.length;
 
-        if (mines.length !== 0 || missiles.length !== 0) {
-            /* First one is the closest. */
-            if (mines.length === 0) {
+        if (minesLength !== 0 || missilesLength !== 0) {
+            /* First one in the array is the closest. */
+            if (missilesLength === 0) {
+                cascadeWeapon = mines[0];
+            } else if (minesLength === 0) {
                 cascadeWeapon = missiles[0];
-            } else if (missiles.length === 0) {
-                cascadeWeapon = mines[0];
-            } else if (this.ship.position.distanceTo(mines[0].position) < this.ship.position.distanceTo(missiles[0].position)) {
-                cascadeWeapon = mines[0];
             } else {
-                cascadeWeapon = missiles[0];
+                mineDistance = this.ship.position.distanceTo(mines[0].position);
+                missileDistance = this.ship.position.distanceTo(missiles[0].position);
+
+                if (mineDistance < missileDistance) {
+                    cascadeWeapon = mines[0];
+                } else {
+                    cascadeWeapon = missiles[0];
+                }
             }
 
             this.ship.target = cascadeWeapon;
             this.ship.reactToAIMessage("CASCADE_WEAPON_DETECTED");
         }
     };
-
 }).call(this);

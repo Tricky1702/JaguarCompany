@@ -1,173 +1,268 @@
 /* jaguar_company_patrolAI.plist for the Jaguar Company.
-**
-** Copyright (C) 2012 Tricky
-**
-** This work is licensed under the Creative Commons
-** Attribution-Noncommercial-Share Alike 3.0 Unported License.
-**
-** To view a copy of this license, visit
-** http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
-** to Creative Commons, 171 Second Street, Suite 300, San Francisco,
-** California, 94105, USA.
-**
-** AI for the Jaguar Company ships.
-**
-** There is now no concept of leaders and wingmen. All ships keep in a group.
-*/
+ *
+ * Copyright (C) 2012 Tricky
+ *
+ * This work is licensed under the Creative Commons
+ * Attribution-Noncommercial-Share Alike 3.0 Unported License.
+ *
+ * To view a copy of this license, visit
+ * http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
+ * to Creative Commons, 171 Second Street, Suite 300, San Francisco,
+ * California, 94105, USA.
+ *
+ * AI for the Jaguar Company ships.
+ *
+ * There is now no concept of leaders and wingmen. All ships keep in a group.
+ */
 
 {
     /* Switch the running lights off and regroup. */
     GLOBAL =
     {
-		ENTER = (switchLightsOff, "setStateTo: REGROUP");
+        ENTER = (switchLightsOff, "setStateTo: REGROUP");
     };
 
-    /* Find all members of the company and group up.
-    **
-    ** "setSpeedFactorTo: 2.0" is similar (but not quite the same) to CommonSenseOTB's Q-Charger.
-    */
-    "REGROUP" =
+    /* Find all members of the company and group up. */
+    REGROUP =
     {
-        ENTER = ("setSpeedFactorTo: 1.0", "sendScriptMessage: $locateJaguarCompany");
+        /* Straighten up and locate all the members of Jaguar Company. */
+        ENTER = ("setSpeedFactorTo: 0.25", performIdle, "sendScriptMessage: $locateJaguarCompany");
+        /* This will be caught by Oolite v1.77+ or $detectCascadeWeapon which should work for Oolite v1.74+ */
         "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
+        /* Let everyone know that someone is shooting at us.
+         * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships.
+         */
         ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
+        /* Let everyone know that someone is shooting a missile at us.
+         * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships.
+         */
         "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
-        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist");
+        /* Respond to an attack call. */
+        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist", fightOrFleeMissile, fightOrFleeHostiles);
+        /* We're on our own. Go straight to checking our route. */
         "JAGUAR_COMPANY_NOT_FOUND" = ("setStateTo: CHECK_ROUTE");
+        /* Target is set to the furthest ship away from us. Set a range closer than required and check the course. */
         "JAGUAR_COMPANY_FOUND" = ("setDesiredRangeTo: 3250.0", setDestinationToTarget, checkCourseToDestination);
-        "COURSE_OK" = ("sendScriptMessage: $checkJaguarCompanyDistance");
-        "JAGUAR_COMPANY_FAR_AWAY" = ("setSpeedFactorTo: 50.0", performFlyToRangeFromDestination);
-        "JAGUAR_COMPANY_NEARBY" = ("setSpeedFactorTo: 7.0", performFlyToRangeFromDestination);
-        "JAGUAR_COMPANY_CLOSE" = ("setSpeedFactorTo: 2.0", performFlyToRangeFromDestination);
-        "JAGUAR_COMPANY_REGROUPED" = (performIdle, "setStateTo: CHECK_ROUTE");
+        /* Course is OK so check if we are too close to any of the other ships. */
+        "COURSE_OK" = ("sendScriptMessage: $checkJaguarCompanyClosestDistance 500.0");
+        /* We're too close to another Jaguar Company ship so move away from it. */
+        "JAGUAR_COMPANY_TOO_CLOSE" = ("setStateTo: MOVE_AWAY", "randomPauseAI: 0.1 0.5");
+        /* We're not too close so check the average closeness of all the other ships. */
+        "JAGUAR_COMPANY_DISTANCE_OK" = ("sendScriptMessage: $checkJaguarCompanyAverageDistance");
+        /* Use injector speed. */
+        "JAGUAR_COMPANY_FAR_AWAY" = ("setSpeedFactorTo: 7.0", performFlyToRangeFromDestination);
+        /* "setSpeedFactorTo: 2.0" is similar (but not quite the same) to CommonSenseOTB's Q-Charger. */
+        "JAGUAR_COMPANY_NEARBY" = ("setSpeedFactorTo: 2.0", performFlyToRangeFromDestination);
+        /* Max regular speed. */
+        "JAGUAR_COMPANY_CLOSE" = ("setSpeedFactorTo: 1.0", performFlyToRangeFromDestination);
+        /* This means we have reached an ideal distance. */
+        "JAGUAR_COMPANY_REGROUPED" = ("setStateTo: CHECK_ROUTE");
+        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: CHECK_ROUTE");
+        /* Something in the way. */
         "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
-        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: CHECK_ROUTE");
-        UPDATE = ("addFuel: 1.0", "sendScriptMessage: $locateJaguarCompany", "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 5.0");
+        /* Re-locate everyone and check for cascade weapons (pre Oolite v1.77). */
+        UPDATE = ("addFuel: 0.1", "sendScriptMessage: $locateJaguarCompany", "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 2.0");
     };
 
     /* Check our current route and go to it's state. */
     "CHECK_ROUTE" =
     {
-        ENTER = ("sendScriptMessage: $checkRoute");
+        ENTER = (performIdle, "sendScriptMessage: $checkCurrentRoute");
         "JAGUAR_COMPANY_WITCHPOINT_FROM_BASE" = ("setStateTo: HEAD_FOR_WITCHPOINT_FROM_BASE");
         "JAGUAR_COMPANY_WITCHPOINT" = ("setStateTo: HEAD_FOR_WITCHPOINT");
         "JAGUAR_COMPANY_PLANET" = ("setStateTo: HEAD_FOR_PLANET");
         "JAGUAR_COMPANY_BASE" = ("setStateTo: HEAD_FOR_BASE");
     };
 
-    /* Find out our next route. */
-    "CHANGE_ROUTE" =
-    {
-        ENTER = ("sendScriptMessage: $changeRoute", "setStateTo: REGROUP");
-    };
-
-    /* Finished the route, find out the next one and tell other ships to change. */
+    /* Finished the current route, change to the next one and force other ships to change. */
     "FINISHED_ROUTE" =
     {
-        ENTER = ("sendScriptMessage: $finishedRoute", "setStateTo: REGROUP");
+        ENTER = ("sendScriptMessage: $finishedCurrentRoute", "setStateTo: REGROUP");
     };
 
     "HEAD_FOR_PLANET" =
     {
+        /* Set a course for the planet, set a range and check it. */
         ENTER = (setCourseToPlanet, "setDesiredRangeTo: 50000.0", checkCourseToDestination);
+        /* See REGROUP for an explanantion of the next 4 messages. */
         "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
+        /* An offender has been found. */
         "TARGET_FOUND" = (setTargetToFoundTarget, "sendScriptMessage: $jaguarCompanyAttackTarget");
         ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
-        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist");
-        "COURSE_OK" = (setSpeedToCruiseSpeed, performFlyToRangeFromDestination, "sendScriptMessage: $checkJaguarCompanyRegroup 12500.0");
-        "JAGUAR_COMPANY_REGROUP" = ("setStateTo: REGROUP");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist", fightOrFleeMissile, fightOrFleeHostiles);
+        /* Course is OK so check if we are too close to any of the other ships. */
+        "COURSE_OK" = (setSpeedToCruiseSpeed, performFlyToRangeFromDestination, "sendScriptMessage: $checkJaguarCompanyClosestDistance 500.0");
+        /* We're too close to another Jaguar Company ship so move away from it. */
+        "JAGUAR_COMPANY_TOO_CLOSE" = ("setStateTo: MOVE_AWAY", "randomPauseAI: 0.1 0.5");
+        /* We're not too close so check if we have strayed too far. */
+        "JAGUAR_COMPANY_DISTANCE_OK" = ("sendScriptMessage: $checkJaguarCompanyRegroup 12500.0");
+        /* Regroup if we have strayed. */
+        "JAGUAR_COMPANY_REGROUP" = ("setStateTo: REGROUP", "pauseAI: 5.0");
+        /* This means we have reached an ideal distance. */
+        "AEGIS_CLOSE_TO_MAIN_PLANET" = ("setStateTo: FINISHED_ROUTE", "pauseAI: 5.0");
+        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: FINISHED_ROUTE", "pauseAI: 5.0");
+        /* Something in the way. */
         "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
-        "AEGIS_CLOSE_TO_MAIN_PLANET" = ("setStateTo: FINISHED_ROUTE");
-        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: FINISHED_ROUTE");
-        RESTARTED = (checkAegis);
+        /* Reset the course and range, re-check it and also scan for offenders and cascade weapons. */
         UPDATE = (setCourseToPlanet, "setDesiredRangeTo: 50000.0", checkCourseToDestination, scanForOffenders, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 5.0");
     };
 
     "HEAD_FOR_WITCHPOINT" =
     {
+        /* Set a course for the witchpoint (range is automatically set at 10km) and check it. */
         ENTER = (setCourseToWitchpoint, checkCourseToDestination);
+        /* See REGROUP for an explanantion of the next 4 messages. */
         "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
+        /* An offender has been found. */
         "TARGET_FOUND" = (setTargetToFoundTarget, "sendScriptMessage: $jaguarCompanyAttackTarget");
         ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
-        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist");
-        "COURSE_OK" = (setSpeedToCruiseSpeed, performFlyToRangeFromDestination, "sendScriptMessage: $checkJaguarCompanyRegroup 12500.0");
-        "JAGUAR_COMPANY_REGROUP" = ("setStateTo: REGROUP");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist", fightOrFleeMissile, fightOrFleeHostiles);
+        /* Course is OK so check if we are too close to any of the other ships. */
+        "COURSE_OK" = (setSpeedToCruiseSpeed, performFlyToRangeFromDestination, "sendScriptMessage: $checkJaguarCompanyClosestDistance 500.0");
+        /* We're too close to another Jaguar Company ship so move away from it. */
+        "JAGUAR_COMPANY_TOO_CLOSE" = ("setStateTo: MOVE_AWAY", "randomPauseAI: 0.1 0.5");
+        /* We're not too close so check if we have strayed too far. */
+        "JAGUAR_COMPANY_DISTANCE_OK" = ("sendScriptMessage: $checkJaguarCompanyRegroup 12500.0");
+        /* Regroup if we have strayed. */
+        "JAGUAR_COMPANY_REGROUP" = ("setStateTo: REGROUP", "pauseAI: 5.0");
+        /* This means we have reached an ideal distance. */
+        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: FINISHED_ROUTE", "pauseAI: 5.0");
+        /* Something in the way. */
         "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
-        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: FINISHED_ROUTE");
+        /* Reset the course, re-check it and also scan for offenders and cascade weapons. */
         UPDATE = (setCourseToWitchpoint, checkCourseToDestination, scanForOffenders, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 5.0");
     };
 
-    /* Since we are injecting to the witchpoint from the base, ranges need to be increased. */
     "HEAD_FOR_WITCHPOINT_FROM_BASE" =
     {
-        ENTER = (setCourseToWitchpoint, "setDesiredRangeTo: 20000.0", checkCourseToDestination);
+        /* Set a course for the witchpoint (range is automatically set at 10km) and check it. */
+        ENTER = (setCourseToWitchpoint, checkCourseToDestination);
+        /* See REGROUP for an explanantion of the next 4 messages. */
         "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
+        /* An offender has been found. */
         "TARGET_FOUND" = (setTargetToFoundTarget, "sendScriptMessage: $jaguarCompanyAttackTarget");
         ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
-        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist");
-        "COURSE_OK" = ("setSpeedFactorTo: 7.0", performFlyToRangeFromDestination, "sendScriptMessage: $checkJaguarCompanyRegroup 22500.0");
-        "JAGUAR_COMPANY_REGROUP" = ("setStateTo: REGROUP");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist", fightOrFleeMissile, fightOrFleeHostiles);
+        /* Course is OK so check if we are too close to any of the other ships. */
+        "COURSE_OK" = ("setSpeedFactorTo: 1.0", performFlyToRangeFromDestination, "sendScriptMessage: $checkJaguarCompanyClosestDistance 500.0");
+        /* We're too close to another Jaguar Company ship so move away from it. */
+        "JAGUAR_COMPANY_TOO_CLOSE" = ("setStateTo: MOVE_AWAY", "randomPauseAI: 0.1 0.5");
+        /* We're not too close so check if we have strayed too far. */
+        "JAGUAR_COMPANY_DISTANCE_OK" = ("sendScriptMessage: $checkJaguarCompanyRegroup 12500.0");
+        /* Regroup if we have strayed. */
+        "JAGUAR_COMPANY_REGROUP" = ("setStateTo: REGROUP", "pauseAI: 5.0");
+        /* This means we have reached an ideal distance. */
+        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: FINISHED_ROUTE", "pauseAI: 5.0");
+        /* Something in the way. */
         "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
-        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: FINISHED_ROUTE");
-        UPDATE = ("addFuel: 1.0", setCourseToWitchpoint, "setDesiredRangeTo: 20000.0", checkCourseToDestination, scanForOffenders, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 5.0");
+        /* Reset the course, re-check it and also scan for offenders and cascade weapons. */
+        UPDATE = (setCourseToWitchpoint, checkCourseToDestination, scanForOffenders, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 5.0");
     };
 
-    /* Head for the base. Docking will come later. Range increase as per previous state. */
     "HEAD_FOR_BASE" =
     {
         ENTER = ("sendScriptMessage: $locateJaguarCompanyBase");
+        /* See REGROUP for an explanantion of the next 4 messages. */
         "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
+        /* An offender has been found. */
         "TARGET_FOUND" = (setTargetToFoundTarget, "sendScriptMessage: $jaguarCompanyAttackTarget");
         ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
-        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist");
-        "JAGUAR_COMPANY_BASE_FOUND" = ("setDesiredRangeTo: 20000.0", setDestinationToTarget, checkCourseToDestination);
-        "JAGUAR_COMPANY_BASE_NOT_FOUND" = ("setStateTo: REGROUP");
-        "COURSE_OK" = ("setSpeedFactorTo: 7.0", performFlyToRangeFromDestination, "sendScriptMessage: $checkJaguarCompanyRegroup 22500.0");
-        "JAGUAR_COMPANY_REGROUP" = ("setStateTo: REGROUP");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist", fightOrFleeMissile, fightOrFleeHostiles);
+        /* Found the base so let's set a course to it. */
+        "JAGUAR_COMPANY_BASE_FOUND" = ("setDesiredRangeTo: 15000.0", setDestinationToTarget, checkCourseToDestination);
+        /* Base has gone, probably blown up by a pirate or thargoid. New route has already been set so just regroup. */
+        "JAGUAR_COMPANY_BASE_NOT_FOUND" = ("setStateTo: REGROUP", "pauseAI: 5.0");
+        /* Course is OK so check if we are too close to any of the other ships. */
+        "COURSE_OK" = ("setSpeedFactorTo: 1.0", performFlyToRangeFromDestination, "sendScriptMessage: $checkJaguarCompanyClosestDistance 500.0");
+        /* We're too close to another Jaguar Company ship so move away from it. */
+        "JAGUAR_COMPANY_TOO_CLOSE" = ("setStateTo: MOVE_AWAY", "randomPauseAI: 0.1 0.5");
+        /* We're not too close so check if we have strayed too far. */
+        "JAGUAR_COMPANY_DISTANCE_OK" = ("sendScriptMessage: $checkJaguarCompanyRegroup 12500.0");
+        /* Regroup if we have strayed. */
+        "JAGUAR_COMPANY_REGROUP" = ("setStateTo: REGROUP", "pauseAI: 5.0");
+        /* This means we have reached an ideal distance. */
+        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: FINISHED_ROUTE", "pauseAI: 5.0");
+        /* Something in the way. */
         "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
-        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: FINISHED_ROUTE");
+        /* Reset the course and range, re-check it and also scan for offenders and cascade weapons. */
         UPDATE = ("sendScriptMessage: $locateJaguarCompanyBase", scanForOffenders, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 5.0");
     };
 
     /* Pick up any cargo that's been ejected after a kill. */
-    "LOOT" =
+    LOOT =
     {
         ENTER = ("setSpeedTo: 0.0", performIdle);
+        /* See REGROUP for an explanantion of the next 4 messages. */
         "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
         ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
-        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setAITo: jaguar_company_interceptAI.plist");
-        "TARGET_FOUND" = (setTargetToFoundTarget, "setAITo: collectLootAI.plist");
-        "NOTHING_FOUND" = ("setStateTo: REGROUP");
-        "HOLD_FULL" = ("setStateTo: REGROUP");
-        UPDATE = (scanForLoot, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 5.0");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setAITo: jaguar_company_interceptAI.plist", fightOrFleeMissile, fightOrFleeHostiles);
+        "TARGET_FOUND" = (setTargetToFoundTarget, "setStateTo: COLLECT_LOOT");
+        "NOTHING_FOUND" = ("setStateTo: REGROUP", "pauseAI: 2.0");
+        "HOLD_FULL" = ("setStateTo: REGROUP", "pauseAI: 2.0");
+        UPDATE = (scanForRandomLoot, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 2.0");
+    };
+
+    /* Actually collect the loot but check to make sure everyone else isn't going to the same spot. */
+    "COLLECT_LOOT" =
+    {
+        ENTER = ("sendScriptMessage: $checkJaguarCompanyClosestDistance 500.0");
+        /* See REGROUP for an explanantion of the next 4 messages. */
+        "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
+        ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
+        "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist", fightOrFleeMissile, fightOrFleeHostiles);
+        /* We're too close to another Jaguar Company ship so move away from it. */
+        "JAGUAR_COMPANY_TOO_CLOSE" = ("setStateTo: MOVE_AWAY", "randomPauseAI: 0.1 0.5");
+        /* We're not too close so perform the collection. */
+        "JAGUAR_COMPANY_DISTANCE_OK" = (performCollect);
+        "FRUSTRATED" = ("setStateTo: LOOT", "pauseAI: 2.0");
+        "CARGO_SCOOPED" = ("setStateTo: LOOT", "pauseAI: 2.0");
+        "TARGET_LOST" = ("setStateTo: LOOT", "pauseAI: 2.0");
+        "HOLD_FULL" = ("setStateTo: REGROUP", "pauseAI: 2.0");
+        UPDATE = ("sendScriptMessage: $checkJaguarCompanyClosestDistance 500.0", "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 2.0");
     };
 
     /* Go to the new waypoint. */
     "NEW_WAYPOINT" =
     {
-        ENTER = ("sendScriptMessage: $detectCascadeWeapon", setDesiredRangeForWaypoint, checkCourseToDestination, "pauseAI: 2.0");
+        ENTER = (setDesiredRangeForWaypoint, checkCourseToDestination, "sendScriptMessage: $detectCascadeWeapon");
+        /* See REGROUP for an explanantion of the next 4 messages. */
         "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
         ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
-        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist", fightOrFleeMissile, fightOrFleeHostiles);
         "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
-        "COURSE_OK" = ("setStateTo: REGROUP");
-        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: REGROUP");
-        "FRUSTRATED" = ("setStateTo: REGROUP");
+        "COURSE_OK" = ("setStateTo: REGROUP", "pauseAI: 2.0");
+        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: REGROUP", "pauseAI: 2.0");
+        "FRUSTRATED" = ("setStateTo: REGROUP", "pauseAI: 2.0");
     };
 
-    /* Run away (anywhere) as fast as possible. */
+    /* Move away from any ships that are too close. Target has already been set. */
+    "MOVE_AWAY" =
+    {
+        ENTER = ("setDesiredRangeTo: 1000.0", performFlee);
+        /* See REGROUP for an explanantion of the next 4 messages. */
+        "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
+        ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
+        "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist", fightOrFleeMissile, fightOrFleeHostiles);
+        "REACHED_SAFETY" = ("setStateTo: REGROUP", "pauseAI: 2.0");
+        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: REGROUP", "pauseAI: 2.0");
+        UPDATE = ("sendScriptMessage: $detectCascadeWeapon", "pauseAI: 1.0");
+    };
+
+    /* Run away (anywhere) at injector speed. Target has already been set. */
     "CASCADE_WEAPON_DETECTED" =
     {
         ENTER = ("setDesiredRangeTo: 51200.0", "setSpeedFactorTo: 7.0", performFlee);
         "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
-		"REACHED_SAFETY" = (performIdle, "setStateTo: REGROUP", "pauseAI: 10.0");
-        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: REGROUP", "pauseAI: 10.0");
-        UPDATE = ("addFuel: 1.0", performFlee, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 2.0");
+        "REACHED_SAFETY" = ("setStateTo: REGROUP", "pauseAI: 5.0");
+        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: REGROUP", "pauseAI: 5.0");
+        UPDATE = ("sendScriptMessage: $detectCascadeWeapon", "pauseAI: 2.0");
     };
 }

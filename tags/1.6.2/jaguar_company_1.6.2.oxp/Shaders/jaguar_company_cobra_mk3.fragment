@@ -1,18 +1,18 @@
 /* jaguar_company_cobra_mk3.fragment for the Jaguar Company.
- *
- * Copyright (C) 2012 Tricky
- *
- * This work is licensed under the Creative Commons
- * Attribution-Noncommercial-Share Alike 3.0 Unported License.
- *
- * To view a copy of this license, visit
- * http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
- * to Creative Commons, 171 Second Street, Suite 300, San Francisco,
- * California, 94105, USA.
- *
- * Cobra MK3 fragment shader for the Jaguar Company.
- * Based on Griff's multi-decal fragment shader.
- */
+**
+** Copyright (C) 2012 Tricky
+**
+** This work is licensed under the Creative Commons
+** Attribution-Noncommercial-Share Alike 3.0 Unported License.
+**
+** To view a copy of this license, visit
+** http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
+** to Creative Commons, 171 Second Street, Suite 300, San Francisco,
+** California, 94105, USA.
+**
+** Cobra MK3 fragment shader for the Jaguar Company.
+** Based on Griff's multi-decal fragment shader.
+*/
 
 uniform sampler2D uColorMap;
 uniform sampler2D uNormalMap;
@@ -41,8 +41,8 @@ uniform float     engine_power;
 uniform vec4      PaintColor1; // used with paintmask map to tint diffuse texture
 uniform vec4      PaintColor2; // used with paintmask map to tint diffuse texture
 /* This is separated because Oolite 1.76.1 and previous do not pass the 4th parameter
- * in a vec4 vector. Future versions will do so.
- */
+** in a vec4 vector. Future versions will do so.
+*/
 uniform vec4      Decal_XY_Scale;
 uniform float     Decal_Rotation;
 
@@ -127,10 +127,10 @@ void Light(in vec3 lightVector, in vec3 normal, in vec3 lightColor, in vec3 eyeV
 
 #ifndef OO_REDUCED_COMPLEXITY
 /* function to read in the colour map then scale and position the decal map onto it.
- *
- * "the_decaliser" - this function scales & positions the decal image using data passed
- * to it from the main shader
- */
+**
+** "the_decaliser" - this function scales & positions the decal image using data passed
+** to it from the main shader
+*/
 vec4 the_decaliser()
 {
   /* Setup the basic texture co-ords for the decals */
@@ -196,17 +196,17 @@ void main()
   vec4 decal = the_decaliser();
 
   /* We want to give the decals a matte finish, one way to  achieve this is to mix
-   * them into the final texture fragment result after the lighting has been calculated, so we'll
-   * store the texture + lighting in a vec3 called colour_temp
-   */
+  ** them into the final texture fragment result after the lighting has been calculated, so we'll
+  ** store the texture + lighting in a vec3 called colour_temp
+  */
   vec3 color_temp = colorMap; // temp vec3 to store the texturemap & lighting
 
   /* Calculate the lighting for full shader mode */
   color_temp += color_temp * specular * 6.0 * specIntensity;
 
   /* Mix in the decal over the top of the texture now that the specular lighting has been calculated.
-   * The (0.3 * specular) adds a tiny bit of specular to the decal - remove for a fully matte finish
-   */
+  ** The (0.3 * specular) adds a tiny bit of specular to the decal - remove for a fully matte finish
+  */
   vec3 color = mix(color_temp, decal.rgb * diffuse + (0.3 * specular), decal.a) * diffuse;
 #endif
 
@@ -230,9 +230,9 @@ void main()
     alertlevel = 1;
 
   /* check Alert Level, Adjust Lamp Colour Accordingly
-   *
-   * Current alert condition - 0 for docked, 1 for green, 2 for yellow, 3 for red.  
-   */
+  **
+  ** Current alert condition – 0 for docked, 1 for green, 2 for yellow, 3 for red.  
+  */
   if (alertlevel > 1)
   {
     LampColor = (alertlevel > 2) ? kLampColorRedAlert * max(mod(uTime, 1.0) * 2.0, 0.5): kLampColorYellowAlert;
