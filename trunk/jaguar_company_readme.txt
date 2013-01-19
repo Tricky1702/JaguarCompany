@@ -1,4 +1,4 @@
-Jaguar Company 1.7 (2012-07-21)
+Jaguar Company 1.8 (2012-08-09)
 
 A work in progress OXP.
 
@@ -38,69 +38,34 @@ Downloads
 
 Install
 -------
-After unzipping, move or copy the folder, "jaguar_company_1.7.oxp", into your AddOns directory.
+After unzipping, move or copy the folder, "jaguar_company_1.8.oxp", into your AddOns directory.
 
 Uninstall
 ---------
-Delete the directory, "jaguar_company_1.7.oxp", from your AddOns directory.
+Delete the directory, "jaguar_company_1.8.oxp", from your AddOns directory.
 
 Version History
 ---------------
-v1.7 (2012-07-21)
-    Simplified the intercept AI.
-    Heavily commented the scripts and AIs.
-    Stray comma in pirate-victim-roles.plist removed.
-    Used Obj2DatTexNorm.py on the models and preserved the material names.
-    Modified the shipdata to use the material names.
-    Relaxed distance code to cope with battalion sized groups. (64 ships tested)
-v1.6.2 (2012-07-14)
-    Bug fix for the ship script.
-    Bug fix to the waypoint AI. Never exited the stock AI.
-    Cascade Weapon detection actually works for pre v1.77
-    Took the opportunity to clean up some files and re-do the textures.
-v1.6 (2012-07-12)
-    There is now no concept of leaders and wingmen. All ships keep in a group.
-    Complete rewrite of the AI to reflect the above.
-v1.5 (2012-07-08)
-    Vertex and fragment shaders for the base.
-    Docking bay looks like a rippling pool.
-v1.4 (2012-07-04)
-    Flee for Q-Bombs.
-    Be more mercenary when in intercept mode.
-    Get back into formation after fighting.
-    Port and starboard flashers.
-    Moved the naming scheme into the ship script.
-    New proto base. Doesn't spawn yet.
-v1.3.1 (2012-06-21)
-    Simplified the AI for the leader.
-    Reduced accuracy to 7.5
-    Added in "randomshipnames" = no, into script_info of ship data.
-    Uses OXPConfig to change logging levels. Set 'displayAll' in OXPConfig to show this OXP.
-v1.3 (2012-06-18)
-    Fixed the decal rotation.
-    Added lots of new ship names. Altered one for profanity reasons.
-    Tweaked all the AI's.
-v1.2 (2012-06-13)
-    Cleaned up the scripts with JSLint.
-    navyPresent variable in jaguar_company.js fixed.
-    Tightened up the escort formation distances.
-v1.1 (2012-06-10)
-    Tweaks to the AI.
-    Added in pirate-victim-roles.plist
-    Added some random ship names for variety.
-v1.0 (2012-06-07)
-    Initial WIP release.
+v1.8 (2012-08-09)
+    Use performFlyToRangeFromDestination rather than performFlee in the MOVE_AWAY state of patrol AI.
+    Patrol ships launch from base on startup.
+    Patrol ships dock after returning to base.
+    New AI and script for the base.
+    Added turrets to the base.
+    Stopped the rotation of the base.
+        Found out stations stop rotating when attacking and don't start rotating after.
+    Commodity pricing.
+    withinStationAegis uniform binding is actually a boolean, not a float as the wiki stated.
+        gave this 'OpenGL error: "invalid operation" (0x502) ...' in the test log.
+
+For a full version history see jaguar_company_changelog.txt in the directory you loaded this readme file from.
 
 Future Versions
 ---------------
-Jaguar Company to start off docked at the base and dock when finished their patrol.
-Launch from the base to start patrol.
 Torus drive sync for the boring bits.
 Currently if you attack Jaguar Company and then run away they forget about you. This will need to be changed.
-AI for the base needs to be written.
 Black box base and Jaguar Company locator.
 Check for player helping. Can this be done?
-Market for the base.
 Discount for "friends".
 Welcome message on docking.
 Integration with Snoopers OXP if available.

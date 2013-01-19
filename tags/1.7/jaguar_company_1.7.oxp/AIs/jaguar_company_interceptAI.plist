@@ -45,70 +45,26 @@
     {
         ENTER = ("sendScriptMessage: $detectCascadeWeapon", performAttack);
         "CASCADE_WEAPON_DETECTED" = ("setStateTo: EXIT_AI_FOR_CASCADE_WEAPON");
-        "ATTACKED" =
-        (
-            "sendScriptMessage: $saveTarget",
-            setTargetToPrimaryAggressor,
-            "sendScriptMessage: $checkFOF"
-        );
-        "FRIENDLY_FIRE" =
-        (
-            "commsMessageByUnpiloted: [jaguar_company_friendly_fire]",
-            "sendScriptMessage: $resetTarget"
-        );
         /* Ask other ships not fighting to help out. */
-        "HOSTILE_FIRE" = ("sendScriptMessage: $jaguarCompanyAttackTarget", "setStateTo: ATTACK_SHIP");
+        ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget", "setStateTo: ATTACK_SHIP");
         "INCOMING_MISSILE" = ("setStateTo: MISSILE_DETECTED", "randomPauseAI: 0.25 0.75");
-        "TARGET_FOUND" =
-        (
-            setTargetToFoundTarget,
-            "sendScriptMessage: $jaguarCompanyAttackTarget",
-            "setStateTo: ATTACK_SHIP"
-        );
-        "NOTHING_FOUND" = (performIdle, "setStateTo: EXIT_AI");
         "TARGET_DESTROYED" = (performIdle, "setStateTo: EXIT_AI");
         "TARGET_LOST" = (performIdle, "setStateTo: EXIT_AI");
         /* Ask other ships not fighting to help out. */
-        "ENERGY_LOW" =
-        (
-            setTargetToPrimaryAggressor,
-            "sendScriptMessage: $jaguarCompanyAttackTarget",
-            "setStateTo: FLEE"
-        );
-        UPDATE = (performAttack, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 2.0");
+        "ENERGY_LOW" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget", "setStateTo: FLEE");
+        UPDATE = ("sendScriptMessage: $detectCascadeWeapon", "pauseAI: 2.0");
     };
 
     /* General purpose fight or flee state. */
     FLEE =
     {
-        ENTER = ("sendScriptMessage: $detectCascadeWeapon", "setDesiredRangeTo: 10000.0", performFlee);
+        ENTER = ("sendScriptMessage: $detectCascadeWeapon", "setDesiredRangeTo: 10000", performFlee);
         "CASCADE_WEAPON_DETECTED" = ("setStateTo: EXIT_AI_FOR_CASCADE_WEAPON");
-        "ATTACKED" =
-        (
-            "sendScriptMessage: $saveTarget",
-            setTargetToPrimaryAggressor,
-            "sendScriptMessage: $checkFOF"
-        );
-        "FRIENDLY_FIRE" =
-        (
-            "commsMessageByUnpiloted: [jaguar_company_friendly_fire]",
-            "sendScriptMessage: $resetTarget"
-        );
-        "HOSTILE_FIRE" = (fightOrFleeHostiles);
+        ATTACKED = (fightOrFleeHostiles);
         "INCOMING_MISSILE" = ("setStateTo: MISSILE_DETECTED", "randomPauseAI: 0.25 0.75");
         /* Ask other ships not fighting to help out. */
-        FIGHTING =
-        (
-            setTargetToPrimaryAggressor,
-            "sendScriptMessage: $jaguarCompanyAttackTarget",
-            "setStateTo: ATTACK_SHIP"
-        );
-        FLEEING =
-        (
-            setTargetToPrimaryAggressor,
-            "sendScriptMessage: $jaguarCompanyAttackTarget",
-            "setStateTo: FLEE"
-        );
+        FIGHTING = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget", "setStateTo: ATTACK_SHIP");
+        FLEEING = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget", "setStateTo: FLEE");
         "ENERGY_FULL" = ("setStateTo: ATTACK_SHIP");
         "TARGET_DESTROYED" = (performIdle, "setStateTo: EXIT_AI");
         "TARGET_LOST" = (performIdle, "setStateTo: EXIT_AI");
@@ -118,42 +74,14 @@
 
     /* Either fight or flee from the missile. */
     "FLEE_FOR_MISSILE" = {
-        ENTER =
-        (
-            "sendScriptMessage: $detectCascadeWeapon",
-            "setDesiredRangeTo: 10000.0",
-            performFlee,
-            "pauseAI: 5.0"
-        );
+        ENTER = ("sendScriptMessage: $detectCascadeWeapon", "setDesiredRangeTo: 10000", performFlee, "pauseAI: 5.0");
         "CASCADE_WEAPON_DETECTED" = ("setStateTo: EXIT_AI_FOR_CASCADE_WEAPON");
-        "ATTACKED" =
-        (
-            "sendScriptMessage: $saveTarget",
-            setTargetToPrimaryAggressor,
-            "sendScriptMessage: $checkFOF"
-        );
-        "FRIENDLY_FIRE" =
-        (
-            "commsMessageByUnpiloted: [jaguar_company_friendly_fire]",
-            "sendScriptMessage: $resetTarget"
-        );
         /* Ask other ships not fighting to help out. */
-        "HOSTILE_FIRE" =
-        (
-            "sendScriptMessage: $jaguarCompanyAttackTarget",
-            "setStateTo: GLOBAL",
-            fightOrFleeHostiles
-        );
+        ATTACKED = ("sendScriptMessage: $jaguarCompanyAttackTarget", "setStateTo: GLOBAL", fightOrFleeHostiles);
         "INCOMING_MISSILE" = ("setStateTo: MISSILE_DETECTED", "randomPauseAI: 0.25 0.75");
         "TARGET_LOST" = (scanForHostiles);
         /* Ask other ships not fighting to help out. */
-        "TARGET_FOUND" =
-        (
-            setTargetToFoundTarget,
-            "sendScriptMessage: $jaguarCompanyAttackTarget",
-            "setStateTo: GLOBAL",
-            fightOrFleeHostiles
-        );
+        "TARGET_FOUND" = (setTargetToFoundTarget, "sendScriptMessage: $jaguarCompanyAttackTarget", "setStateTo: GLOBAL", fightOrFleeHostiles);
         "NOTHING_FOUND" = ("setStateTo: EXIT_AI");
         "TARGET_DESTROYED" = (performIdle, "setStateTo: EXIT_AI");
         "REACHED_SAFETY" = ("setStateTo: ATTACK_SHIP");
@@ -164,33 +92,8 @@
     "MISSILE_DETECTED" = {
         ENTER = ("sendScriptMessage: $detectCascadeWeapon");
         "CASCADE_WEAPON_DETECTED" = ("setStateTo: EXIT_AI_FOR_CASCADE_WEAPON");
-        "ATTACKED" =
-        (
-            "sendScriptMessage: $saveTarget",
-            setTargetToPrimaryAggressor,
-            "sendScriptMessage: $checkFOF"
-        );
-        "FRIENDLY_FIRE" =
-        (
-            "commsMessageByUnpiloted: [jaguar_company_friendly_fire]",
-            "sendScriptMessage: $resetTarget"
-        );
         /* Ask other ships not fighting to help out. */
-        "HOSTILE_FIRE" =
-        (
-            "sendScriptMessage: $jaguarCompanyAttackTarget",
-            "setStateTo: GLOBAL",
-            fightOrFleeMissile,
-            fightOrFleeHostiles
-        );
-        "TARGET_FOUND" =
-        (
-            setTargetToFoundTarget,
-            "sendScriptMessage: $jaguarCompanyAttackTarget",
-            "setStateTo: GLOBAL",
-            fightOrFleeMissile,
-            fightOrFleeHostiles
-        );
+        ATTACKED = ("sendScriptMessage: $jaguarCompanyAttackTarget", "setStateTo: GLOBAL", fightOrFleeMissile, fightOrFleeHostiles);
         UPDATE = (setTargetToPrimaryAggressor, fightOrFleeMissile, "setStateTo: FLEE_FOR_MISSILE");
     };
 }

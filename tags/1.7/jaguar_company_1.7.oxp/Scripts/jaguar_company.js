@@ -21,7 +21,7 @@ this.author = "Tricky";
 this.copyright = "(C) 2012 Tricky";
 this.license = "CC BY-NC-SA 3.0";
 this.description = "Script to initialise the Jaguar Company.";
-this.version = "1.8";
+this.version = "1.7";
 
 (function () {
     "use strict";
@@ -29,8 +29,9 @@ this.version = "1.8";
     /* Private variables. */
     var $jaguarCompanyShipNames,
     $availableShipNames,
-    $currentPatrolRoute,
-    $systemName;
+    $currentRoute,
+    $systemName,
+    $maxShips;
 
     /* Public variables. */
     /* Turn logging on or off */
@@ -49,13 +50,13 @@ this.version = "1.8";
     $availableShipNames = $jaguarCompanyShipNames.concat([]);
 
     /* Initial route. */
-    $currentPatrolRoute = "JAGUAR_COMPANY_BASE_TO_WP";
+    $currentRoute = "JAGUAR_COMPANY_BASE_TO_WP";
 
     /* The name of the system we are in. So we don't spawn more than one set. */
     $systemName = "";
 
-    /* Maximum number of patrol ships. */
-    this.$maxPatrolShips = 4;
+    /* Maximum number of ships. */
+    $maxShips = 4;
 
     this.startUp = function () {
         log(this.name + " " + this.version + " loaded.");
@@ -121,58 +122,51 @@ this.version = "1.8";
     };
 
     /* Get the current route. */
-    this.$getCurrentPatrolRoute = function () {
-        return $currentPatrolRoute;
+    this.$getCurrentRoute = function () {
+        return $currentRoute;
     };
 
     /* Change the current route. */
-    this.$changeCurrentPatrolRoute = function () {
-        switch ($currentPatrolRoute) {
+    this.$changeCurrentRoute = function () {
+        switch ($currentRoute) {
         case "JAGUAR_COMPANY_BASE_TO_WP":
-            $currentPatrolRoute = "JAGUAR_COMPANY_WP_TO_PLANET";
+            $currentRoute = "JAGUAR_COMPANY_WP_TO_PLANET";
             break;
         case "JAGUAR_COMPANY_WP_TO_PLANET":
-            $currentPatrolRoute = "JAGUAR_COMPANY_PLANET_TO_WP";
+            $currentRoute = "JAGUAR_COMPANY_PLANET_TO_WP";
             break;
         case "JAGUAR_COMPANY_PLANET_TO_WP":
-            $currentPatrolRoute = "JAGUAR_COMPANY_WP_TO_BASE";
+            $currentRoute = "JAGUAR_COMPANY_WP_TO_BASE";
             break;
         case "JAGUAR_COMPANY_WP_TO_BASE":
-            $currentPatrolRoute = "JAGUAR_COMPANY_BASE_TO_WP";
+            $currentRoute = "JAGUAR_COMPANY_BASE_TO_WP";
             break;
         default:
             /* Should never trigger. Better safe than sorry though. */
-            $currentPatrolRoute = "JAGUAR_COMPANY_BASE_TO_WP";
+            $currentRoute = "JAGUAR_COMPANY_BASE_TO_WP";
         }
     };
 
     this.$spawnJaguarCompany = function (state) {
-        var sysname,
-        num,
+        var num,
         radius,
         basePosition,
         base,
         clutter;
 
-        sysname = system.name;
-
-        if (sysname === "Interstellar space") {
-            sysname = "Interstellar";
-        }
-
         if (this.$logging) {
             if (state === 1) {
-                log(this.name, "Adding Jaguar Company to the " + sysname + " space lane.");
+                log(this.name, "Adding Jaguar Company to the " + system.name + " space lane.");
             } else if (state === 2) {
-                log(this.name, "Adding Jaguar Company to patrol with the Galactic Navy in the " + sysname + " space lane.");
+                log(this.name, "Adding Jaguar Company to patrol with the Galactic Navy in the " + system.name + " space lane.");
             } else if (state === 3) {
-                log(this.name, "Adding Jaguar Company to patrol in the " + sysname + " space lane.");
+                log(this.name, "Adding Jaguar Company to patrol in the " + system.name + " space lane.");
             } else {
                 log(this.name, "This should NOT happen! Unknown state: " + state);
             }
         }
 
-        this.$numPatrolShips = 0;
+        this.$numShips = 0;
 
         if (system.isInterstellarSpace) {
             /* If we are in interstellar space then the base is somewhere within 1.5 times scanner
@@ -190,11 +184,14 @@ this.version = "1.8";
 
         /* Add the base. */
         base = system.addShips("jaguar_company_base", 1, basePosition);
-        this.$basePosition = base;
 
-        /* Add some clutter within 25km around the base. 12 to 19 items. */
-        num = Math.floor(Math.random() * 8) + 12;
+        /* Add some clutter within 25km around the base. 9 to 14 items. */
+        num = Math.floor(Math.random() * 6) + 9;
         clutter = system.addShips("asteroid", num, basePosition, 25000);
+
+        /* Add Jaguar Company around the base. */
+        radius = 15000.0 * Math.ceil($maxShips / 32.0);
+        system.addShips("jaguar_company_patrol", $maxShips, basePosition, radius);
     };
 
     this.$setUpCompany = function () {
