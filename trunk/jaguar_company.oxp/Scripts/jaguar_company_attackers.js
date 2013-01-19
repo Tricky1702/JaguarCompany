@@ -5,7 +5,7 @@ strict: true, curly: true */
 
 /* Jaguar Company Attackers
  *
- * Copyright © 2012 Richard Thomas Harrison (Tricky)
+ * Copyright © 2012-2013 Richard Thomas Harrison (Tricky)
  *
  * This work is licensed under the Creative Commons
  * Attribution-Noncommercial-Share Alike 3.0 Unported License.
@@ -27,7 +27,7 @@ strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Script to initialise the Jaguar Company attackers.";
-    this.version = "1.3";
+    this.version = "1.4";
 
     /* Private variable. */
     var p_attackers = {};
@@ -327,10 +327,42 @@ strict: true, curly: true */
             worldScripts["Jaguar Company Attackers"].$scanForAttackers(this.ship);
         };
 
-        /* Scan for cascade weapons. Won't be needed when v1.78 comes out. */
-        friend.script.$scanForCascadeWeapon = function () {
-            worldScripts["Jaguar Company Attackers"].$scanForCascadeWeapon(this.ship);
-        };
+        if (0 < oolite.compareVersion("1.77")) {
+            /* Scan for cascade weapons. Won't be needed when v1.78 comes out. */
+            friend.script.$scanForCascadeWeapon = function () {
+                worldScripts["Jaguar Company Attackers"].$scanForCascadeWeapon(this.ship);
+            };
+        } else {
+            /* Oolite v1.77 and newer. */
+            friend.script.$scanForCascadeWeapon = function () {
+                /* Do nothing. The real magic is done in the next ship event function. */
+                return;
+            };
+
+            /* Save the original ship event hook. */
+            friend.script.$attackers_cascadeWeaponDetected = friend.script.cascadeWeaponDetected;
+
+            /* The cascadeWeaponDetected handler fires when a Q-bomb (or equivalent device) detonates within
+             * scanner range of the player. The stock Q-mine (and potentially OXP equivalents) will also send
+             * this handler at the start of the countdown, giving ships more time to react.
+             *
+             * Reacts with a 'CASCADE_WEAPON_FOUND' AI message rather than 'CASCADE_WEAPON_DETECTED'
+             * used by Oolite v1.77 and newer.
+             *
+             * INPUT
+             *   weapon - entity of the cascade weapon.
+             */
+            friend.script.cascadeWeaponDetected = function (weapon) {
+                /* Set the target and send a CASCADE_WEAPON_FOUND message to the AI. */
+                this.ship.target = weapon;
+                this.ship.reactToAIMessage("CASCADE_WEAPON_FOUND");
+
+                if (this.$attackers_cascadeWeaponDetected) {
+                    /* Call the original. */
+                    this.$attackers_cascadeWeaponDetected.apply(this, arguments);
+                }
+            };
+        }
     };
 
     /* Add an attacker to the attackers array.
@@ -633,19 +665,22 @@ strict: true, curly: true */
                     }
                 }
 
-                /* Find the real index of the attacker. May have changed. */
-                attackerIndex = p_attackers.attackersIndex.indexOf(attackerKey);
+                /* Only if the attacker is not hostile, i.e., "friendly fire". */
+                if (!attacker.hostile) {
+                    /* Find the real index of the attacker. May have changed. */
+                    attackerIndex = p_attackers.attackersIndex.indexOf(attackerKey);
 
-                if (attackerIndex !== -1 && !p_attackers.attackers[attackerIndex].victims.length) {
-                    if (p_attackers.logging && p_attackers.logExtra) {
-                        logMsg += "\n** attacker#" + attackerKey + " (" + attacker.ship.displayName + ")" +
-                        ", removing (no victims)";
+                    if (attackerIndex !== -1 && !p_attackers.attackers[attackerIndex].victims.length) {
+                        if (p_attackers.logging && p_attackers.logExtra) {
+                            logMsg += "\n** attacker#" + attackerKey + " (" + attacker.ship.displayName + ")" +
+                            ", removing (no victims)";
+                        }
+
+                        /* Has no victims so no longer an attacker.
+                         * Remove the attacker from the real attackers array.
+                         */
+                        this.$removeAttacker(attackerKey);
                     }
-
-                    /* Has no victims so no longer an attacker.
-                     * Remove the attacker from the real attackers array.
-                     */
-                    this.$removeAttacker(attackerKey);
                 }
 
                 if (p_attackers.logging && p_attackers.logExtra) {
@@ -1391,7 +1426,7 @@ strict: true, curly: true */
 
     /* Scan for cascade weapons. Won't be needed when v1.78 comes out.
      * Reacts with a 'CASCADE_WEAPON_FOUND' AI message rather than 'CASCADE_WEAPON_DETECTED'
-     * used by Oolite v1.77 and newer
+     * used by Oolite v1.77 and newer.
      *
      * INPUT
      *   callerShip - caller ship.

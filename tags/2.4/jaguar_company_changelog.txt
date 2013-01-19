@@ -1,0 +1,132 @@
+ChangeLog
+---------
+v2.4 (2012-12-27)
+    Bug fix for spawning Jaguar Company. Potential to spawn the base at all times if the Galactic Navy wasn't present.
+    Bug fix for checking the safe zone around the base. Wasn't checking to see if it actually existed.
+    Main world script saves the last system ID that was visited for interstellar space.
+    Timer on start up for the worldscripts has been added to allow each worldscript to be loaded in. Stops a potential
+      dependency error happening.
+    Stray commas in the route list arrays removed.
+    Welcome code has been cleaned up.
+    missiontext.plist and descriptions.plist cleaned up.
+    Altered all player consoleMessage's to show messages for the default time limit.
+    Changed all player commsMessage's to consoleMessage.
+    Changed some of the player consoleMessage's back into commsMessage.
+    Only insert news into Snoopers about battle help if more than 10 minutes has passed since the last news item was
+      inserted.
+    If you set $alwaysSpawn to true with OXPConfig the base will be spawned if it doesn't exist.
+    Patrol ships follow the Galactic Navy.
+        If by some freak accident, all of the Galactic Navy is destroyed, the patrol ships will go back to base if it
+          exists. Otherwise they will patrol the witchpoint to planet lane.
+    New reputation level. Shows the location of Jaguar Company Bases in the current galaxy.
+        Re-implementation of the game random number generators for system.pseudoRandomNumber and
+          system.scrambledPseudoRandomNumber, to allow checking of all the systems in the current galaxy. The system
+          versions only gives back a value for the current system.
+        Oolite v1.76.1 or older only show a list of system names. Go to the long range chart then select the status
+          screen (F6, F6, F5). Borrowed some code from Spara's Trophy Collector OXP for this.
+        Oolite v1.77 or newer display the locations on the long range chart. Uses the new object method of
+          mission.markSystem so it won't intefere with other OXPs. (Hopefully)
+v2.3 (2012-12-08)
+    Integration with Snoopers OXP if available.
+    Pilot name for patrol, tug and miner ships.
+    Pilot name transfered to escape pod and then used in rescue message on arrival at a station.
+    Use pilot's name if available in attack messages. Otherwise use the displayName.
+    Use pilot's name if available as the Snoopers news source. Otherwise use a random name.
+    Force Snoopers news to be shown at the base.
+    New const in the main script for Snoopers Error Codes.
+    Make sure thargoids/tharglets are ALWAYS seen as hostile.
+v2.2 (2012-12-02)
+    Wrong variable in the buoy script.
+    Corrected a logic check in the asteroid script.
+    Optimized the cleanup code in jaguar_company_attackers.js
+    Fewer boulders.
+v2.1 (2012-12-02)
+    Thargoids and tharglets always returns true in $isHostile check.
+    There is a safe zone of 30km around the base.
+        NB: The safe zone does not extend to known attackers.
+    Took out some ship script event handlers and AI sendScriptMessage functions from the base, buoy, miner and tug ship
+      scripts that is inserted by $addFriendly.
+    Fixed colour bug with the tracker. Didn't start off red if the target was behind the player.
+    Fixed name error for $performJaguarCompanyAttackTarget in $addFriendly.
+    Fixed sun check error if no sun exists.
+v2.0 (2012-11-30)
+    First release out of WIP.
+    Moved route code fully into the main worldscript.
+    New worldscript for attackers code. Remember attackers. Even players who jump system.
+        Friend or Foe checks all ships in scanner range.
+        The first few shots are ignored as "friendly fire". Reputation can be lost!
+        You can remove the hostile mark by going to a new galaxy. This will also remove your reputation.
+    Welcome screen on docking.
+    Check for player helping.
+      Thanks to Wildeblood for pointing out the then invisible world script event 'shipAttackedOther'.
+        There's a 10% chance of being seen in the heat of battle. A kill is always seen and rewarded highly.
+        If the player has enough reputation in combat then the communications buoy will transmit a beacon code of 'J'
+          for the player to follow on the ASC. Wait a couple of minutes before checking, the tug pushing the
+          communications buoy out has to reach the drop off point before the beacon activates.
+        The market for the base will change if the player has enough reputation.
+    The communications buoy will slowly rotate to point towards the patrol ships on release from the tug.
+    Black Box Tracker points to the nearest patrol ship.
+        Uses new visual effects code for Oolite v1.77 and newer, otherwise a simple invisible object hanging above the
+          closest patrol ship that can be tracked with the Advanced Space Compass.
+        Tracker deactivates if the player is close to the patrol ships.
+    If Jaguar Company is forced out of interstellar space, they will all use 1 witchpoint exit even though they are all
+      independent entities and not escorts or part of a group.
+    Position and name of the base is now fixed. Uses 'system.scrambledPseudoRandomNumber(salt)'.
+        Conjunction of the witchpoint, planet and sun is checked for so the base doesn't end up in the middle of the
+          planet.
+
+v1.8 (2012-08-09)
+    Use performFlyToRangeFromDestination rather than performFlee in the MOVE_AWAY state of patrol AI.
+    Patrol ships launch from base on startup.
+    Patrol ships dock after returning to base.
+    New AI and script for the base.
+    Added turrets to the base.
+    Stopped the rotation of the base.
+        Found out stations stop rotating when attacking and don't start rotating after.
+    Commodity pricing.
+    withinStationAegis uniform binding is actually a boolean, not a float as the wiki stated.
+        gave this 'OpenGL error: "invalid operation" (0x502) ...' in the test log.
+v1.7 (2012-07-21)
+    Simplified the intercept AI.
+    Heavily commented the scripts and AIs.
+    Stray comma in pirate-victim-roles.plist removed.
+    Used Obj2DatTexNorm.py on the models and preserved the material names.
+    Modified the shipdata to use the material names.
+    Relaxed distance code to cope with battalion sized groups. (64 ships tested)
+v1.6.2 (2012-07-14)
+    Bug fix for the ship script.
+    Bug fix to the waypoint AI. Never exited the stock AI.
+    Cascade Weapon detection actually works for pre v1.77
+    Took the opportunity to clean up some files and re-do the textures.
+v1.6 (2012-07-12)
+    There is now no concept of leaders and wingmen. All ships keep in a group.
+    Complete rewrite of the AI to reflect the above.
+v1.5 (2012-07-08)
+    Vertex and fragment shaders for the base.
+    Docking bay looks like a rippling pool.
+v1.4 (2012-07-04)
+    Flee for Q-Bombs.
+    Be more mercenary when in intercept mode.
+    Get back into formation after fighting.
+    Port and starboard flashers.
+    Moved the naming scheme into the ship script.
+    New proto base. Doesn't spawn yet.
+v1.3.1 (2012-06-21)
+    Simplified the AI for the leader.
+    Reduced accuracy to 7.5
+    Added in "randomshipnames" = no, into script_info of ship data.
+    Uses OXPConfig to change logging levels. Set 'displayAll' in OXPConfig to show this OXP.
+v1.3 (2012-06-18)
+    Fixed the decal rotation.
+    Added lots of new ship names. Altered one for profanity reasons.
+    Tweaked all the AI's.
+v1.2 (2012-06-13)
+    Cleaned up the scripts with JSLint.
+    navyPresent variable in jaguar_company.js fixed.
+    Tightened up the escort formation distances.
+v1.1 (2012-06-10)
+    Tweaks to the AI.
+    Added in pirate-victim-roles.plist
+    Added some random ship names for variety.
+v1.0 (2012-06-07)
+    Initial WIP release.

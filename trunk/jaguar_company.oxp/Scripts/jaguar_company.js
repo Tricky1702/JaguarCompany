@@ -6,7 +6,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
 
 /* Jaguar Company
  *
- * Copyright © 2012 Richard Thomas Harrison (Tricky)
+ * Copyright © 2012-2013 Richard Thomas Harrison (Tricky)
  *
  * This work is licensed under the Creative Commons
  * Attribution-Noncommercial-Share Alike 3.0 Unported License.
@@ -28,7 +28,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Script to initialise the Jaguar Company.";
-    this.version = "2.4";
+    this.version = "2.5";
 
     /* Private variables. */
     var p_main = {},
@@ -217,6 +217,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         this.$setUpTimerReference = new Timer(this, this.$setUp, 0.5, 0.5);
         /* Check if we need to create Jaguar Company in this system. Delay it. */
         this.$setUpCompanyTimerReference = new Timer(this, this.$setUpCompany, 2);
+        /* Add the interface system if Oolite v1.77 or newer is used. */
+        this.$addInterface();
+    };
+
+    /* Player is about to launch from a station. */
+    this.shipWillLaunchFromStation = function () {
+        /* Remove the interface system if Oolite v1.77 or newer is used. */
+        this.$removeInterface();
     };
 
     /* Player launched from a station.
@@ -237,13 +245,23 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
+    /* Player docked with a station. */
+    this.shipDockedWithStation = function () {
+        /* Add the interface system if Oolite v1.77 or newer is used. */
+        this.$addInterface();
+    };
+
+    /* Player entered Witchspace. */
     this.shipEnteredWitchspace = function () {
         delete this.$joinNavy;
         /* Remove the closest naval ship variable. */
         delete this.$closestNavyShip;
     };
 
-    /* Reset everything just before exiting Witchspace. */
+    /* Player is about to exit from Witchspace.
+     *
+     * Reset everything just before exiting Witchspace.
+     */
     this.shipWillExitWitchspace = function () {
         /* Stop and remove the timers. */
         this.$removeTimers();
@@ -261,6 +279,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
+    /* Player exited Witchspace. */
     this.shipExitedWitchspace = function () {
         /* Check if we need to create Jaguar Company in this system. */
         this.$setUpCompany();
@@ -363,9 +382,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
     };
 
     this.guiScreenChanged = function (to, from) {
-        var choicesKey,
-        locations,
-        counter,
+        var counter,
         length;
 
         if (player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") !== "EQUIPMENT_OK" ||
@@ -375,8 +392,6 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
 
         if (to === "GUI_SCREEN_LONG_RANGE_CHART") {
-            player.consoleMessage("Press F5 for a list of Jaguar Company Base locations.", 5);
-
             if (0 >= oolite.compareVersion("1.77")) {
                 /* Oolite v1.77 and newer. */
                 /* Add the marked systems to the long range chart. */
@@ -393,6 +408,9 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
                 }
 
                 player.consoleMessage("Orange coloured squares show Jaguar Company Base locations.", 5);
+                player.consoleMessage("Press F4 for a list of Jaguar Company Base locations.", 5);
+            } else {
+                player.consoleMessage("Press F5 for a list of Jaguar Company Base locations.", 5);
             }
         }
 
@@ -408,21 +426,8 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
                         name : this.name
                     });
                 }
-            }
-
-            if (to === "GUI_SCREEN_STATUS" && guiScreen !== "GUI_SCREEN_MISSION") {
-                /* Initial index. */
-                this.$printIndex = 0;
-                /* Need to work out the first choices key before we create the list. 2 column layout. */
-                choicesKey = this.$firstChoicesKey(this.$jaguarCompanySystemNames, 2);
-                /* Create the list. */
-                locations = this.$listNames(this.$jaguarCompanySystemNames);
-                /* Display it as a mission screen. */
-                mission.runScreen({
-                    title : "Jaguar Company Base locations",
-                    message : locations + "\n",
-                    choicesKey : choicesKey
-                }, this.$locationChoices);
+            } else if (to === "GUI_SCREEN_STATUS" && guiScreen !== "GUI_SCREEN_MISSION") {
+                this.$showBaseLocations();
             }
         }
     };
@@ -575,6 +580,49 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
+    /* Add the interface system if Oolite v1.77 or newer is used and
+     * docked and the software patch is uploaded to the black box (which has to be present).
+     */
+    this.$addInterface = function () {
+        if (0 >= oolite.compareVersion("1.77") && player.ship.docked &&
+            player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_OK" &&
+            missionVariables.jaguar_company_locations_activated) {
+            player.ship.dockedStation.setInterface("jaguar_company_base_list", {
+                title : "Jaguar Company Base locations",
+                summary : "Displays a list of Jaguar Company Base locations within the current galaxy.",
+                category : expandDescription("[interfaces-category-organisations]"),
+                callback : this.$showBaseLocations.bind(this)
+            });
+        }
+    };
+
+    /* Remove the interface system if Oolite v1.77 or newer is used. */
+    this.$removeInterface = function () {
+        if (0 >= oolite.compareVersion("1.77") && player.ship.docked) {
+            /* Oolite v1.77 or newer and docked. */
+            player.ship.dockedStation.setInterface("jaguar_company_base_list", null);
+        }
+    };
+
+    /* Show the base locations as a 2 column list. */
+    this.$showBaseLocations = function () {
+        var choicesKey,
+        locations;
+
+        /* Initial index. */
+        this.$printIndex = 0;
+        /* Need to work out the first choices key before we create the list. 2 column layout. */
+        choicesKey = this.$firstChoicesKey(this.$jaguarCompanySystemNames, 2);
+        /* Create the list. */
+        locations = this.$listNames(this.$jaguarCompanySystemNames);
+        /* Display it as a mission screen. */
+        mission.runScreen({
+            title : "Jaguar Company Base locations",
+            message : locations + "\n",
+            choicesKey : choicesKey
+        }, this.$locationChoices, this);
+    };
+
     /* Figure out the first choices key for the pager.
      *
      * Modifies the maximum amount of lines that can be used for displaying the list.
@@ -684,7 +732,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             title : "Jaguar Company Base locations",
             message : locations + "\n",
             choicesKey : choicesKey
-        }, this.$locationChoices);
+        }, this.$locationChoices, this);
     };
 
     /* Build a 2 column list of Jaguar Company Base locations.

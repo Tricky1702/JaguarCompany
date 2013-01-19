@@ -5,7 +5,7 @@ strict: true, curly: true */
 
 /* Jaguar Company Asteroid
  *
- * Copyright © 2012 Richard Thomas Harrison (Tricky)
+ * Copyright © 2012-2013 Richard Thomas Harrison (Tricky)
  *
  * This work is licensed under the Creative Commons
  * Attribution-Noncommercial-Share Alike 3.0 Unported License.

@@ -1,0 +1,62 @@
+/* missiontext.plist for the Jaguar Company.
+ *
+ * Copyright © 2012 Richard Thomas Harrison (Tricky)
+ *
+ * This work is licensed under the Creative Commons
+ * Attribution-Noncommercial-Share Alike 3.0 Unported License.
+ *
+ * To view a copy of this license, visit
+ * http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
+ * to Creative Commons, 171 Second Street, Suite 300, San Francisco,
+ * California, 94105, USA.
+ *
+ * Mission text vocabulary for the Jaguar Company.
+ */
+
+{
+    "jaguar_company_base_thankyou" = "[jaguar_company_base_thankyou]\n\n";
+
+    "jaguar_company_base_no_black_box1" = "[jaguar_company_base_no_black_box1]\n\n";
+    "jaguar_company_base_no_black_box2" = "[jaguar_company_base_no_black_box2]\n\n";
+    "jaguar_company_base_fix_black_box" = "[jaguar_company_base_fix_black_box]\n\n";
+
+    "jaguar_company_base_no_locator1" = "[jaguar_company_base_no_locator1]\n\n";
+    "jaguar_company_base_no_locator2" = "[jaguar_company_base_no_locator2]\n\n";
+
+    "jaguar_company_base_market" = "[jaguar_company_base_market]\n";
+    "jaguar_company_base_market_want" = "[jaguar_company_base_market_want]\n";
+    "jaguar_company_base_market_want_a" = "* [jaguar_company_base_market_want_a]\n";
+
+    "jaguar_company_choices_1_page" =
+    {
+        "1_1_EXIT" = "Exit listing";
+    };
+    "jaguar_company_choices_1_of_2" =
+    {
+        "2_1_NEXT_PAGE" = "Next page";
+        "2_2_EXIT" = "Exit listing";
+    };
+    "jaguar_company_choices_2_of_2" =
+    {
+        "2_1_PREV_PAGE" = "Previous page";
+        "2_2_EXIT" = "Exit listing";
+    };
+    "jaguar_company_choices_start_of_many" =
+    {
+        "M_1_NEXT_PAGE" = "Next page";
+        "M_2_LAST_PAGE" = "Last page";
+        "M_3_EXIT" = "Exit listing";
+    };
+    "jaguar_company_choices_middle_of_many" =
+    {
+        "M_1_NEXT_PAGE" = "Next page";
+        "M_2_PREV_PAGE" = "Previous page";
+        "M_3_EXIT" = "Exit listing";
+    };
+    "jaguar_company_choices_end_of_many" =
+    {
+        "M_1_FIRST_PAGE" = "First page";
+        "M_2_PREV_PAGE" = "Previous page";
+        "M_3_EXIT" = "Exit listing";
+    };
+}
