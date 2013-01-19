@@ -49,7 +49,7 @@
         max_flight_speed = 350;
         missile_launch_position = "0.0 -13.7 21.06";
         missiles = 4;
-        pilot = "jaguar-company-pilot";
+        pilot = "oolite-hunter";
         roles = "jaguar_company_leader";
         scoop_position = "0.0 -9.57 7.66";
         script = "jaguar_company_ship.js";
@@ -158,26 +158,8 @@
                 subentity_key = "jaguar_company_griff_ECM_Proof_missile";
                 orientation = (0.9902, 0, 0, -0.1391);
                 position = (50.9515, -8.3543, -22.227);
-            },
-            {
-                type = "flasher";
-                initially_on = yes;
-                frequency = 2;
-                phase = 0.0;
-                position = (65.0, -2.52759, -32.4579);
-                color = "greenColor";
-                size = 4.0;
-            },
-            {
-                type = "flasher";
-                initially_on = yes;
-                frequency = 2;
-                phase = 0.25;
-                position = (-65.0, -2.52759, -32.4579);
-                color = "redColor";
-                size = 4.0;
             }
-        );
+        ); 
         thrust = 32;
         forward_weapon_type = "WEAPON_MILITARY_LASER";
         aft_weapon_type = "WEAPON_MILITARY_LASER";
@@ -243,7 +225,6 @@
 
     "jaguar_company_griff_ECM_Proof_missile" =
     {
-        accuracy = 8.0;
         ai_type = "hardMissileAI.plist";
         cargo_type = "CARGO_NOT_CARGO";
         energy_recharge_rate = 0;
@@ -322,74 +303,4 @@
         unpiloted = yes;
         weapon_energy = 4500;
     };
-
-    "jaguar_company_base" =
-    {
-        ai_type = "stationAI.plist";
-        allows_auto_docking = no;
-        cargo_type = "CARGO_NOT_CARGO";
-        defense_ship_role = "jaguar_company_leader";
-        energy_recharge_rate = 100;
-        equivalent_tech_level = 15;
-        forward_weapon_type = "WEAPON_NONE";
-        frangible = no;
-        has_ecm = yes;
-        has_escape_pod = no;
-        has_npc_traffic = no;
-        has_scoop = no;
-        has_shipyard = 0.0;
-        materials =
-        {
-            "jaguar_company_base_diffuse.png" =
-            {
-                diffuse_map = "jaguar_company_base_diffuse.png";
-                shininess = 5;
-                specular_color = (0.2, 0.2, 0.2);
-            };
-        };
-        max_energy = 25000;
-        max_flight_pitch = 8;
-        max_flight_roll = 8;
-        max_flight_speed = 0;
-        missiles = 0;
-        model = "jaguar_company_base.dat";
-        name = "Jaguar Company Base";
-        roles = "jaguar_company_base station";
-        rotating = yes;
-        scanClass = "CLASS_STATION";
-        smooth = yes;
-        station_roll = -0.01;
-        subentities =
-        (
-            {
-                subentity_key = "jaguar_company_base_dockingbay";
-                is_dock = yes;
-                orientation = (1, 0, 0, 0);
-                position = (0, 0, 0);
-            }
-        );
-        thrust = 100;
-        tunnel_aspect_ratio = 2.737;
-        tunnel_corners = 4;
-        tunnel_start_angle = 45;
-        weapon_energy = 0;
-   };
-
-   "jaguar_company_base_dockingbay" =
-   {
-        ai_type = "dumbAI.plist";
-        materials =
-        {
-            "jaguar_company_base_dockingbay_diffuse.png" =
-            {
-                diffuse_map = "jaguar_company_base_dockingbay_diffuse.png";
-                shininess = 5;
-                specular_color = (0.2, 0.2, 0.2);
-            };
-        };
-        model = "jaguar_company_base_dockingbay.dat";
-        name = "Jaguar Company Base Docking Bay";
-        roles = "jaguar_company_base_dockingbay docking-slit-horizontal";
-        smooth = no;
-   };
 }

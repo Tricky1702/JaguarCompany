@@ -25,12 +25,11 @@
         "ENERGY_LOW" = ("setStateTo: FLEE");
         ATTACKED = (setTargetToPrimaryAggressor, performAttack);
         "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
-        "INCOMING_MISSILE" = ("setStateTo: MISSILE_DETECTED", "randomPauseAI: 0.25 0.75");
-        "CASCADE_WEAPON_DETECTED" = ("setStateTo: QBOMB_DETECTED");
+        "INCOMING_MISSILE" = ("setStateTo: INCOMING_MISSILE", "randomPauseAI: 0.25 0.75");
         "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, performAttack);
         "TARGET_DESTROYED" = (performIdle, switchLightsOff, exitAI);
         "TARGET_LOST" = (performIdle, switchLightsOff, exitAI);
-        FRUSTRATED = (performIdle, switchLightsOff, exitAI);
+        "FRUSTRATED" = (performIdle, switchLightsOff, exitAI);
         UPDATE = (performAttack, "randomPauseAI: 0.25 0.75");
     };
     FLEE =
@@ -40,38 +39,25 @@
         FIGHTING = (setTargetToPrimaryAggressor, "setStateTo: ATTACK_SHIP");
         FLEEING = (setTargetToPrimaryAggressor, "setStateTo: FLEE");
         "ENERGY_FULL" = ("setStateTo: ATTACK_SHIP");
-        "TARGET_DESTROYED" = ("setSpeedFactorTo: 1.0", scanForHostiles);
-        "TARGET_LOST" = ("setSpeedFactorTo: 1.0", scanForHostiles);
-        "TARGET_FOUND" = (setTargetToFoundTarget, "setStateTo: ATTACK_SHIP");
-        "NOTHING_FOUND" = (performIdle, switchLightsOff, exitAI);
-        "REACHED_SAFETY" = ("setStateTo: ATTACK_SHIP");
-        "INCOMING_MISSILE" = ("setStateTo: MISSILE_DETECTED", "randomPauseAI: 0.25 0.75");
-        "CASCADE_WEAPON_DETECTED" = ("setStateTo: QBOMB_DETECTED");
+        "TARGET_LOST" = (performIdle, switchLightsOff, exitAI);
+        "TARGET_DESTROYED" = (performIdle, switchLightsOff, exitAI);
+        "REACHED_SAFETY" = (performIdle, switchLightsOff, exitAI);
+        "INCOMING_MISSILE" = ("setStateTo: INCOMING_MISSILE", "randomPauseAI: 0.25 0.75");
         UPDATE = ("addFuel: 1.0", performFlee, "pauseAI: 5");
     };
     "FLEE_FOR_MISSILE" = {
         ENTER = ("setDesiredRangeTo: 10000", "setSpeedFactorTo: 7.0", fightOrFleeMissile, "pauseAI: 5");
-        ATTACKED = (fightOrFleeHostiles);
-        FIGHTING = (setTargetToPrimaryAggressor, "setStateTo: ATTACK_SHIP");
-        FLEEING = (setTargetToPrimaryAggressor, "setStateTo: FLEE");
-        "TARGET_DESTROYED" = ("setSpeedFactorTo: 1.0", scanForHostiles);
+        ATTACKED = ("setStateTo: ATTACK_SHIP");
         "TARGET_LOST" = ("setSpeedFactorTo: 1.0", scanForHostiles);
         "TARGET_FOUND" = (setTargetToFoundTarget, "setStateTo: ATTACK_SHIP");
         "NOTHING_FOUND" = (performIdle, switchLightsOff, exitAI);
-        "REACHED_SAFETY" = ("setStateTo: ATTACK_SHIP");
-        "INCOMING_MISSILE" = ("setStateTo: MISSILE_DETECTED", "randomPauseAI: 0.25 0.75");
-        "CASCADE_WEAPON_DETECTED" = ("setStateTo: QBOMB_DETECTED");
-        UPDATE = ("addFuel: 1.0", fightOrFleeMissile, "pauseAI: 5");
+        "TARGET_DESTROYED" = (performIdle, switchLightsOff, exitAI);
+        "INCOMING_MISSILE" = ("setStateTo: INCOMING_MISSILE", "randomPauseAI: 0.25 0.75");
+        "REACHED_SAFETY" = (performIdle, switchLightsOff, exitAI);
+        "UPDATE" = ("addFuel: 1.0", fightOrFleeMissile, "pauseAI: 5");
     };
-    "MISSILE_DETECTED" = {
-        "CASCADE_WEAPON_DETECTED" = ("setStateTo: QBOMB_DETECTED");
+    "INCOMING_MISSILE" = {
         ATTACKED = ("setStateTo: ATTACK_SHIP", fightOrFleeMissile, setTargetToPrimaryAggressor);
-        UPDATE = (setTargetToPrimaryAggressor, fightOrFleeMissile, "setStateTo: FLEE_FOR_MISSILE");
-    };
-    "QBOMB_DETECTED" =
-    {
-        ENTER = ("commsMessageByUnpiloted: Q-BOMB!", "setDesiredRangeTo: 30000", "setSpeedFactorTo: 7.0", performFlee);
-		"REACHED_SAFETY" = (performIdle, switchLightsOff, exitAI);
-        UPDATE = ("addFuel: 1.0", performFlee, "pauseAI: 5");
+        "UPDATE" = (setTargetToPrimaryAggressor, fightOrFleeMissile, "setStateTo: FLEE_FOR_MISSILE");
     };
 }

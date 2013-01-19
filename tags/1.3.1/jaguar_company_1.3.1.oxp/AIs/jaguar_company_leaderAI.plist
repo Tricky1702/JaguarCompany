@@ -29,7 +29,6 @@
         "TARGET_FOUND" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
         "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
         ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
-        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
         "ACCEPT_DISTRESS_CALL" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
         "OFFENCE_COMMITTED" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget); 
         "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setStateTo: INBOUND_LOOT", "setAITo: jaguar_company_interceptAI.plist"); 
@@ -45,7 +44,6 @@
         "TARGET_FOUND" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
         "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
         ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
-        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
         "ACCEPT_DISTRESS_CALL" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
         "OFFENCE_COMMITTED" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget); 
         "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setStateTo: OUTBOUND_LOOT", "setAITo: jaguar_company_interceptAI.plist"); 
@@ -56,7 +54,6 @@
         ENTER = ("setSpeedTo: 0.0", performIdle);
         "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
         ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
-        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
         "ACCEPT_DISTRESS_CALL" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
         "OFFENCE_COMMITTED" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget); 
         "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setAITo: jaguar_company_interceptAI.plist"); 
@@ -70,7 +67,6 @@
         ENTER = ("setSpeedTo: 0.0", performIdle);
         "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
         ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
-        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
         "ACCEPT_DISTRESS_CALL" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
         "OFFENCE_COMMITTED" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget); 
         "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setAITo: jaguar_company_interceptAI.plist"); 
@@ -85,7 +81,6 @@
         RESTARTED = ("setStateTo: INBOUND_LOOT");
         "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
         ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
-        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
         "ACCEPT_DISTRESS_CALL" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
         "OFFENCE_COMMITTED" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget); 
         "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setAITo: jaguar_company_interceptAI.plist"); 
@@ -98,7 +93,6 @@
         RESTARTED = ("setStateTo: OUTBOUND_LOOT");
         "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
         ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
-        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
         "ACCEPT_DISTRESS_CALL" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
         "OFFENCE_COMMITTED" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget); 
         "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setAITo: jaguar_company_interceptAI.plist"); 
