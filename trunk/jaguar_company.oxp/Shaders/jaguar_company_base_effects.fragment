@@ -1,6 +1,6 @@
 /* jaguar_company_base_effects.fragment for the Jaguar Company Base.
  *
- * Copyright (C) 2012 Tricky
+ * Copyright © 2012 Tricky
  *
  * This work is licensed under the Creative Commons
  * Attribution-Noncommercial-Share Alike 3.0 Unported License.
@@ -75,8 +75,10 @@ void main()
     color += diffuseMaterial * specular;
 
     if (uLightsActive)
-        color += effectsMaterial * glow(1.0, 2.0);
+        color += effectsMaterial * glow(0.5, 2.0);
+
+    color *= 0.3;
 
     /* Return final result. */
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(color.rgb, 1.0);
 }

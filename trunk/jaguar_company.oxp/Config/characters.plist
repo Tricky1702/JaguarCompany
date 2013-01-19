@@ -1,6 +1,6 @@
 /* characters.plist for the Jaguar Company.
  *
- * Copyright (C) 2012 Tricky
+ * Copyright © 2012 Tricky
  *
  * This work is licensed under the Creative Commons
  * Attribution-Noncommercial-Share Alike 3.0 Unported License.
@@ -16,10 +16,8 @@
 {
     jaguar-company-pilot =
     {
-        bounty = 0;
-        insurance = 500;
-        random_seed = "0 0 0 0 0 0";
+        name = "a pilot of Jaguar Company";
         role = "jaguar_company";
-        short_description = "a member of Jaguar Company";
+        script = "jaguar_company_pilot.js";
     };
 }

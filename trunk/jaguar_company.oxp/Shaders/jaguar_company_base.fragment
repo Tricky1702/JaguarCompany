@@ -1,6 +1,6 @@
 /* jaguar_company_base.fragment for the Jaguar Company Base.
  *
- * Copyright (C) 2012 Tricky
+ * Copyright © 2012 Tricky
  *
  * This work is licensed under the Creative Commons
  * Attribution-Noncommercial-Share Alike 3.0 Unported License.
@@ -62,7 +62,8 @@ void main()
     diffuse += gl_FrontMaterial.ambient.rgb * gl_LightModel.ambient.rgb;
     vec3 color = diffuseMaterial * diffuse;
     color += diffuseMaterial * specular;
+    color *= 0.3;
 
     /* Return final result. */
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(color.rgb, 1.0);
 }

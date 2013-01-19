@@ -1,9 +1,12 @@
-/*jslint indent: 4, maxerr: 50, white: true, browser: false, evil: true, es5: true, undef: true, nomen: true, plusplus: true, bitwise: true, regexp: true, newcap: true, sloppy: false */
-/*jshint browser: false, devel: false, es5: true, node: false, bitwise: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true, strict: true, jquery: false */
+/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, bitwise: true, regexp: true,
+newcap: true */
+/*jshint es5: true, undef: true, bitwise: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true,
+laxbreak: true, strict: true, curly: true */
+/*global system, log, worldScripts, missionVariables, Timer, player */
 
-/* Jaguar Company
+/* Jaguar Company Patrol
  *
- * Copyright (C) 2012 Tricky
+ * Copyright © 2012 Richard Thomas Harrison (Tricky)
  *
  * This work is licensed under the Creative Commons
  * Attribution-Noncommercial-Share Alike 3.0 Unported License.
@@ -14,317 +17,539 @@
  * California, 94105, USA.
  *
  * Ship related functions for the patrol and intercept AIs.
- * Missile subentity loading based on tgGeneric_externalMissiles.js by Thargoid
+ * Missile subentity code based on tgGeneric_externalMissiles.js by Thargoid (modified)
  */
-
-this.name = "jaguar_company_patrol.js";
-this.author = "Tricky";
-this.copyright = "© 2012 Tricky";
-this.license = "CC BY-NC-SA 3.0";
-this.description = "Ship script for the Jaguar Company Patrol ships.";
-this.version = "1.6.1";
 
 (function () {
     "use strict";
 
-    /* Private variables. */
-    var $jaguarCompanyScript,
-    $distanceClose,
-    $distanceNearby,
-    $distanceFarAway,
-    $missileRole,
-    $currentTarget;
+    /* Standard public variables for OXP scripts. */
+    this.name = "jaguar_company_patrol.js";
+    this.author = "Tricky";
+    this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
+    this.license = "CC BY-NC-SA 3.0";
+    this.description = "Ship script for the Jaguar Company Patrol ships.";
+    this.version = "1.7";
 
-    $jaguarCompanyScript = worldScripts["Jaguar Company"];
+    /* Private variable. */
+    var p_patrol = {};
 
-    /* Standard distances. */
-    $distanceClose = 7500.0;
-    $distanceNearby = 15000.0;
-    $distanceFarAway = 22500.0;
+    /* Ship event callbacks. */
 
-    /* Default missile. */
-    $missileRole = "EQ_HARDENED_MISSILE";
-
-    /* Current target. */
-    $currentTarget = null;
-
+    /* Initialise various variables on ship birth. */
     this.shipSpawned = function () {
-        var initialMissiles,
-        addCounter;
+        var counter;
 
-        if ($jaguarCompanyScript.$logAIMessages) {
-            this.ship.reportAIMessages = true;
-        }
+        /* No longer needed after setting up. */
+        delete this.shipSpawned;
 
-        /* Increase the number of ships in the system. */
-        $jaguarCompanyScript.$numPatrolShips++;
+        /* Initialise the p_patrol variable object.
+         * Encapsulates all private global data.
+         */
+        p_patrol = {
+            /* Cache the world scripts. */
+            mainScript : worldScripts["Jaguar Company"],
+            attackersScript : worldScripts["Jaguar Company Attackers"],
+            /* Local copies of the logging variables. */
+            logging : worldScripts["Jaguar Company"].$logging,
+            logExtra : worldScripts["Jaguar Company"].$logExtra,
+            /* Local copy of the friendRoles array. */
+            friendRoles : worldScripts["Jaguar Company Attackers"].$friendRoles,
+            /* Standard distances. */
+            distance : {
+                close : 10000,
+                nearby : 20000,
+                farAway : 40000
+            },
+            /* Default missile. */
+            missileRole : "EQ_HARDENED_MISSILE",
+            /* Default number of missiles. */
+            initialMissiles : this.ship.missileCapacity,
+            /* Starting amount of fuel. */
+            fuel : this.ship.fuel
+        };
 
-        /* Get a unique name for the ship. */
-        this.ship.displayName = $jaguarCompanyScript.$uniqueShipName();
+        /* Register this ship as a friendly. */
+        p_patrol.attackersScript.$addFriendly(this.ship);
+        /* Get a unique name for the patrol ship. */
+        this.ship.displayName = p_patrol.mainScript.$uniqueShipName(this.ship.name);
+        /* Increase the number of patrol ships in the system. */
+        p_patrol.mainScript.$numPatrolShips += 1;
+        /* Timer reference. */
+        this.$addFuelTimerReference = new Timer(this, this.$addFuelTimer, 1, 1);
 
         /* Thargoid's missile code. */
-        /* just to ensure ship is fully loaded with selected missile type and nothing else. */
+        /* Just to ensure ship is fully loaded with selected missile type and nothing else. */
         if (this.ship.scriptInfo.missileRole) {
             /* missileRole should be defined in shipdata.plist */
-            $missileRole = this.ship.scriptInfo.missileRole;
+            p_patrol.missileRole = this.ship.scriptInfo.missileRole;
         }
 
         if (this.ship.scriptInfo.initialMissiles) {
-            initialMissiles = parseInt(this.ship.scriptInfo.initialMissiles, 10);
-        } else {
-            initialMissiles = this.ship.missileCapacity;
+            p_patrol.initialMissiles = parseInt(this.ship.scriptInfo.initialMissiles, 10);
         }
 
         if (this.ship.missiles.length > 0) {
-            /* remove all spawning missiles and restock with selected ones. */
+            /* Remove all spawning missiles. */
             this.ship.awardEquipment("EQ_MISSILE_REMOVAL");
         }
 
-        for (addCounter = 0; addCounter < initialMissiles; addCounter++) {
-            this.ship.awardEquipment($missileRole);
+        /* Restock with selected ones. */
+        for (counter = 0; counter < p_patrol.initialMissiles; counter += 1) {
+            this.ship.awardEquipment(p_patrol.missileRole);
         }
     };
 
-    /* Thargoid's missile code. */
-    this.shipFiredMissile = function (missile, target) {
-        var subCounter,
+    /* Thargoid's missile code. (Simplified - taken out the local function.)
+     *
+     * INPUT
+     *   missile - missile entity.
+     */
+    this.shipFiredMissile = function (missile) {
+        var counter,
         subEntities,
         subEntity;
 
-        function $localToGlobal(thisShip, subEntityPosition) {
-            /* sub-ent position is relative to mother, but for swapping we need the absolute global position. */
-            var orientation = thisShip.orientation;
-
-            return thisShip.position.add(subEntityPosition.rotateBy(orientation));
-        }
-
         subEntities = this.ship.subEntities;
 
-        if (subEntities.length === 0) {
-            /* if we've run out of sub-ents before we run out of missiles. */
+        if (!subEntities || !subEntities.length) {
+            /* If we've run out of sub-ents before we run out of missiles. */
             return;
         }
 
         /* Set counter to number of sub-ents minus 1 (as entity array goes up from zero). */
-        for (subCounter = subEntities.length - 1; subCounter >= 0; subCounter--) {
-            subEntity = subEntities[subCounter];
+        for (counter = subEntities.length - 1; counter >= 0; counter -= 1) {
+            subEntity = subEntities[counter];
 
             if (subEntity.hasRole(missile.primaryRole)) {
-                /* if the sub-ent is the same as the missile being fired. */
-                /* move the fired missile to the sub-ent position. */
-                missile.position = $localToGlobal(this.ship, subEntity.position);
-                /* point the missile in the right direction. */
+                /* If the sub-ent is the same as the missile being fired. */
+                /* Move the fired missile to the sub-ent position and convert to real-world co-ordinates. */
+                missile.position = this.ship.position.add(subEntity.position.rotateBy(this.ship.orientation));
+                /* Point the missile in the right direction. */
                 missile.orientation = subEntity.orientation.multiply(this.ship.orientation);
+                /* Desired speed of missile is it's maximum speed. */
                 missile.desiredSpeed = missile.maxSpeed;
-                /* remove the sub-ent version of the missile. */
+                /* Remove the sub-ent version of the missile. */
                 subEntity.remove();
 
-                /* come out of the loop, as we've done our swap. */
+                /* Come out of the loop, as we've done our swap. */
                 break;
             }
         }
     };
 
-    /* Thargoid's missile code. */
-    this.shipTakingDamage = function (amount, fromEntity, damageType) {
-        var subEntities,
-        subEntity,
-        missiles,
-        missileSubs,
-        missileCounter,
-        removeCounter,
-        subCounter,
-        difference;
-
-        missiles = this.ship.missiles;
-        subEntities = this.ship.subEntities;
-
-        if (missiles.length === 0 && subEntities.length === 0) {
-            /* if we're all out of missiles and any sub-entities, bail out. */
+    /* Patrol ship was removed by script. */
+    this.shipRemoved = function (suppressDeathEvent) {
+        if (suppressDeathEvent) {
             return;
         }
 
-        missileSubs = 0;
+        /* Decrease the number of patrol ships in the system. */
+        worldScripts["Jaguar Company"].$numPatrolShips -= 1;
+    };
 
-        /* Initially set subCounter to number of sub-ents minus 1 (as entity array goes up from zero). */
-        for (subCounter = subEntities.length - 1; subCounter >= 0; subCounter--) {
-            if (subEntities[subCounter].hasRole($missileRole)) {
-                /* if the sub-ent is a missile, count it. */
-                missileSubs++;
-            }
-        }
+    /* The patrol ship has just become invalid. */
+    this.entityDestroyed = function () {
+        /* Decrease the number of patrol ships in the system. */
+        worldScripts["Jaguar Company"].$numPatrolShips -= 1;
+        /* Stop and remove the timer. */
+        this.$removeAddFuelTimer();
+    };
 
-        if (missileSubs === 0 && subEntities.length === 0) {
-            /* if we're all out of missiles and missile sub-entities, bail out. */
+    /* Taking damage. Check attacker and what type.
+     *
+     * INPUTS
+     *   amount - amount of damage.
+     *   attacker - entity that caused the damage.
+     *   type - type of damage as a string.
+     */
+    this.shipTakingDamage = function (amount, attacker, type) {
+        if (!attacker || !attacker.isValid || !attacker.isShip) {
+            /* If it isn't a ship dealing damage then carry on with the damage. */
             return;
         }
 
-        if (missileSubs < missiles.length) {
-            /* if we've got more missiles than sub-entity missiles. */
-            /* get rid of all missiles. */
-            this.ship.awardEquipment("EQ_MISSILE_REMOVAL");
+        if (p_patrol.friendRoles.indexOf(attacker.entityPersonality) > -1 && type === "scrape damage") {
+            /* Cancel damage from collision with Jaguar Company ships. */
+            this.ship.energy += amount;
 
-            if (missileSubs > 0) {
-                for (missileCounter = 0; missileCounter < missileSubs; missileCounter++) {
-                    /* restock with the correct number of selected missile. */
-                    this.ship.awardEquipment($missileRole);
-                }
+            /* Target the ship we are colliding with. */
+            this.ship.target = attacker;
+
+            if (this.ship.AI === "jaguar_company_interceptAI.plist") {
+                /* Force an exit of the intercept AI. */
+                this.ship.lightsActive = false;
+                this.ship.exitAI();
             }
 
-            return;
+            /* Move away from the ship we are colliding with. */
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_TOO_CLOSE");
         }
+    };
 
-        if (missileSubs > missiles.length) {
-            /* if we've got less missiles than sub-entity missiles. */
-            difference = missileSubs - missiles.length;
-
-            for (removeCounter = 0; removeCounter < difference; removeCounter++) {
-                /* loop through however many subs we need to remove. */
-                /* Initially set subCounter to number of sub-ents minus 1 (as entity array goes up from zero). */
-                for (subCounter = subEntities.length - 1; subCounter >= 0; subCounter--) {
-                    subEntity = subEntities[subCounter];
-
-                    if (subEntity.hasRole($missileRole)) {
-                        /* if the sub-ent is a missile, remove it. */
-                        subEntity.remove();
-
-                        break;
-                    }
-                }
+    /* Stop and remove the timer. */
+    this.$removeAddFuelTimer = function () {
+        if (this.$addFuelTimerReference) {
+            if (this.$addFuelTimerReference.isRunning) {
+                this.$addFuelTimerReference.stop();
             }
 
-            return;
+            delete this.$addFuelTimerReference;
         }
     };
 
-    /* Decrease the number of ships in the system if we die. */
-    this.shipDied = function (whom, why) {
-        $jaguarCompanyScript.$numPatrolShips--;
+    /* addFuel in the AI doesn't allow small increases.
+     *
+     * This function allow us to increment the amount of fuel in tinier amounts.
+     * Called every second.
+     */
+    this.$addFuelTimer = function () {
+        var actualFuel,
+        internalFuel;
 
-        if ($jaguarCompanyScript.$logging && $jaguarCompanyScript.$logExtra) {
-            log(this.name, "Ship: " + this.ship.displayName +
-                " was destroyed by " + whom.displayName +
-                ", reason: " + why);
-        }
-    };
-
-    /* Not doing any exotic routes for now. */
-    /* route: Base->WP, WP->PLANET, PLANET->WP, WP->Base */
-    this.$checkCurrentRoute = function () {
-        switch ($jaguarCompanyScript.$getCurrentPatrolRoute()) {
-        case "JAGUAR_COMPANY_BASE_TO_WP":
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_WITCHPOINT_FROM_BASE");
-            break;
-        case "JAGUAR_COMPANY_WP_TO_PLANET":
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_PLANET");
-            break;
-        case "JAGUAR_COMPANY_PLANET_TO_WP":
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_WITCHPOINT");
-            break;
-        case "JAGUAR_COMPANY_WP_TO_BASE":
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE");
-            break;
-        default:
-            /* Should never trigger. Better safe than sorry though. */
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_WITCHPOINT_FROM_BASE");
-        }
-    };
-
-    /* Finished the current route, change to the next one. */
-    this.$finishedCurrentRoute = function () {
-        var otherShips,
-        otherShipsLength,
-        otherShipsCounter;
-
-        otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship);
-        /* Cache the length. */
-        otherShipsLength = otherShips.length;
-
-        if (otherShipsLength !== $jaguarCompanyScript.$numPatrolShips - 1) {
-            /* Wait until all ships have been spawned. */
+        if (this.ship.speed > this.ship.maxSpeed) {
+            /* No fuel collection during Injection or Torus drive. */
             return;
         }
 
-        $jaguarCompanyScript.$changeCurrentPatrolRoute();
+        /* Round off the actual fuel amount to the nearest lowest tenth.
+         * The actual fuel amount can be something like 6.6000000000000005 even though
+         * the system just uses the 1st decimal place.
+         */
+        actualFuel = Math.floor(this.ship.fuel * 10) / 10;
+        /* The internal fuel amount is also rounded off in a similar manner for the following adjustment. */
+        internalFuel = Math.floor(p_patrol.fuel * 10) / 10;
 
-        if (otherShipsLength === 0) {
-            /* Return immediately if we are on our own. */
-            return;
+        /* Adjust the internal fuel amount if the actual fuel amount has changed.
+         * Needed if the actual fuel amount has been reduced by Injection or Torus drive.
+         */
+        if (actualFuel !== internalFuel) {
+            p_patrol.fuel = actualFuel;
         }
 
-        for (otherShipsCounter = 0; otherShipsCounter < otherShipsLength; otherShipsCounter++) {
-            /* Force all other ships to regroup. This ship is already regrouping. */
-            otherShips[otherShipsCounter].reactToAIMessage("JAGUAR_COMPANY_REGROUP");
+        if (p_patrol.fuel < 7) {
+            /* 0.1 LY of fuel every 100 seconds. */
+            p_patrol.fuel += 0.001;
+
+            /* Cap the fuel level. */
+            if (p_patrol.fuel > 7) {
+                p_patrol.fuel = 7;
+            }
+
+            /* Set the actual fuel amount to the new fuel amount.
+             * Adjust to the nearest lowest tenth.
+             */
+            this.ship.fuel = Math.floor(p_patrol.fuel * 10) / 10;
+        } else {
+            /* Make sure that the fuel tanks aren't over filled. */
+            p_patrol.fuel = 7;
+            this.ship.fuel = 7;
         }
     };
 
-    /* Find the average distance to all the other ships. */
+    /* Find the average distance to all the other ships.
+     *
+     * INPUT
+     *   otherShips - array of ships.
+     *
+     * RESULT
+     *   result - average distance to all the other ships.
+     */
     this.$queryAverageDistance = function (otherShips) {
-        var averageDistance,
+        var averageDistance = 0,
         otherShipsLength,
         otherShipsCounter,
         otherShip,
         distance;
 
-        averageDistance = 0.0;
+        if (!otherShips.length) {
+            return 0;
+        }
+
         /* Cache the length. */
         otherShipsLength = otherShips.length;
 
-        for (otherShipsCounter = 0; otherShipsCounter < otherShipsLength; otherShipsCounter++) {
+        for (otherShipsCounter = 0; otherShipsCounter < otherShipsLength; otherShipsCounter += 1) {
             otherShip = otherShips[otherShipsCounter];
             /* Centre to centre distance. */
             distance = this.ship.position.distanceTo(otherShip.position);
-            /* Take off half the collision radius of this ship. */
-            distance -= (this.ship.collisionRadius / 2.0);
-            /* Take off half the collision radius of the other ship. */
-            distance -= (otherShip.collisionRadius / 2.0);
+            /* Take off the collision radius of this ship. */
+            distance -= this.ship.collisionRadius;
+            /* Take off the collision radius of the other ship. */
+            distance -= otherShip.collisionRadius;
             /* Add this distance to all the other distances. */
             averageDistance += distance;
         }
 
-        /* Average all the distances. */
-        averageDistance /= otherShipsLength;
-
-        return averageDistance;
+        /* Average all the distances and return it. */
+        return (averageDistance /= otherShipsLength);
     };
 
-    /* Find the others ships and set the target to the one furthest away. */
-    this.$locateJaguarCompany = function () {
-        var otherShips,
-        otherShipsLength;
+    /* Set the co-ordinates to the surface of the entity.
+     * This borrows some code from 'src/Core/Entities/ShipEntityAI.m - setCourseToPlanet'
+     *
+     * INPUT
+     *   entity - entity to set co-ordinates to.
+     */
+    this.$setCoordsToEntity = function (entity) {
+        var position = entity.position,
+        distance,
+        ratio,
+        variation;
 
-        otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship);
-        /* Cache the length. */
-        otherShipsLength = otherShips.length;
+        /* Calculate a vector position between the entity's surface and the ship. */
+        distance = this.ship.position.distanceTo(position);
+        ratio = (entity.collisionRadius + this.ship.collisionRadius + 100) / distance;
+        position = Vector3D.interpolate(position, this.ship.position, ratio);
 
-        if (otherShipsLength === 0) {
+        /* Higher variation if further away. */
+        variation = (distance > 51200 ? 0.5 : 0.2);
+
+        /* Move the vector a random amount. */
+        position.x += variation * (Math.random() - variation);
+        position.y += variation * (Math.random() - variation);
+        position.z += variation * (Math.random() - variation);
+
+        /* Save this position for 'setDestinationFromCoordinates' in the AI. */
+        this.ship.savedCoordinates = position;
+    };
+
+    /* AI functions. */
+
+    /* Save the current AI state. */
+    this.$saveAIState = function () {
+        p_patrol.saveAIState = this.ship.AIState;
+    };
+
+    /* Recall the saved AI state. */
+    this.$recallAIState = function () {
+        this.ship.AIState = p_patrol.saveAIState;
+    };
+
+    /* Set the co-ordinates to the surface of the main planet. */
+    this.$setCoordsToMainPlanet = function () {
+        this.$setCoordsToEntity(system.mainPlanet);
+    };
+
+    /* Set the co-ordinates to the fake interstellar witchpoint buoy. */
+    this.$setCoordsToInterstellarWitchpoint = function () {
+        this.$setCoordsToEntity(p_patrol.mainScript.$witchpointBuoy);
+    };
+
+    /* Set the co-ordinates to the surface of the witchpoint buoy. */
+    this.$setCoordsToWitchpoint = function () {
+        var witchpointBuoy = p_patrol.mainScript.$witchpointBuoy;
+
+        if (!witchpointBuoy || !witchpointBuoy.isValid) {
+            /* No witchpoint buoy. Patrol the base to the planet lane. */
+            p_patrol.mainScript.$initRoute("BP");
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_WITCHPOINT_NOT_FOUND");
+        } else {
+            this.$setCoordsToEntity(p_patrol.mainScript.$witchpointBuoy);
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_WITCHPOINT_FOUND");
+        }
+    };
+
+    /* Set the co-ordinates to the surface of the base. */
+    this.$setCoordsToJaguarCompanyBase = function () {
+        var base = p_patrol.mainScript.$jaguarCompanyBase;
+
+        if (!base || !base.isValid) {
+            if (system.isInterstellarSpace) {
+                this.ship.fuel = 7;
+                this.ship.reactToAIMessage("JAGUAR_COMPANY_EXIT_INTERSTELLAR");
+            } else {
+                /* If it has gone, just patrol the witchpoint to the planet lane. */
+                p_patrol.mainScript.$initRoute("WP");
+                this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE_NOT_FOUND");
+            }
+        } else {
+            if (p_patrol.mainScript.$buoy && p_patrol.mainScript.$buoy.isValid) {
+                /* Set the coords to the buoy. */
+                this.$setCoordsToEntity(p_patrol.mainScript.$buoy);
+            } else {
+                /* Set the coords to the base. */
+                this.$setCoordsToEntity(base);
+            }
+
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE_FOUND");
+        }
+    };
+
+    /* Jaguar Company were forced out of interstellar space as there was no base.
+     * Create a new base in the new system.
+     */
+    this.$addPatrolToNewSystem = function () {
+        if (system.shipsWithPrimaryRole("jaguar_company_patrol").length === p_patrol.mainScript.$numPatrolShips) {
+            /* Last ship out will create the base. */
+            if (!p_patrol.mainScript.$setUpCompany()) {
+                /* Base would not be created, just patrol the witchpoint to the planet lane. */
+                p_patrol.mainScript.$initRoute("WP");
+            } else {
+                /* Base was created. Set the route. Should be a route to the base. */
+                p_patrol.mainScript.$changeRoute(-1);
+            }
+        }
+    };
+
+    /* Check to see if the patrol ship is the initiator of the wormhole or is following. */
+    this.$checkHyperspaceFollow = function () {
+        if (p_patrol.mainScript.$hyperspaceFollow) {
+            /* This ship is following. */
+            this.ship.savedCoordinates = p_patrol.mainScript.$hyperspaceFollow;
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_HYPERSPACE_FOLLOW");
+
+            return;
+        }
+
+        /* This ship is opening the initial wormhole. */
+        p_patrol.mainScript.$hyperspaceFollow = this.ship.position;
+        this.ship.reactToAIMessage("JAGUAR_COMPANY_HYPERSPACE");
+    };
+
+    /* Check current patrol route. */
+    this.$checkRoute = function () {
+        /* Call common code used by all of Jaguar Company. */
+        p_patrol.mainScript.$checkRoute(this.ship);
+    };
+
+    /* Finished the current patrol route, change to the next one. */
+    this.$finishedRoute = function () {
+        /* Call common code used by all of Jaguar Company. */
+        p_patrol.mainScript.$finishedRoute(this.ship, "jaguar_company_patrol", "JAGUAR_COMPANY_REGROUP");
+    };
+
+    /* Scan for the other ships to see if the full group is present. */
+    this.$scanForAllJaguarCompany = function () {
+        var base,
+        patrolShips,
+        counter,
+        length,
+        lurkPosition,
+        variation;
+
+        if (p_patrol.mainScript.$maxPatrolShips === 1) {
             /* We are on our own. */
             this.ship.reactToAIMessage("JAGUAR_COMPANY_NOT_FOUND");
 
             return;
         }
 
-        if (otherShipsLength !== $jaguarCompanyScript.$numPatrolShips - 1) {
-            /* Wait until all the ships have been spawned. */
+        patrolShips = system.shipsWithPrimaryRole("jaguar_company_patrol");
+
+        if (patrolShips.length === p_patrol.mainScript.$numPatrolShips ||
+            p_patrol.mainScript.$patrolShipsFullyLaunched) {
+            /* Announce that we have found all of Jaguar Company to the AI. */
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_ALL_PRESENT");
+        } else {
+            base = system.shipsWithRole("jaguar_company_base");
+
+            if (base.length > 0) {
+                /* There can only really be 1 base. */
+                lurkPosition = base[0].position;
+            } else {
+                /* START OF CODE THAT SHOULD NEVER BE REACHED.
+                 * This is here purely for error checking sake.
+                 * If the base is destroyed it will set the patrol ships fully launched variable,
+                 * therefore this code block shouldn't be reached.
+                 */
+                if (patrolShips.length === 1) {
+                    /* We are on our own. */
+                    lurkPosition = patrolShips[0].position;
+                } else {
+                    /* Cache the length. */
+                    length = patrolShips.length;
+
+                    /* Work out the midpoint position of all ships. */
+                    lurkPosition = new Vector3D(0, 0, 0);
+
+                    for (counter = 0; counter < length; counter += 1) {
+                        lurkPosition = lurkPosition.add(patrolShips[counter].position);
+                    }
+
+                    lurkPosition.x /= length;
+                    lurkPosition.y /= length;
+                    lurkPosition.z /= length;
+
+                    /* Higher variation if further away. */
+                    variation = (this.ship.position.distanceTo(lurkPosition) > 51200 ? 0.5 : 0.2);
+
+                    /* Move the vector a random amount. */
+                    lurkPosition.x += variation * (Math.random() - variation);
+                    lurkPosition.y += variation * (Math.random() - variation);
+                    lurkPosition.z += variation * (Math.random() - variation);
+                }
+                /* END OF CODE THAT SHOULD NEVER BE REACHED. */
+            }
+
+            /* Move the lurk position 20km out in a random direction and save the co-ordinates for the AI. */
+            this.ship.savedCoordinates = lurkPosition.add(Vector3D.randomDirection(20000));
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_NOT_PRESENT");
+        }
+    };
+
+    /* Scan for the other ships and find the midpoint position of the group. */
+    this.$scanForJaguarCompany = function () {
+        var otherShips,
+        otherShipsLength,
+        otherShipsCounter,
+        midpointPosition,
+        variation;
+
+        otherShips = system.shipsWithPrimaryRole("jaguar_company_patrol", this.ship);
+
+        if (!otherShips.length) {
+            /* We are on our own. */
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_NOT_FOUND");
+
             return;
         }
 
-        /* The last one in the ships array is the one furthest away. */
-        this.ship.target = otherShips[otherShipsLength - 1];
+        /* Cache the length. */
+        otherShipsLength = otherShips.length;
+
+        /* Work out the midpoint position of all ships. */
+        midpointPosition = this.ship.position;
+
+        for (otherShipsCounter = 0; otherShipsCounter < otherShipsLength; otherShipsCounter += 1) {
+            midpointPosition = midpointPosition.add(otherShips[otherShipsCounter].position);
+        }
+
+        midpointPosition.x /= (otherShipsLength + 1);
+        midpointPosition.y /= (otherShipsLength + 1);
+        midpointPosition.z /= (otherShipsLength + 1);
+
+        /* Higher variation if further away. */
+        variation = (this.ship.position.distanceTo(midpointPosition) > 51200 ? 0.5 : 0.2);
+
+        /* Move the vector a random amount. */
+        midpointPosition.x += variation * (Math.random() - variation);
+        midpointPosition.y += variation * (Math.random() - variation);
+        midpointPosition.z += variation * (Math.random() - variation);
+
+        /* Save the co-ordinates for the AI. */
+        this.ship.savedCoordinates = midpointPosition;
+        /* Announce that we have found Jaguar Company to the AI. */
         this.ship.reactToAIMessage("JAGUAR_COMPANY_FOUND");
     };
 
+    /* Check how close we are to other ships.
+     *
+     * INPUT
+     *   minimumDistance - closest distance allowed.
+     */
     this.$checkJaguarCompanyClosestDistance = function (minimumDistance) {
         var actualDistance,
         otherShips;
 
-        /* More ships will increase the distance. */
-        actualDistance = minimumDistance * Math.ceil($jaguarCompanyScript.$numPatrolShips / 16.0);
-        /* Take off the collision radius of this ship. */
-        actualDistance -= this.ship.collisionRadius;
-        otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship, actualDistance);
+        /* More ships will increase the minimum distance. */
+        actualDistance = minimumDistance * Math.ceil(p_patrol.mainScript.$numPatrolShips / 8);
+        /* Modify for surface to surface. */
+        actualDistance += this.ship.collisionRadius;
+        /* Check for any patrol ships within the calculated sphere. */
+        otherShips = system.shipsWithPrimaryRole("jaguar_company_patrol", this.ship, actualDistance);
 
-        if (otherShips.length === 0) {
+        if (!otherShips.length) {
             this.ship.reactToAIMessage("JAGUAR_COMPANY_DISTANCE_OK");
         } else {
             /* If we are less than the minimum distance from the closest ship then we need to move away. */
@@ -335,42 +560,32 @@ this.version = "1.6.1";
         return;
     };
 
+    /* Check our average distance to all other ships. */
     this.$checkJaguarCompanyAverageDistance = function () {
         var otherShips,
-        otherShipsLength,
-        modifier,
         averageDistance,
         close,
         nearby,
         farAway;
 
-        otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship);
-        /* Cache the length. */
-        otherShipsLength = otherShips.length;
+        otherShips = system.shipsWithPrimaryRole("jaguar_company_patrol", this.ship);
 
-        if (otherShipsLength === 0 ||
-            otherShipsLength !== $jaguarCompanyScript.$numPatrolShips - 1) {
-            /* Return immediately for any one of these conditions.
-             *
-             * 1. We are on our own.
-             * 2. Wait until all ships have been spawned.
-             */
+        if (!otherShips.length) {
+            /* Return immediately if we are on our own. */
             return;
         }
 
         /* Find the average distance to all the other ships. */
         averageDistance = this.$queryAverageDistance(otherShips);
 
-        /* The more ships there are the further the standard distances will need to be. */
-        modifier = Math.ceil($jaguarCompanyScript.$numPatrolShips / 16.0);
-        close = $distanceClose * modifier;
-        nearby = $distanceNearby * modifier;
-        farAway = $distanceFarAway * modifier;
+        close = (p_patrol.distance.close) + ((Math.random() * 2000.0) - 1000.0);
+        nearby = (p_patrol.distance.nearby) + ((Math.random() * 2000.0) - 1000.0);
+        farAway = (p_patrol.distance.farAway) + ((Math.random() * 2000.0) - 1000.0);
 
         /* I would love to create a fuzzy logic controller for this. */
         if (averageDistance < close) {
             /* We have regrouped. */
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_REGROUPED");
+            this.ship.sendAIMessage("JAGUAR_COMPANY_REGROUPED");
         } else if (averageDistance >= close && averageDistance < nearby) {
             /* We are close. */
             this.ship.reactToAIMessage("JAGUAR_COMPANY_CLOSE");
@@ -383,165 +598,34 @@ this.version = "1.6.1";
         }
     };
 
-    /* Tell everyone to regroup if the average distance to all the other ships is too great. */
+    /* Tell everyone to regroup if the average distance to all the other ships is too great.
+     *
+     * INPUT
+     *   maxDistance - furthest distance allowed before a regroup message is sent out.
+     */
     this.$checkJaguarCompanyRegroup = function (maxDistance) {
         var otherShips,
         otherShipsLength,
-        otherShipsCounter,
-        modifier;
-
-        otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship);
-        /* Cache the length. */
-        otherShipsLength = otherShips.length;
-
-        if (otherShipsLength === 0 ||
-            otherShipsLength !== $jaguarCompanyScript.$numPatrolShips - 1) {
-            /* Return immediately for any one of these conditions.
-             *
-             * 1. We are on our own.
-             * 2. Wait until all ships have been spawned.
-             */
-            return;
-        }
-
-        /* The more ships there are the larger the modifier will need to be. */
-        modifier = Math.ceil($jaguarCompanyScript.$numPatrolShips / 16.0);
-
-        /* Find the average distance to all the other ships. */
-        if (this.$queryAverageDistance(otherShips) >= maxDistance * modifier) {
-            /* Tell all ships, including ourself, to regroup. */
-            if ($jaguarCompanyScript.$logging && $jaguarCompanyScript.$logExtra) {
-                log(this.name, "Regroup sent by " + this.ship.displayName);
-            }
-
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_REGROUP");
-
-            for (otherShipsCounter = 0; otherShipsCounter < otherShipsLength; otherShipsCounter++) {
-                otherShips[otherShipsCounter].reactToAIMessage("JAGUAR_COMPANY_REGROUP");
-            }
-        }
-    };
-
-    /* This does something similar to the groupAttack AI command. */
-    this.$jaguarCompanyAttackTarget = function () {
-        var otherShips,
-        otherShip,
-        otherShipsLength,
         otherShipsCounter;
 
-        if (this.ship.target === null) {
-            /* Return immediately if we have no target. */
+        otherShips = system.shipsWithPrimaryRole("jaguar_company_patrol", this.ship);
+
+        if (!otherShips.length) {
+            /* Return immediately if we are on our own. */
             return;
         }
 
-        /* Limit comms range to scanner range. */
-        otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship, this.ship.scannerRange);
-        /* Cache the length. */
-        otherShipsLength = otherShips.length;
+        /* Find the average distance to all the other ships. */
+        if (this.$queryAverageDistance(otherShips) >= maxDistance + ((Math.random() * 2000.0) - 1000.0)) {
+            /* Tell all ships, including ourself, to regroup. */
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_REGROUP");
 
-        if (otherShipsLength === 0 ||
-            otherShipsLength !== $jaguarCompanyScript.$numPatrolShips - 1) {
-            /* Return immediately for any one of these conditions.
-             *
-             * 1. We are on our own.
-             * 2. Wait until all ships have been spawned.
-             */
-            return;
-        }
+            /* Cache the length. */
+            otherShipsLength = otherShips.length;
 
-        if (this.ship.target.hasRole("jaguar_company")) {
-            /* Don't attack our own ships. */
-            this.ship.target = null;
-
-            return;
-        }
-
-        /* React to our own attack call. */
-        this.ship.reactToAIMessage("JAGUAR_COMPANY_ATTACK_TARGET");
-
-        for (otherShipsCounter = 0; otherShipsCounter < otherShipsLength; otherShipsCounter++) {
-            otherShip = otherShips[otherShipsCounter];
-
-            if (!otherShip.hasHostileTarget) {
-                /* The other ship is not currently in attack mode. Give it a target. */
-                otherShip.target = this.ship.target;
-                otherShip.reactToAIMessage("JAGUAR_COMPANY_ATTACK_TARGET");
+            for (otherShipsCounter = 0; otherShipsCounter < otherShipsLength; otherShipsCounter += 1) {
+                otherShips[otherShipsCounter].reactToAIMessage("JAGUAR_COMPANY_REGROUP");
             }
-        }
-    };
-
-    /* Locate the base. */
-    this.$locateJaguarCompanyBase = function () {
-        var base = system.shipsWithRole("jaguar_company_base", this.ship);
-
-        if (base.length === 0) {
-            /* If it has gone, just patrol the witchpoint to the planet lane. */
-            $jaguarCompanyScript.$changeCurrentPatrolRoute();
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE_NOT_FOUND");
-        } else {
-            /* Set the target to the base. */
-            this.ship.target = base[0];
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE_FOUND");
-        }
-    };
-
-    this.$saveTarget = function() {
-        $currentTarget = this.ship.target;
-    };
-
-    this.$resetTarget = function() {
-        this.ship.target = $currentTarget;
-    };
-
-    /* Check for "Friend Or Foe" attacking us. */
-    this.$checkFOF = function() {
-        if (this.ship.target.hasRole("jaguar_company")) {
-            this.ship.reactToAIMessage("FRIENDLY_FIRE");
-        } else {
-            this.ship.reactToAIMessage("HOSTILE_FIRE");
-        }
-    };
-
-    /* Won't be needed when v1.78 comes out. */
-    this.$detectCascadeWeapon = function () {
-        var cascadeWeapon,
-        mines,
-        minesLength,
-        mineDistance,
-        missiles,
-        missilesLength,
-        missileDistance;
-
-        /* Let v1.77+ handle it. */
-        if (0 >= oolite.compareVersion("1.77")) {
-            return;
-        }
-
-        /* Find any quirium cascade mines or missiles within scanner range of this ship. */
-        mines = system.shipsWithRole("EQ_QC_MINE", this.ship, this.ship.scannerRange);
-        missiles = system.shipsWithRole("EQ_CASCADE_MISSILE", this.ship, this.ship.scannerRange);
-        minesLength = mines.length;
-        missilesLength = missiles.length;
-
-        if (minesLength !== 0 || missilesLength !== 0) {
-            /* First one in the array is the closest. */
-            if (missilesLength === 0) {
-                cascadeWeapon = mines[0];
-            } else if (minesLength === 0) {
-                cascadeWeapon = missiles[0];
-            } else {
-                mineDistance = this.ship.position.distanceTo(mines[0].position);
-                missileDistance = this.ship.position.distanceTo(missiles[0].position);
-
-                if (mineDistance < missileDistance) {
-                    cascadeWeapon = mines[0];
-                } else {
-                    cascadeWeapon = missiles[0];
-                }
-            }
-
-            this.ship.target = cascadeWeapon;
-            this.ship.reactToAIMessage("CASCADE_WEAPON_DETECTED");
         }
     };
 }).call(this);

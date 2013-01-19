@@ -1,0 +1,37 @@
+/* commodities.plist for the Jaguar Company.
+ *
+ * Copyright (C) 2012 Tricky
+ *
+ * This work is licensed under the Creative Commons
+ * Attribution-Noncommercial-Share Alike 3.0 Unported License.
+ *
+ * To view a copy of this license, visit
+ * http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
+ * to Creative Commons, 171 Second Street, Suite 300, San Francisco,
+ * California, 94105, USA.
+ *
+ * Commoditity pricing for the Jaguar Company.
+ */
+
+{
+    jaguar_company_base =
+    (
+        ("Food",         0, 0,  21,  1,  0,  0,  1,  0, 0),     /*  8.4Cr (10.0Cr)  11.6Cr */
+		("Textiles",     0, 0,  16,  1,  0,  0,  3,  0, 0),     /*  6.4Cr ( 8.4Cr)  10.4Cr */
+		("Radioactives", 0, 0,  81,  1, -3,  0,  3, 15, 0),     /* 32.4Cr (36.8Cr)  41.2Cr */
+        ("Slaves",       0, 0,  15, -2,  0,  0, 15,  0, 0),     /*  0.4Cr ( 6.2Cr)  12.0Cr */
+        ("Liquor/Wines", 0, 0, 130, -1,  0,  0, 15,  0, 0),     /* 49.2Cr (53.6Cr)  58.0Cr */    
+        ("Luxuries",     0, 0, 190,  8,  0,  0,  9,  0, 0),     /* 76.0Cr (89.0Cr) 102.0Cr */
+		("Narcotics",    0, 0,  22, -3,  0,  0,  3,  0, 0),     /*  0.4Cr ( 5.2Cr)  10.0Cr */
+		("Computers",    0, 0, 240, -7,  0,  0, 15,  0, 0),     /* 73.6Cr (87.8Cr) 102.0Cr */
+		("Machinery",    0, 0, 180, -4,  0,  0,  7,  0, 0),     /* 60.8Cr (67.8Cr)  74.8Cr */
+		("Alloys",       0, 0,  75, -1, -1, 10,  3, 31, 0),     /* 27.2Cr (29.2Cr)  31.2Cr */
+		("Firearms",     0, 0, 124, -7,  2,  5, 15,  7, 0),     /* 30.0Cr (42.8Cr)  55.6Cr */
+		("Furs",         0, 0, 175,  6,  0,  0, 15,  0, 0),     /* 70.0Cr (81.4Cr)  92.8Cr */
+		("Minerals",     0, 0,  18,  2,  3,  9,  3,  7, 0),     /*  7.2Cr (10.6Cr)  14.0Cr */
+		("Gold",         0, 0,  80,  1,  0,  0,  7,  0, 1),     /* 32.0Cr (34.8Cr)  37.6Cr */
+		("Platinum",     0, 0, 122,  2,  0,  0, 21,  0, 1),     /* 48.8Cr (56.2Cr)  63.6Cr */
+		("Gem-Stones",   0, 0,  19,  1,  0,  0, 15,  0, 2),     /*  7.6Cr (12.0Cr)  16.4Cr */
+		("Alien Items",  0, 0, 127,  3,  0,  0, 31,  0, 0)      /* 50.8Cr (61.2Cr)  71.6Cr */
+    );
+}
