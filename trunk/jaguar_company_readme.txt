@@ -1,4 +1,4 @@
-Jaguar Company 2.0 (2012-11-30)
+Jaguar Company 2.1 (2012-12-02)
 
 Sometime ago I posted some images on the Screenshots thread ( http://aegidian.org/bb/viewtopic.php?f=2&t=4494 ) of the
 Oolite BB ( http://aegidian.org/bb/ ), of what is possible with Griff's multi-decal Player Cobra Mk III OXP.
@@ -39,17 +39,17 @@ This is highly recommended.
 
 Downloads
 ---------
-    https://www.box.com/s/sbm1grusteqwd3hsyism (box.com)
-    https://dl.dropbox.com/u/31706855/Oolite/OXPs/jaguar_company_2.0.zip (dropbox.com)
-    rsync://ebspso.dnsalias.org/jaguar_company_2.0 or ebspso.dnsalias.org::jaguar_company_2.0 (rsync)
+    https://www.box.com/s/xqun8pfj2qotdsx0xq11 (box.com)
+    https://dl.dropbox.com/u/31706855/Oolite/OXPs/jaguar_company_2.1.zip (dropbox.com)
+    rsync://ebspso.dnsalias.org/jaguar_company_2.1 or ebspso.dnsalias.org::jaguar_company_2.1 (rsync)
 
 Install
 -------
-After unzipping, move or copy the folder, "jaguar_company_2.0.oxp", into your AddOns directory.
+After unzipping, move or copy the folder, "jaguar_company_2.1.oxp", into your AddOns directory.
 
 Uninstall
 ---------
-Delete the directory, "jaguar_company_2.0.oxp", from your AddOns directory.
+Delete the directory, "jaguar_company_2.1.oxp", from your AddOns directory.
 
 Oolite v1.77 and newer
 ----------------------
@@ -58,31 +58,15 @@ in the Scripts directory.
 
 Version History
 ---------------
-v2.0 (2012-11-30)
-    First release out of WIP.
-    Moved route code fully into the main worldscript.
-    New worldscript for attackers code. Remember attackers. Even players who jump system.
-        Friend or Foe checks all ships in scanner range.
-        The first few shots are ignored as "friendly fire". Reputation can be lost!
-        You can remove the hostile mark by going to a new galaxy. This will also remove your reputation.
-    Welcome screen on docking.
-    Check for player helping.
-      Thanks to Wildeblood for pointing out the then invisible world script event 'shipAttackedOther'.
-        There's a 10% chance of being seen in the heat of battle. A kill is always seen and rewarded highly.
-        If the player has enough reputation in combat then the communications buoy will transmit a beacon code of 'J'
-          for the player to follow on the ASC. Wait a couple of minutes before checking, the tug pushing the
-          communications buoy out has to reach the drop off point before the beacon activates.
-        The market for the base will change if the player has enough reputation.
-    The communications buoy will slowly rotate to point towards the patrol ships on release from the tug.
-    Black Box Tracker points to the nearest patrol ship.
-        Uses new visual effects code for Oolite v1.77 and newer, otherwise a simple invisible object hanging above the
-          closest patrol ship that can be tracked with the Advanced Space Compass.
-        Tracker deactivates if the player is close to the patrol ships.
-    If Jaguar Company is forced out of interstellar space, they will all use 1 witchpoint exit even though they are all
-      independent entities and not escorts or part of a group.
-    Position and name of the base is now fixed. Uses 'system.scrambledPseudoRandomNumber(salt)'.
-        Conjunction of the witchpoint, planet and sun is checked for so the base doesn't end up in the middle of the
-          planet.
+v2.1 (2012-12-02)
+    Thargoids and tharglets always returns true in $isHostile check.
+    There is a safe zone of 30km around the base.
+        NB: The safe zone does not extend to known attackers.
+    Took out some ship script event handlers and AI sendScriptMessage functions from the base, buoy, miner and tug ship
+      scripts that is inserted by $addFriendly.
+    Fixed colour bug with the tracker. Didn't start off red if the target was behind the player.
+    Fixed name error for $performJaguarCompanyAttackTarget in $addFriendly.
+    Fixed sun check error if no sun exists.
 
 For a full version history see jaguar_company_changelog.txt in the directory you loaded this readme file from.
 

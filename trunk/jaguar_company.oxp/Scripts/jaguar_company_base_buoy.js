@@ -1,7 +1,6 @@
-/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, bitwise: true, regexp: true,
-newcap: true */
-/*jshint es5: true, undef: true, bitwise: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true,
-laxbreak: true, strict: true, curly: true */
+/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
+/*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
+strict: true, curly: true */
 /*global worldScripts, log, Timer, addFrameCallback, removeFrameCallback, isValidFrameCallback, Vector3D */
 
 /* Jaguar Company Base Buoy
@@ -28,7 +27,7 @@ laxbreak: true, strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the Jaguar Company Base Buoy.";
-    this.version = "1.0";
+    this.version = "1.1";
 
     /* Private variable. */
     var p_buoy = {};
@@ -52,20 +51,11 @@ laxbreak: true, strict: true, curly: true */
             logExtra : worldScripts["Jaguar Company"].$logExtra
         };
 
+        /* Register this buoy as a friendly. */
+        p_base.attackersScript.$addFriendly(this.ship);
         /* Wait 5 seconds then find the witchpoint. */
         p_buoy.nextTarget = "WITCHPOINT";
         this.$buoyTimerReference = new Timer(this, this.$buoyTimer, 5);
-    };
-
-    /* Base buoy was destroyed.
-     *
-     * INPUTS
-     *   attacker - entity that caused the death.
-     *   why - cause as a string.
-     */
-    this.shipDied = function (attacker, why) {
-        /* Call common code used by all of Jaguar Company. */
-        worldScripts["Jaguar Company Attackers"].$shipDied(this.ship, attacker, why);
     };
 
     /* Base buoy was removed by script. */
@@ -89,27 +79,6 @@ laxbreak: true, strict: true, curly: true */
         /* Stop and remove the frame callback and timer. */
         this.$removeBuoyTimer();
         this.$removeBuoyFCB();
-    };
-
-    /* Someone is pinging us with their laser.
-     *
-     * INPUTS
-     *   attacker - entity of the ship that attacked.
-     */
-    this.shipBeingAttacked = function (attacker) {
-        /* Call common code used by all of Jaguar Company. */
-        p_buoy.attackersScript.$shipIsBeingAttacked(this.ship, attacker);
-    };
-
-    /* Someone has fired a missile at us.
-     *
-     * INPUTS
-     *   missile - missile entity.
-     *   attacker - entity of the ship that attacked.
-     */
-    this.shipAttackedWithMissile = function (missile, attacker) {
-        /* Call common code used by all of Jaguar Company. */
-        p_buoy.attackersScript.$shipIsBeingAttackedWithMissile(this.ship, attacker);
     };
 
     /* Stop and remove the timer. */

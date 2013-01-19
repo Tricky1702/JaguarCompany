@@ -1,8 +1,7 @@
-/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, bitwise: true, regexp: true,
-newcap: true */
-/*jshint es5: true, undef: true, bitwise: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true,
-laxbreak: true, strict: true, curly: true */
-/*global oolite, Timer, addFrameCallback, removeFrameCallback, isValidFrameCallback */
+/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
+/*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
+strict: true, curly: true */
+/*global Timer, addFrameCallback, removeFrameCallback, isValidFrameCallback */
 
 /* Jaguar Company Tracker
  *
@@ -28,7 +27,7 @@ laxbreak: true, strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the Jaguar Company Tracker.";
-    this.version = "1.0";
+    this.version = "1.1";
 
     /* Private variable. */
     var p_tracker = {};
@@ -226,7 +225,13 @@ laxbreak: true, strict: true, curly: true */
         /* Vector pointing towards the target. */
         vector = cps.position.subtract(PS.position).direction();
 
-        if (vector.dot(PS.heading) >= 0 && !p_tracker.material) {
+        if (vector.dot(PS.heading) >= 0) {
+            p_tracker.material = 0;
+        } else {
+            p_tracker.material = 1;
+        }
+
+        if (!p_tracker.material) {
             /* Change the tracker colour to be green. */
             tracker.setMaterials({
                 jaguar_company_tracker : {
@@ -237,8 +242,7 @@ laxbreak: true, strict: true, curly: true */
                     specular_color : ["0", "0.2", "0", "1"]
                 }
             });
-            p_tracker.material = 1;
-        } else if (vector.dot(PS.heading) < 0 && p_tracker.material) {
+        } else if (p_tracker.material) {
             /* Change the tracker colour to be red. */
             tracker.setMaterials({
                 jaguar_company_tracker : {
@@ -249,7 +253,6 @@ laxbreak: true, strict: true, curly: true */
                     specular_color : ["0.2", "0", "0", "1"]
                 }
             });
-            p_tracker.material = 0;
         }
 
         /* Distance in front of the player. */

@@ -1,8 +1,7 @@
-/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, bitwise: true, regexp: true,
-newcap: true */
-/*jshint es5: true, undef: true, bitwise: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true,
-laxbreak: true, strict: true, curly: true */
-/*global system, log, worldScripts, missionVariables, Timer, player */
+/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
+/*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
+strict: true, curly: true */
+/*global system, log, worldScripts, Timer */
 
 /* Jaguar Company Patrol
  *
@@ -29,7 +28,7 @@ laxbreak: true, strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the Jaguar Company Patrol ships.";
-    this.version = "1.7";
+    this.version = "1.8";
 
     /* Private variable. */
     var p_patrol = {};

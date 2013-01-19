@@ -1,7 +1,6 @@
-/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, bitwise: true, regexp: true,
-newcap: true */
-/*jshint es5: true, undef: true, bitwise: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true,
-laxbreak: true, strict: true, curly: true */
+/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
+/*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
+strict: true, curly: true */
 /*global oolite, system, log, Timer, Vector3D, missionVariables, player, expandMissionText, mission */
 
 /* Jaguar Company
@@ -28,7 +27,7 @@ laxbreak: true, strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Script to initialise the Jaguar Company.";
-    this.version = "2.0";
+    this.version = "2.1";
 
     /* Private variables. */
     var p_main = {},
@@ -198,7 +197,7 @@ laxbreak: true, strict: true, curly: true */
         /* Get friend roles from the attackers world script. */
         friendRoles = worldScripts["Jaguar Company Attackers"].$friendRoles;
 
-        if (!friendRoles || friendRoles.indexOf(whom.primaryRole) === -1) {
+        if (!friendRoles || friendRoles.indexOf(whom.entityPersonality) === -1) {
             /* Ignore non-Jaguar Company ships. */
             return;
         }
@@ -1048,7 +1047,7 @@ laxbreak: true, strict: true, curly: true */
         }
 
         if (!this.$alwaysSpawn) {
-            if (system.sun.isGoingNova || system.sun.hasGoneNova) {
+            if (system.sun && (system.sun.isGoingNova || system.sun.hasGoneNova)) {
                 if (this.$logging && this.$logExtra) {
                     log(this.name, "$setUpCompany::\n" +
                         "system.sun.isGoingNova: " + system.sun.isGoingNova +

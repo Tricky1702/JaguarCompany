@@ -1,7 +1,6 @@
-/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, bitwise: true, regexp: true,
-newcap: true */
-/*jshint es5: true, undef: true, bitwise: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true,
-laxbreak: true, strict: true, curly: true */
+/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
+/*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
+strict: true, curly: true */
 /*global system, log, worldScripts, missionVariables, Timer, clock, player, expandDescription */
 
 /* Jaguar Company Attackers
@@ -28,7 +27,7 @@ laxbreak: true, strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Script to initialise the Jaguar Company attackers.";
-    this.version = "1.0";
+    this.version = "1.1";
 
     /* Private variable. */
     var p_attackers = {};
@@ -269,7 +268,7 @@ laxbreak: true, strict: true, curly: true */
         };
 
         /* This does something similar to a mix between the deployEscorts and groupAttackTarget AI commands. */
-        friend.script.$performAttackTarget = function () {
+        friend.script.$performJaguarCompanyAttackTarget = function () {
             worldScripts["Jaguar Company Attackers"].$performAttackTarget(this.ship);
         };
 
@@ -730,6 +729,11 @@ laxbreak: true, strict: true, curly: true */
      */
     this.$isHostile = function (attacker) {
         var attackerIndex;
+
+        if (attacker.isThargoid) {
+            /* Always true for Thargoids/tharglets. */
+            return true;
+        }
 
         if (!p_attackers.attackers.length) {
             /* No attackers. */
@@ -1226,7 +1230,7 @@ laxbreak: true, strict: true, curly: true */
             }
 
             if (this.$isHostile(entity)) {
-                /* The entity is a previous hostile. */
+                /* The entity is a previous hostile or a Thargoid/tharglet. */
                 return true;
             }
 
@@ -1235,8 +1239,13 @@ laxbreak: true, strict: true, curly: true */
                 return true;
             }
 
-            if (entity.isThargoid || entity.isPirate) {
-                /* The entity is a thargoid/tharglet or a pirate. */
+            if (entity.position.distanceTo(p_attackers.mainScript.$jaguarCompanyBase.position) < 30000) {
+                /* All ships not identified as hostile so far are safe within 30km of the base. */
+                return false;
+            }
+
+            if (entity.isPirate) {
+                /* The entity is a pirate. */
                 return true;
             }
 

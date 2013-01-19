@@ -1,8 +1,7 @@
-/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, bitwise: true, regexp: true,
-newcap: true */
-/*jshint es5: true, undef: true, bitwise: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true,
-laxbreak: true, strict: true, curly: true */
-/*global system, log, worldScripts, missionVariables, Timer, player */
+/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
+/*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
+strict: true, curly: true */
+/*global system, log, worldScripts, missionVariables, Timer */
 
 /* Jaguar Company Base
  *
@@ -28,7 +27,7 @@ laxbreak: true, strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the Jaguar Company Base.";
-    this.version = "1.2";
+    this.version = "1.3";
 
     /* Private variable. */
     var p_base = {};
@@ -127,6 +126,7 @@ laxbreak: true, strict: true, curly: true */
     };
 
     /* Base was destroyed.
+     * Called after the script installed by $addFriendly in jaguar_company_attackers.js
      *
      * INPUTS
      *   attacker - entity that caused the death.
@@ -194,9 +194,6 @@ laxbreak: true, strict: true, curly: true */
 
             return;
         }
-
-        /* Call common code used by all of Jaguar Company. */
-        worldScripts["Jaguar Company Attackers"].$shipDied(this.ship, attacker, why);
     };
 
     /* Base was removed by script. */
@@ -221,52 +218,6 @@ laxbreak: true, strict: true, curly: true */
             }
 
             delete this.$baseTimerReference;
-        }
-    };
-
-    /* Someone is pinging us with their laser.
-     *
-     * INPUTS
-     *   attacker - entity of the ship that attacked.
-     */
-    this.shipBeingAttacked = function (attacker) {
-        /* Call common code used by all of Jaguar Company. */
-        p_base.attackersScript.$shipIsBeingAttacked(this.ship, attacker);
-    };
-
-    /* Someone has fired a missile at us.
-     *
-     * INPUTS
-     *   missile - missile entity.
-     *   attacker - entity of the ship that attacked.
-     */
-    this.shipAttackedWithMissile = function (missile, attacker) {
-        /* Call common code used by all of Jaguar Company. */
-        p_base.attackersScript.$shipIsBeingAttackedWithMissile(this.ship, attacker);
-    };
-
-    /* We killed someone.
-     *
-     * INPUT
-     *   target - entity of the destroyed target.
-     */
-    this.shipTargetDestroyed = function (target) {
-        if (target.primaryRole === "constrictor" &&
-            missionVariables.conhunt &&
-            missionVariables.conhunt === "STAGE_1") {
-            /* Just in case the base kills the constrictor, let's not break the mission for the player... */
-            missionVariables.conhunt = "CONSTRICTOR_DESTROYED";
-            player.score += 1;
-            player.credits += target.bounty;
-            player.consoleMessage(this.ship.displayName + " assisted in the death of " + target.name, 3);
-            player.consoleMessage(
-                this.ship.displayName + ": Commander " + player.name +
-                ", you have the kill and bounty of " + target.bounty + "₢.", 3);
-
-            if (p_base.logging && p_base.logExtra) {
-                log(this.name, "shipTargetDestroyed::" +
-                    this.ship.displayName + " killed - " + target.name + " : " + target.bounty);
-            }
         }
     };
 
@@ -462,23 +413,5 @@ laxbreak: true, strict: true, curly: true */
                 log(this.name, "$launchShip::Launching miner...");
             }
         }
-    };
-
-    /* Check for any previous attackers that have run away. */
-    this.$scanForAttackers = function () {
-        /* Call common code used by all of Jaguar Company. */
-        p_base.attackersScript.$scanForAttackers(this.ship);
-    };
-
-    /* Checks the current target to make sure it is still valid. */
-    this.$checkTargetIsValid = function () {
-        /* Call common code used by all of Jaguar Company. */
-        p_base.attackersScript.$checkTargetIsValid(this.ship);
-    };
-
-    /* This does something similar to the groupAttackTarget AI command. */
-    this.$performJaguarCompanyAttackTarget = function () {
-        /* Call common code used by all of Jaguar Company. */
-        p_base.attackersScript.$performAttackTarget(this.ship);
     };
 }).call(this);

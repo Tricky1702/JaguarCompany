@@ -1,5 +1,14 @@
 ChangeLog
 ---------
+v2.1 (2012-12-02)
+    Thargoids and tharglets always returns true in $isHostile check.
+    There is a safe zone of 30km around the base.
+        NB: The safe zone does not extend to known attackers.
+    Took out some ship script event handlers and AI sendScriptMessage functions from the base, buoy, miner and tug ship
+      scripts that is inserted by $addFriendly.
+    Fixed colour bug with the tracker. Didn't start off red if the target was behind the player.
+    Fixed name error for $performJaguarCompanyAttackTarget in $addFriendly.
+    Fixed sun check error if no sun exists.
 v2.0 (2012-11-30)
     First release out of WIP.
     Moved route code fully into the main worldscript.
