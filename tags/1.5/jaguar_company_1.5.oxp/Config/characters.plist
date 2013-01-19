@@ -18,6 +18,7 @@
     {
         bounty = 0;
         insurance = 500;
+        name = "Commander [nom1]";
         random_seed = "0 0 0 0 0 0";
         role = "jaguar_company";
         short_description = "a member of Jaguar Company";

@@ -1,4 +1,4 @@
-Jaguar Company 1.6 (2012-07-??)
+Jaguar Company 1.5 (2012-07-08)
 
 A work in progress OXP.
 
@@ -27,28 +27,25 @@ Naval convoy in the system.
 
 Requirements
 ------------
-* Oolite 1.75+
-* OXPConfig
+Oolite 1.75+
+OXPConfig
 
 Downloads
 ---------
-* https://www.box.com/s/8af9aa0382c70a960885 (box.com)
-* https://dl.dropbox.com/u/31706855/Oolite/OXPs/jaguar_company.zip (dropbox.com)
-* rsync://ebspso.dnsalias.org/jaguar_company or ebspso.dnsalias.org::jaguar_company (rsync)
+Download from [https://www.box.com/s/8af9aa0382c70a960885 the box]
+Download from [https://dl.dropbox.com/u/31706855/Oolite/OXPs/jaguar_company.zip dropbox]
+Download using rsync://ebspso.dnsalias.org/jaguar_company or ebspso.dnsalias.org::jaguar_company
 
 Install
 -------
-After unzipping, move or copy the folder, "jaguar_company_1.6.oxp", into your AddOns directory.
+After unzipping, move or copy the folder, "jaguar_company_1.5.oxp", into your AddOns directory.
 
 Uninstall
 ---------
-Delete the directory, "jaguar_company_1.6.oxp", from your AddOns directory.
+Delete the directory, "jaguar_company_1.5.oxp", from your AddOns directory.
 
 Version History
 ---------------
-v1.6 (2012-07-??)
-    There is now no concept of leaders and wingmen. All ships keep in a group.
-    Complete rewrite of the AI to reflect the above.
 v1.5 (2012-07-08)
     Vertex and fragment shaders for the base.
     Docking bay looks like a rippling pool.
@@ -81,6 +78,8 @@ v1.0 (2012-06-07)
 
 Future Versions
 ---------------
+The missile script will be expanded to become an all-purpose ship script. This will allow for extensions to the AI.
+
 Characters will be added at some point.
 
 Copyright

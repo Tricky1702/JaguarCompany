@@ -16,12 +16,6 @@
 #define MAX_LIGHTS 8
 #define NUM_LIGHTS 2
 
-#ifdef IS_OOLITE
-#define BASE_LIGHT 1
-#else
-#define BASE_LIGHT 0
-#endif
-
 varying vec2        vTexCoord;
 varying vec3        vEyeVector;   // These are all in tangent space
 varying vec3        vLightVectors[MAX_LIGHTS]; 
@@ -29,8 +23,7 @@ varying vec3        vLightVectors[MAX_LIGHTS];
 uniform sampler2D   uColorMap;
 uniform sampler2D   uNormalMap;
 
-const float         KspecExponent = 5.0;
-const float         Kgamma = 0.66;
+const float KspecExponent = 5.0;
 
 void Light(in vec3 lightVector, in vec3 normal, in vec3 lightColor, in vec3 eyeVector,
            in float KspecExponent, inout vec3 totalDiffuse, inout vec3 totalSpecular)
@@ -55,7 +48,7 @@ void main()
 #ifdef OO_LIGHT_0_FIX
     int i = 0;
 #else
-    int i = BASE_LIGHT;
+    int i = 1;
 #endif
     for (; i < NUM_LIGHTS; i++)
     {
@@ -65,8 +58,7 @@ void main()
     /* Texture */
     diffuse += gl_FrontMaterial.ambient.rgb * gl_LightModel.ambient.rgb;
     vec3 color = diffuse * colorMap;
-    color += colorMap * specular;
-    color *= Kgamma;
+    color += colorMap * specular * 0.66;
 
     /* Return final result */
     gl_FragColor = vec4(color, 1.0);

@@ -13,24 +13,18 @@
 ** Vertex shader for the Jaguar Company Base.
 */
 
+#ifdef OO_TANGENT_ATTR
+attribute vec3      tangent;
+#else
+const vec3          tangent = vec3(1.0, 0.0, 0.0);
+#endif
+
 #define MAX_LIGHTS 8
 #define NUM_LIGHTS 2
 
-#ifdef IS_OOLITE
-#define BASE_LIGHT 1
-#else
-#define BASE_LIGHT 0
-#endif
-
-#ifdef OO_TANGENT_ATTR
-attribute vec3  tangent;
-#else
-const vec3      tangent = vec3(1.0, 0.0, 0.0);
-#endif
-
-varying vec2    vTexCoord;
-varying vec3    vEyeVector;   // These are all in tangent space
-varying vec3    vLightVectors[MAX_LIGHTS]; 
+varying vec2        vTexCoord;
+varying vec3        vEyeVector;   // These are all in tangent space
+varying vec3        vLightVectors[MAX_LIGHTS]; 
 
 void main()
 {
@@ -48,7 +42,7 @@ void main()
 #ifdef OO_LIGHT_0_FIX
     int i = 0;
 #else
-    int i = BASE_LIGHT;
+    int i = 1;
 #endif
     for (; i < NUM_LIGHTS; i++)
     {

@@ -1,4 +1,4 @@
-/* characters.plist for the Jaguar Company.
+/* pirate-victim-roles.plist for the Jaguar Company.
 **
 ** Copyright (C) 2012 Tricky
 **
@@ -10,16 +10,10 @@
 ** to Creative Commons, 171 Second Street, Suite 300, San Francisco,
 ** California, 94105, USA.
 **
-** Characters for the Jaguar Company.
+** Roles to be used as pirate victims for the Jaguar Company.
 */
 
-{
-    jaguar-company-pilot =
-    {
-        bounty = 0;
-        insurance = 500;
-        random_seed = "0 0 0 0 0 0";
-        role = "jaguar_company";
-        short_description = "a member of Jaguar Company";
-    };
-}
+(
+    "jaguar_company_leader",
+    "jaguar_company_wingman"
+)

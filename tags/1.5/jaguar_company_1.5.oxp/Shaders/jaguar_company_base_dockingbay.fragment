@@ -1,4 +1,4 @@
-/* jaguar_company_base_dockingbay.fragment for the Jaguar Company Base.
+/* jaguar_company_base.fragment for the Jaguar Company Base.
 **
 ** Copyright (C) 2012 Tricky
 **
@@ -10,17 +10,11 @@
 ** to Creative Commons, 171 Second Street, Suite 300, San Francisco,
 ** California, 94105, USA.
 **
-** Pixel/Fragment shader for the Jaguar Company Base docking bay.
+** Pixel/Fragment shader for the Jaguar Company Base.
 */
 
 #define MAX_LIGHTS 8
 #define NUM_LIGHTS 2
-
-#ifdef IS_OOLITE
-#define BASE_LIGHT 1
-#else
-#define BASE_LIGHT 0
-#endif
 
 varying vec2        vTexCoord;
 varying vec3        vEyeVector;   // These are all in tangent space
@@ -31,8 +25,6 @@ uniform sampler2D   uNormalMap;
 uniform float       uTime;
 
 const float         KspecExponent = 5.0;
-const float         Kgamma = 0.66;
-const float         Kalpha = 0.75;
 const vec3          Kwater = vec3(0.04, 0.08, 0.16);
 
 void Light(in vec3 lightVector, in vec3 normal, in vec3 lightColor, in vec3 eyeVector,
@@ -63,7 +55,7 @@ void main()
 #ifdef OO_LIGHT_0_FIX
     int i = 0;
 #else
-    int i = BASE_LIGHT;
+    int i = 1;
 #endif
     for (; i < NUM_LIGHTS; i++)
     {
@@ -75,8 +67,8 @@ void main()
     vec3 color = diffuse * colorMap;
     color += colorMap * specular;
     color += Kwater;
-    color *= Kgamma;
 
     /* Return final result */
-    gl_FragColor = vec4(color, Kalpha);
+    float fogFactor = exp(-gl_Fog.density * gl_Fog.density * eyeVector.z * eyeVector.z);
+    gl_FragColor = vec4(mix(gl_Fog.color.rgb, color, fogFactor), 0.75);
 }

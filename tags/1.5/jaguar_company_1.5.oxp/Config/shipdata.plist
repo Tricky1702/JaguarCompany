@@ -17,18 +17,19 @@
     /* Based on the basic Cobra MK III but with placement tweaks for Griff's model
     ** and alterations to some other properties.
     */
-    "jaguar_company_template" =
+    "jaguar_company_leader" =
     {
-        is_template = yes;
         like_ship = "cobra3-alternate";
         model = "jaguar_company_griff_cobra_mk3_mainhull.dat";
-        name = "Jaguar Company";
+        name = "Jaguar Company: Leader";
 
         accuracy = 7.5;
         aft_eject_position = "0.0 -17.0 -40.0";
         ai_type = "jaguar_company_leaderAI.plist";
         auto_ai = no;
         energy_recharge_rate = 4;
+        escorts = 3;
+        escort_role = "jaguar_company_wingman";
         exhaust =
         (
             " 10.7601 6.3008 -31.8587 6.3 5.6 9.0",
@@ -165,16 +166,16 @@
                 phase = 0.0;
                 position = (65.0, -2.52759, -32.4579);
                 color = "greenColor";
-                size = 8.0;
+                size = 4.0;
             },
             {
                 type = "flasher";
                 initially_on = yes;
                 frequency = 2;
-                phase = 0.1;
+                phase = 0.25;
                 position = (-65.0, -2.52759, -32.4579);
                 color = "redColor";
-                size = 8.0;
+                size = 4.0;
             }
         );
         thrust = 32;
@@ -186,12 +187,14 @@
         weapon_position_starboard = " 40.0    2.17    -4.33";
     };
 
-    "jaguar_company_patrol" =
+    "jaguar_company_wingman" =
     {
-        like_ship = "jaguar_company_template";
+        like_ship = "jaguar_company_leader";
+        name = "Jaguar Company: Wingman";
 
-        ai_type = "jaguar_company_patrolAI.plist";
-        roles = "jaguar_company jaguar_company_patrol";
+        ai_type = "jaguar_company_wingmanAI.plist";
+        escorts = 0;
+        roles = "jaguar_company_wingman";
     };
 
     "jaguar_company_griff_normalmapped_cobra_mk3_front_gun" =
@@ -314,7 +317,7 @@
                 };
             };
         };
-        smooth = yes;
+        smooth = 1;
         thrust = 250;
         unpiloted = yes;
         weapon_energy = 4500;
@@ -324,17 +327,15 @@
     {
         ai_type = "stationAI.plist";
         allows_auto_docking = no;
-        beacon = "Jaguar Company Base";
         cargo_type = "CARGO_NOT_CARGO";
+        defense_ship_role = "jaguar_company_leader";
         energy_recharge_rate = 100;
-        equipment_price_factor = 1.5;
         equivalent_tech_level = 15;
         forward_weapon_type = "WEAPON_NONE";
         frangible = no;
         has_ecm = yes;
         has_escape_pod = no;
         has_npc_traffic = no;
-        has_patrols_ships = no;
         has_scoop = no;
         has_shipyard = 0.0;
         materials =
@@ -346,17 +347,14 @@
                 specular_color = (0.1, 0.1, 0.1, 1.0);
             };
         };
-        max_defense_ships = 0;
         max_energy = 25000;
         max_flight_pitch = 8;
         max_flight_roll = 8;
         max_flight_speed = 0;
-        max_police = 0;
-        max_scavengers = 0;
         missiles = 0;
         model = "jaguar_company_base.dat";
         name = "Jaguar Company Base";
-        roles = "jaguar_company jaguar_company_base station";
+        roles = "jaguar_company_base station";
         rotating = yes;
         scanClass = "CLASS_STATION";
         shaders =
@@ -386,7 +384,7 @@
             };
         };
         smooth = yes;
-        station_roll = -0.1;
+        station_roll = -0.04;
         subentities =
         (
             {
@@ -441,6 +439,7 @@
                         type = texture;
                         value = 1;
                     };
+                    uTime = "universalTime";
                 };
             };
         };

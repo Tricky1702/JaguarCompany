@@ -1,0 +1,47 @@
+// output from Obj2DatTex.py Wavefront text file conversion script
+// (c) 2005 By Giles Williams
+// 
+// original file: "jaguar_company_base_dockingbay.obj"
+// 
+// model size: 175.498 x 64.121 x 250.000
+// 
+// textures used: ['jaguar_company_base_dockingbay_diffuse.png']
+// 
+NVERTS 8
+NFACES 10
+
+VERTEX
+87.74880, -32.06074, 229.141948
+87.74880, 32.06074, 229.141948
+-87.74880, 32.06074, 229.141948
+-87.74880, -32.06074, 229.141948
+87.74880, -32.06074, -20.858052
+87.74880, 32.06074, -20.858052
+-87.74880, 32.06074, -20.858052
+-87.74880, -32.06074, -20.858052
+
+FACES
+1,0,0,	-1.00000,0.00000,-0.00000,	3,	0,4,5
+1,0,0,	-1.00000,0.00000,-0.00000,	3,	0,5,1
+1,0,0,	-0.00000,-1.00000,-0.00000,	3,	1,5,6
+1,0,0,	-0.00000,-1.00000,0.00000,	3,	1,6,2
+1,0,0,	1.00000,0.00000,0.00000,	3,	2,6,7
+1,0,0,	1.00000,0.00000,-0.00000,	3,	2,7,3
+1,0,0,	-0.00000,1.00000,-0.00000,	3,	3,7,4
+1,0,0,	-0.00000,1.00000,-0.00000,	3,	3,4,0
+1,0,0,	-0.00000,-0.00000,1.00000,	3,	4,7,6
+1,0,0,	-0.00000,-0.00000,1.00000,	3,	4,6,5
+
+TEXTURES
+jaguar_company_base_dockingbay_diffuse.png	1.0 1.0	0.00559 0.31200	0.58138 0.31200	0.58138 0.16432
+jaguar_company_base_dockingbay_diffuse.png	1.0 1.0	0.00559 0.31200	0.58138 0.16432	0.00559 0.16432
+jaguar_company_base_dockingbay_diffuse.png	1.0 1.0	0.40963 0.89634	0.40963 0.32054	0.00542 0.32054
+jaguar_company_base_dockingbay_diffuse.png	1.0 1.0	0.40963 0.89634	0.00542 0.32054	0.00542 0.89634
+jaguar_company_base_dockingbay_diffuse.png	1.0 1.0	0.58124 0.00799	0.00544 0.00799	0.00544 0.15567
+jaguar_company_base_dockingbay_diffuse.png	1.0 1.0	0.58124 0.00799	0.00544 0.15567	0.58124 0.15567
+jaguar_company_base_dockingbay_diffuse.png	1.0 1.0	0.99255 0.73145	0.99255 0.15565	0.58835 0.15565
+jaguar_company_base_dockingbay_diffuse.png	1.0 1.0	0.99255 0.73145	0.58835 0.15565	0.58835 0.73145
+jaguar_company_base_dockingbay_diffuse.png	1.0 1.0	0.58835 0.15565	0.99255 0.15565	0.99255 0.00797
+jaguar_company_base_dockingbay_diffuse.png	1.0 1.0	0.58835 0.15565	0.99255 0.00797	0.58835 0.00797
+
+END
