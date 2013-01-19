@@ -21,9 +21,9 @@
     };
     "HEAD_FOR_PLANET" =
     {
-        ENTER = (setCourseToPlanet, "setDesiredRangeTo: 1000.0", checkCourseToDestination);
+        ENTER = (setCourseToPlanet, "setDesiredRangeTo: 50000.0", checkCourseToDestination);
         "COURSE_OK" = (setSpeedToCruiseSpeed, performFlyToRangeFromDestination);
-        "WAYPOINT_SET" = ("setStateTo: NEW_PLANET_WAYPOINT");
+        "WAYPOINT_SET" = ("setAITo: gotoWaypointAI.plist");
         "AEGIS_CLOSE_TO_MAIN_PLANET" = ("setStateTo: HEAD_FOR_WITCHPOINT");
         "DESIRED_RANGE_ACHIEVED" = ("setStateTo: HEAD_FOR_WITCHPOINT");
         "TARGET_FOUND" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
@@ -31,39 +31,19 @@
         ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
         "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setStateTo: INBOUND_LOOT", "setAITo: jaguar_company_interceptAI.plist");
         RESTARTED = (checkAegis);
-        UPDATE = (setCourseToPlanet, "setDesiredRangeTo: 1000.0", checkCourseToDestination, scanForOffenders, scanForHostiles, "pauseAI: 10.0");
+        UPDATE = (setCourseToPlanet, "setDesiredRangeTo: 50000.0", checkCourseToDestination, scanForOffenders, scanForHostiles, "pauseAI: 10.0");
     };
     "HEAD_FOR_WITCHPOINT" =
     {
-        ENTER = (setCourseToWitchpoint, "setDesiredRangeTo: 1000.0", checkCourseToDestination);
+        ENTER = (setCourseToWitchpoint, checkCourseToDestination);
         "COURSE_OK" = (setSpeedToCruiseSpeed, performFlyToRangeFromDestination);
-        "WAYPOINT_SET" = ("setStateTo: NEW_WITCHPOINT_WAYPOINT");
+        "WAYPOINT_SET" = ("setAITo: gotoWaypointAI.plist");
         "DESIRED_RANGE_ACHIEVED" = ("setStateTo: HEAD_FOR_PLANET");
         "TARGET_FOUND" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
         "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
         ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
         "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setStateTo: OUTBOUND_LOOT", "setAITo: jaguar_company_interceptAI.plist");
-        UPDATE = (setCourseToWitchpoint, "setDesiredRangeTo: 1000.0", checkCourseToDestination, scanForOffenders, scanForHostiles, "pauseAI: 10.0");
-    };
-    "NEW_PLANET_WAYPOINT" =
-    {
-        ENTER = (setDesiredRangeForWaypoint, checkCourseToDestination, "pauseAI: 2.0");
-        "WAYPOINT_SET" = ("setStateTo: NEW_PLANET_WAYPOINT");
-        "COURSE_OK" = ("setStateTo: HEAD_FOR_PLANET");
-        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: HEAD_FOR_PLANET");
-        "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
-        ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
-        "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setStateTo: INBOUND_LOOT", "setAITo: jaguar_company_interceptAI.plist");
-    };
-    "NEW_WITCHPOINT_WAYPOINT" =
-    {
-        ENTER = (setDesiredRangeForWaypoint, checkCourseToDestination, "pauseAI: 2.0");
-        "WAYPOINT_SET" = ("setStateTo: NEW_WITCHPOINT_WAYPOINT");
-        "COURSE_OK" = ("setStateTo: HEAD_FOR_WITCHPOINT");
-        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: HEAD_FOR_WITCHPOINT");
-        "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
-        ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
-        "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setStateTo: OUTBOUND_LOOT", "setAITo: jaguar_company_interceptAI.plist");
+        UPDATE = (setCourseToWitchpoint, checkCourseToDestination, scanForOffenders, scanForHostiles, "pauseAI: 10.0");
     };
     "INBOUND_LOOT" =
     {

@@ -17,94 +17,55 @@
 {
     GLOBAL =
     {
-        ENTER = ("setStateTo: BEGIN_BUSINESS");
+        ENTER = ("setStateTo: FLYING_ESCORT");
     };
     "FLYING_ESCORT" =
     {
-        ENTER = (performEscort);
+        ENTER = ("setDesiredRangeTo: 0.0", performEscort);
         RESTARTED = ("setStateTo: NEXT_TARGET");
         "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setAITo: jaguar_company_interceptAI.plist");
-        ESCORTING = ("rollD: 5");
-        "ROLL_1" = ("setDesiredRangeTo: 100", performEscort);
-        "ROLL_2" = ("setDesiredRangeTo: 200", performEscort);
-        "ROLL_3" = ("setDesiredRangeTo: 300", performEscort);
-        "ROLL_4" = ("setDesiredRangeTo: 400", performEscort);
-        "ROLL_5" = ("setDesiredRangeTo: 500", performEscort);
-        "INCOMING_MISSILE" = ("messageMother: INCOMING_MISSILE");
+        ESCORTING = ("rollD: 3");
+        "ROLL_1" = ("setDesiredRangeTo: 0.0", performEscort);
+        "ROLL_2" = ("setDesiredRangeTo: 1000.0", performEscort);
+        "ROLL_3" = ("setDesiredRangeTo: 2000.0", performEscort);
+        "INCOMING_MISSILE" = ("messageMother: INCOMING_MISSILE", fightOrFleeMissile);
         "ATTACKED" = ("messageMother: ATTACKED", "messageMother: ESCORT_ATTACKED");
         "NOT_ESCORTING" = ("setStateTo: LOOK_FOR_BUSINESS");
         "TARGET_LOST" = ("setStateTo: LOOK_FOR_BUSINESS");
         "TARGET_DESTROYED" = ("setStateTo: LOOK_FOR_BUSINESS");
         UPDATE = (escortCheckMother, "pauseAI: 15");
     };
-    "BEGIN_BUSINESS" =
-    {
-        "LAUNCHED OKAY" = ("setStateTo: CLEAR_STATION");
-        ATTACKED = (setTargetToPrimaryAggressor, "setAITo: jaguar_company_interceptAI.plist");
-        ESCORTING = ("rollD: 5");
-        "ROLL_1" = ("setDesiredRangeTo: 100", "setStateTo: FLYING_ESCORT");
-        "ROLL_2" = ("setDesiredRangeTo: 200", "setStateTo: FLYING_ESCORT");
-        "ROLL_3" = ("setDesiredRangeTo: 300", "setStateTo: FLYING_ESCORT");
-        "ROLL_4" = ("setDesiredRangeTo: 400", "setStateTo: FLYING_ESCORT");
-        "ROLL_5" = ("setDesiredRangeTo: 500", "setStateTo: FLYING_ESCORT");
-        "NOT_ESCORTING" = ("setStateTo: LOOK_FOR_BUSINESS");
-        UPDATE = (escortCheckMother, "pauseAI: 7.5");
-    };
-    "CLEAR_STATION" = {
-        ENTER = (
-            getWitchspaceEntryCoordinates, 
-            setDestinationFromCoordinates, 
-            "setDesiredRangeTo: 5000.0", 
-            "setSpeedFactorTo: 0.50", 
-            performFlyToRangeFromDestination,
-            escortCheckMother
-        );
-        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: LOOK_FOR_BUSINESS");
-        "TARGET_FOUND" = (setTargetToFoundTarget, suggestEscort, "pauseAI: 1.0");
-        ESCORTING = ("rollD: 5");
-        "ROLL_1" = ("setDesiredRangeTo: 100", "setStateTo: FLYING_ESCORT");
-        "ROLL_2" = ("setDesiredRangeTo: 200", "setStateTo: FLYING_ESCORT");
-        "ROLL_3" = ("setDesiredRangeTo: 300", "setStateTo: FLYING_ESCORT");
-        "ROLL_4" = ("setDesiredRangeTo: 400", "setStateTo: FLYING_ESCORT");
-        "ROLL_5" = ("setDesiredRangeTo: 500", "setStateTo: FLYING_ESCORT");
-        "NOT_ESCORTING" = (scanForFormationLeader);
-        "NOTHING_FOUND" = ("setSpeedFactorTo: 0.50", performFlyToRangeFromDestination);
-        UPDATE = ("pauseAI: 15.0");
-    };
     "LOOK_FOR_BUSINESS" =
     {
         ENTER = (scanForFormationLeader);
-        RESTARTED = ("setStateTo: BEGIN_BUSINESS");
-        "LAUNCHED OKAY" = ("setStateTo: CLEAR_STATION");
+        RESTARTED = ("setStateTo: FLYING_ESCORT");
         ATTACKED = (setTargetToPrimaryAggressor, "setAITo: jaguar_company_interceptAI.plist");
-        ESCORTING = ("rollD: 5");
-        "ROLL_1" = ("setDesiredRangeTo: 100", "setStateTo: FLYING_ESCORT");
-        "ROLL_2" = ("setDesiredRangeTo: 200", "setStateTo: FLYING_ESCORT");
-        "ROLL_3" = ("setDesiredRangeTo: 300", "setStateTo: FLYING_ESCORT");
-        "ROLL_4" = ("setDesiredRangeTo: 400", "setStateTo: FLYING_ESCORT");
-        "ROLL_5" = ("setDesiredRangeTo: 500", "setStateTo: FLYING_ESCORT");
-        "NOT_ESCORTING" = ("rollD: 10");
-        "ROLL_1" = ("setStateTo: CHOOSE_NEW_CAREER");
+        "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setStateTo: FLYING_ESCORT", "setAITo: jaguar_company_interceptAI.plist");
         "TARGET_FOUND" = (setTargetToFoundTarget, suggestEscort);
+        ESCORTING = ("rollD: 3");
+        "ROLL_1" = ("setDesiredRangeTo: 0.0", "setStateTo: FLYING_ESCORT");
+        "ROLL_2" = ("setDesiredRangeTo: 1000.0", "setStateTo: FLYING_ESCORT");
+        "ROLL_3" = ("setDesiredRangeTo: 2000.0", "setStateTo: FLYING_ESCORT");
         "NOTHING_FOUND" = ("setStateTo: CHOOSE_NEW_CAREER");
         "FRUSTRATED" = ("setStateTo: FLYING_ESCORT");
-        "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setStateTo: FLYING_ESCORT", "setAITo: jaguar_company_interceptAI.plist");
+        "NOT_ESCORTING" = ("rollD: 10");
+        "ROLL_1" = ("setStateTo: CHOOSE_NEW_CAREER");
         UPDATE = ("pauseAI: 7.5", scanForFormationLeader);
     };
     "NEXT_TARGET" =
     {
-        ENTER = (requestNewTarget); 
-        RESTARTED = (requestNewTarget); 
-        "NOTHING_FOUND" = (switchLightsOff, "setStateTo: FLYING_ESCORT"); 
-        "TARGET_FOUND" = (setTargetToFoundTarget, "setAITo: jaguar_company_interceptAI.plist"); 
-        "MOTHER_LOST" = (switchLightsOff, "setStateTo: BEGIN_BUSINESS"); 
-        "INCOMING_MISSILE" = ("messageMother: INCOMING_MISSILE");
-    }; 
+        ENTER = (requestNewTarget);
+        RESTARTED = (requestNewTarget);
+        "NOTHING_FOUND" = (switchLightsOff, "setStateTo: FLYING_ESCORT");
+        "TARGET_FOUND" = (setTargetToFoundTarget, "setAITo: jaguar_company_interceptAI.plist");
+        "MOTHER_LOST" = (switchLightsOff, "setStateTo: CHOOSE_NEW_CAREER");
+        "INCOMING_MISSILE" = ("messageMother: INCOMING_MISSILE", fightOrFleeMissile);
+    };
     "CHOOSE_NEW_CAREER" =
     {
         ENTER = (scanForFormationLeader);
         "NOTHING_FOUND" = ("switchAITo: jaguar_company_leaderAI.plist");
         "TARGET_FOUND" = (setTargetToFoundTarget, suggestEscort);
         UPDATE = ("pauseAI: 7.5", scanForFormationLeader);
-    }; 
+    };
 }

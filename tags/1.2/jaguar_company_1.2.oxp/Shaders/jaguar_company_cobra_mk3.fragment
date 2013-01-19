@@ -40,11 +40,7 @@ uniform float     hull_heat_level;
 uniform float     engine_power;
 uniform vec4      PaintColor1; // used with paintmask map to tint diffuse texture
 uniform vec4      PaintColor2; // used with paintmask map to tint diffuse texture
-/* This is separated because Oolite 1.76.1 and previous do not pass the 4th parameter
-** in a vec4 vector. Future versions will do so.
-*/
-uniform vec4      Decal_XY_Scale;
-uniform float     Decal_Rotation;
+uniform vec4      Decal_PosX_PosY_Scale_Rotation;
 
 /* Irregular flickering function */
 #ifdef OO_REDUCED_COMPLEXITY
@@ -131,33 +127,29 @@ void Light(in vec3 lightVector, in vec3 normal, in vec3 lightColor, in vec3 eyeV
 ** "the_decaliser" - this function scales & positions the decal image using data passed
 ** to it from the main shader
 */
-vec4 the_decaliser()
+vec4 the_decaliser(vec4 Your_Decal_Settings)
 {
   /* Setup the basic texture co-ords for the decals */
   vec2 decal_TexCoord = vTexCoord;
 
-  /* Cache this value */
-  float tmp = 1.0 / (2.0 * Decal_XY_Scale.p); // 1/2n = 0.5/n
-
   /* Position the decal */
-  decal_TexCoord -= vec2(Decal_XY_Scale.s, Decal_XY_Scale.t - tmp);
+  decal_TexCoord -= vec2(Your_Decal_Settings.s, Your_Decal_Settings.t - (0.5 / Your_Decal_Settings.p));
 
   /* Orientate & scale the decal */
-  float decal_s = sin(Decal_Rotation);
-  float decal_c = cos(Decal_Rotation);
+  float decal_s = sin(Your_Decal_Settings.q);
+  float decal_c = cos(Your_Decal_Settings.q);
   decal_TexCoord *= mat2(decal_c, decal_s, -decal_s, decal_c); // it's -decal_s when exported back to oolite
 
-  decal_TexCoord += vec2(tmp);
-  decal_TexCoord *= vec2(Decal_XY_Scale.p, Decal_XY_Scale.p);
+  decal_TexCoord += vec2(0.5 / Your_Decal_Settings.p);
+  decal_TexCoord *= vec2(Your_Decal_Settings.p, Your_Decal_Settings.p);
 
   /* Get texture values */
   vec4 decal_Tex = texture2D(uDecalMap, decal_TexCoord);
 
   /* Modify the Decals texture co-oords */
-  decal_TexCoord.s += 1.0;
-  decal_Tex *= step(1.0, decal_TexCoord.s) *
+  decal_Tex *= step(0.0, decal_TexCoord.s) *
                step(0.0, decal_TexCoord.t) *
-               step(-2.0, -decal_TexCoord.s) *
+               step(-1.0, -decal_TexCoord.s) *
                step(-1.0, -decal_TexCoord.t);
 
   /* Use the Alpha in the decal as a transparency mask so you can 'cutout' your decal from it's background */
@@ -193,7 +185,7 @@ void main()
   colorMap += effectsMap.a * PaintColor2.rgb;
 
   /* Full Shader Mode - Apply the decal */
-  vec4 decal = the_decaliser();
+  vec4 decal = the_decaliser(Decal_PosX_PosY_Scale_Rotation);
 
   /* We want to give the decals a matte finish, one way to  achieve this is to mix
   ** them into the final texture fragment result after the lighting has been calculated, so we'll

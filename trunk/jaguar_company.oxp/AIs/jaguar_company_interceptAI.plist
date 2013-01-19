@@ -15,27 +15,47 @@
 */
 
 {
-	GLOBAL =
-	{
-		ENTER = (switchLightsOn, "setStateTo: ATTACK_SHIP");
-	};
-	"ATTACK_SHIP" =
-	{
-		ENTER = (performAttack);
-		"ENERGY_LOW" = ("setStateTo: FLEE");
-        ATTACKED = (setTargetToPrimaryAggressor, "setStateTo: ATTACK_SHIP"); 
-        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget); 
-		"INCOMING_MISSILE" = (fightOrFleeMissile, "setStateTo: FLEE");
-		"TARGET_DESTROYED" = (performIdle, switchLightsOff, exitAI);
-		"TARGET_LOST" = (performIdle, switchLightsOff, exitAI);
-	};
-	FLEE =
-	{
-		ENTER = (deployEscorts, "setDesiredRangeTo: 25600", performFlee);
-		"ENERGY_FULL" = ("setStateTo: ATTACK_SHIP");
-		"TARGET_LOST" = (performIdle, switchLightsOff, exitAI);
-		"TARGET_DESTROYED" = (performIdle, switchLightsOff, exitAI);
-		"REACHED_SAFETY" = (performIdle, switchLightsOff, exitAI); 
-		"INCOMING_MISSILE" = (fightOrFleeMissile, "setStateTo: FLEE");
-	};
+    GLOBAL =
+    {
+        ENTER = (switchLightsOn, "setStateTo: ATTACK_SHIP");
+    };
+    "ATTACK_SHIP" =
+    {
+        ENTER = ("setSpeedFactorTo: 1.0", performAttack);
+        "ENERGY_LOW" = ("setStateTo: FLEE");
+        ATTACKED = (setTargetToPrimaryAggressor, "setStateTo: ATTACK_SHIP");
+        "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setStateTo: ATTACK_SHIP");
+        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
+        "INCOMING_MISSILE" = ("setStateTo: INCOMING_MISSILE", "randomPauseAI: 0.25 0.75");
+        "TARGET_DESTROYED" = (performIdle, switchLightsOff, exitAI);
+        "TARGET_LOST" = (performIdle, switchLightsOff, exitAI);
+        "FRUSTRATED" = (performIdle, switchLightsOff, exitAI);
+    };
+    FLEE =
+    {
+        ENTER = (deployEscorts, "setDesiredRangeTo: 25600", "setSpeedFactorTo: 7.0", performFlee);
+        ATTACKED = (fightOrFleeHostiles);
+        FIGHTING = (setTargetToPrimaryAggressor, "setStateTo: ATTACK_SHIP");
+        FLEEING = (setTargetToPrimaryAggressor, "setStateTo: FLEE");
+        "ENERGY_FULL" = ("setStateTo: ATTACK_SHIP");
+        "TARGET_LOST" = (performIdle, switchLightsOff, exitAI);
+        "TARGET_DESTROYED" = (performIdle, switchLightsOff, exitAI);
+        "REACHED_SAFETY" = (performIdle, switchLightsOff, exitAI);
+        "INCOMING_MISSILE" = ("setStateTo: INCOMING_MISSILE", "randomPauseAI: 0.25 0.75");
+    };
+    "FLEE_FOR_MISSILE" = {
+        ENTER = ("setDesiredRangeTo: 25600", "setSpeedFactorTo: 7.0", performFlee, "pauseAI: 5");
+        ATTACKED = ("setStateTo: ATTACK_SHIP");
+        "TARGET_LOST" = ("setSpeedFactorTo: 1.0", scanForHostiles);
+        "TARGET_FOUND" = (setTargetToFoundTarget, "setStateTo: ATTACK_SHIP");
+        "NOTHING_FOUND" = (performIdle, switchLightsOff, exitAI);
+        "TARGET_DESTROYED" = (performIdle, switchLightsOff, exitAI);
+        "INCOMING_MISSILE" = ("setStateTo: INCOMING_MISSILE", "randomPauseAI: 0.25 0.75");
+        "REACHED_SAFETY" = (performIdle, switchLightsOff, exitAI);
+        "UPDATE" = (fightOrFleeMissile, "pauseAI: 10");
+    };
+    "INCOMING_MISSILE" = {
+        ATTACKED = ("setStateTo: ATTACK_SHIP", fightOrFleeMissile, setTargetToPrimaryAggressor);
+        "UPDATE" = (setTargetToPrimaryAggressor, fightOrFleeMissile, "setStateTo: FLEE_FOR_MISSILE");
+    };
 }

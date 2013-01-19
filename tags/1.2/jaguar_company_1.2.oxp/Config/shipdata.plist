@@ -46,16 +46,15 @@
         laser_color = "redColor";
         max_cargo = 35;
         max_energy = 256;
-        max_flight_speed = 350;
         missile_launch_position = "0.0 -13.7 21.06";
         missiles = 4;
         pilot = "oolite-hunter";
-        roles = "jaguar_company_leader";
+        roles = "hunter(0) jaguar_company_leader";
         scoop_position = "0.0 -9.57 7.66";
-        script = "jaguar_company_ship.js";
+        script = "jaguar_company_missiles.js";
+        /* this is the missile equipment key that the ship will fire. */
         script_info =
         {
-            /* this is the missile equipment key that the ship will fire. */
             "missileRole" = "EQ_HARDENED_MISSILE";
         };
         shaders =
@@ -111,21 +110,16 @@
                         type = vector;
                         value = "0.33 0.2 0.0";
                     };
-                    /* Position & scale data for the placement of the decal on your ships hull, The first 2 numbers in the vector are
-                    ** the decals position, the next value is the decals scale (bigger numbers make smaller decals).
+                    /* Position & scale data for the placement of the decal on your ships hull, The first 2 numbers in the vec4 are
+                    ** the decals position, the next value is the decals scale (bigger numbers make smaller decals) and the last
+                    ** number is the decals rotation (in radians).
                     ** Note that decal position is in relation to the UV map for the object and not the actual mesh
                     */
-                    Decal_XY_Scale =
+                    Decal_PosX_PosY_Scale_Rotation =
                     {
                         type = vector;
-                        value = "0.18 0.22 9.0";
-                    };
-                    /* Rotation for the decal (in radians). */
-                    Decal_Rotation =
-                    {
-                        type = float;
-                        value = "0.7";
-                    };
+                        value = "0.18 0.22 9.0 0.7";
+                    }
                 };
             };
         };
@@ -174,7 +168,7 @@
 
         ai_type = "jaguar_company_wingmanAI.plist";
         escorts = 0;
-        roles = "jaguar_company_wingman";
+        roles = "hunter(0) jaguar_company_wingman";
     };
 
     "jaguar_company_griff_normalmapped_cobra_mk3_front_gun" =

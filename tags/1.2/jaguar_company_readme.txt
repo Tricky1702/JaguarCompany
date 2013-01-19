@@ -1,4 +1,4 @@
-Jaguar Company 1.3 (2012-06-18)
+Jaguar Company 1.2 (2012-06-13)
 
 Requires Oolite 1.73+
 
@@ -18,12 +18,12 @@ and Multi-Government systems.
 
 Install
 -------
-After unzipping, move or copy the folder, "jaguar_company_1.3.oxp", into your
+After unzipping, move or copy the folder, "jaguar_company_1.2.oxp", into your
 AddOns directory.
 
 Uninstall
 ---------
-Delete the directory, "jaguar_company_1.3.oxp", from your AddOns directory.
+Delete the directory, "jaguar_company_1.2.oxp", from your AddOns directory.
 
 Download
 --------
@@ -42,10 +42,6 @@ Version History
     Cleaned up the scripts with JSLint.
     navyPresent variable in jaguar_company.js fixed.
     Tightened up the escort formation distances.
-1.3 (2012-06-18)
-    Fixed the decal rotation.
-    Added lots of new ship names. Altered one for profanity reasons.
-    Tweaked all the AI's.
 
 Future Versions
 ---------------
