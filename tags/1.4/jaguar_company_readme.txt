@@ -1,4 +1,4 @@
-Jaguar Company 1.5 (2012-07-08)
+Jaguar Company 1.4 (2012-07-04)
 
 A work in progress OXP.
 
@@ -38,17 +38,14 @@ Download using rsync://ebspso.dnsalias.org/jaguar_company or ebspso.dnsalias.org
 
 Install
 -------
-After unzipping, move or copy the folder, "jaguar_company_1.5.oxp", into your AddOns directory.
+After unzipping, move or copy the folder, "jaguar_company_1.4.oxp", into your AddOns directory.
 
 Uninstall
 ---------
-Delete the directory, "jaguar_company_1.5.oxp", from your AddOns directory.
+Delete the directory, "jaguar_company_1.4.oxp", from your AddOns directory.
 
 Version History
 ---------------
-v1.5 (2012-07-08)
-    Vertex and fragment shaders for the base.
-    Docking bay looks like a rippling pool.
 v1.4 (2012-07-04)
     Flee for Q-Bombs.
     Be more mercenary when in intercept mode.

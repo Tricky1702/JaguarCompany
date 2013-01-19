@@ -1,0 +1,112 @@
+/* jaguar_company_leaderAI.plist for the Jaguar Company.
+**
+** Copyright (C) 2012 Tricky
+**
+** This work is licensed under the Creative Commons
+** Attribution-Noncommercial-Share Alike 3.0 Unported License.
+**
+** To view a copy of this license, visit
+** http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
+** to Creative Commons, 171 Second Street, Suite 300, San Francisco,
+** California, 94105, USA.
+**
+** AI for the Jaguar Company leader.
+** Based on route1patrolAI.plist
+*/
+
+{
+    GLOBAL =
+    {
+        ENTER = (switchLightsOff, "setStateTo: HEAD_FOR_PLANET");
+    };
+    "HEAD_FOR_PLANET" =
+    {
+        ENTER = (setCourseToPlanet, "setDesiredRangeTo: 50000.0", checkCourseToDestination);
+        "COURSE_OK" = (setSpeedToCruiseSpeed, performFlyToRangeFromDestination);
+        "WAYPOINT_SET" = ("setAITo: gotoWaypointAI.plist");
+        "AEGIS_CLOSE_TO_MAIN_PLANET" = ("setStateTo: HEAD_FOR_WITCHPOINT");
+        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: HEAD_FOR_WITCHPOINT");
+        "TARGET_FOUND" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
+        "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
+        ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
+        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
+        "ACCEPT_DISTRESS_CALL" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
+        "OFFENCE_COMMITTED" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget); 
+        "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setStateTo: INBOUND_LOOT", "setAITo: jaguar_company_interceptAI.plist"); 
+        RESTARTED = (checkAegis);
+        UPDATE = (setCourseToPlanet, "setDesiredRangeTo: 50000.0", checkCourseToDestination, scanForOffenders, "pauseAI: 10.0");
+    };
+    "HEAD_FOR_WITCHPOINT" =
+    {
+        ENTER = (setCourseToWitchpoint, checkCourseToDestination);
+        "COURSE_OK" = (setSpeedToCruiseSpeed, performFlyToRangeFromDestination);
+        "WAYPOINT_SET" = ("setAITo: gotoWaypointAI.plist");
+        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: HEAD_FOR_PLANET");
+        "TARGET_FOUND" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
+        "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
+        ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
+        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
+        "ACCEPT_DISTRESS_CALL" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
+        "OFFENCE_COMMITTED" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget); 
+        "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setStateTo: OUTBOUND_LOOT", "setAITo: jaguar_company_interceptAI.plist"); 
+        UPDATE = (setCourseToWitchpoint, checkCourseToDestination, scanForOffenders, "pauseAI: 10.0");
+    };
+    "INBOUND_LOOT" =
+    {
+        ENTER = ("setSpeedTo: 0.0", performIdle);
+        "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
+        ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
+        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
+        "ACCEPT_DISTRESS_CALL" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
+        "OFFENCE_COMMITTED" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget); 
+        "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setAITo: jaguar_company_interceptAI.plist"); 
+        "TARGET_FOUND" = (setTargetToFoundTarget, "setAITo: collectLootAI.plist");
+        "NOTHING_FOUND" = ("setStateTo: INBOUND_CHECK");
+        "HOLD_FULL" = ("setStateTo: INBOUND_CHECK");
+        UPDATE = (scanForLoot, "pauseAI: 10.0");
+    };
+    "OUTBOUND_LOOT" =
+    {
+        ENTER = ("setSpeedTo: 0.0", performIdle);
+        "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
+        ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
+        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
+        "ACCEPT_DISTRESS_CALL" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
+        "OFFENCE_COMMITTED" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget); 
+        "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setAITo: jaguar_company_interceptAI.plist"); 
+        "TARGET_FOUND" = (setTargetToFoundTarget, "setAITo: collectLootAI.plist");
+        "NOTHING_FOUND" = ("setStateTo: OUTBOUND_CHECK");
+        "HOLD_FULL" = ("setStateTo: OUTBOUND_CHECK");
+        UPDATE = (scanForLoot, "pauseAI: 10.0");
+    };
+    "INBOUND_CHECK" =
+    {
+        ENTER = (checkForNormalSpace);
+        RESTARTED = ("setStateTo: INBOUND_LOOT");
+        "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
+        ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
+        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
+        "ACCEPT_DISTRESS_CALL" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
+        "OFFENCE_COMMITTED" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget); 
+        "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setAITo: jaguar_company_interceptAI.plist"); 
+        "NORMAL_SPACE" = (checkAegis, "setStateTo: HEAD_FOR_PLANET");
+        "INTERSTELLAR_SPACE" = ("setSpeedFactorTo: 1.0", "pauseAI: 15.0", "setStateTo: HYPER_OUT");
+    };
+    "OUTBOUND_CHECK" =
+    {
+        ENTER = (checkForNormalSpace);
+        RESTARTED = ("setStateTo: OUTBOUND_LOOT");
+        "INCOMING_MISSILE" = (fightOrFleeMissile, setTargetToPrimaryAggressor, deployEscorts, groupAttackTarget);
+        ATTACKED = (setTargetToPrimaryAggressor, groupAttackTarget);
+        "ESCORT_ATTACKED" = (setTargetToPrimaryAggressor, groupAttackTarget);
+        "ACCEPT_DISTRESS_CALL" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget);
+        "OFFENCE_COMMITTED" = (setTargetToFoundTarget, deployEscorts, groupAttackTarget); 
+        "GROUP_ATTACK_TARGET" = (setTargetToFoundTarget, "setAITo: jaguar_company_interceptAI.plist"); 
+        "NORMAL_SPACE" = ("setStateTo: HEAD_FOR_WITCHPOINT");
+        "INTERSTELLAR_SPACE" = ("setSpeedFactorTo: 1.0", "pauseAI: 15.0", "setStateTo: HYPER_OUT");
+    };
+    "HYPER_OUT" =
+    {
+        UPDATE = (performHyperSpaceExit);
+    };
+}

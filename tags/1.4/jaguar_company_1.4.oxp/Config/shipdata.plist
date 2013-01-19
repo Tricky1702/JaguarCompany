@@ -343,8 +343,8 @@
             "jaguar_company_base_diffuse.png" =
             {
                 diffuse_map = "jaguar_company_base_diffuse.png";
-                shininess = 2;
-                specular_color = (0.1, 0.1, 0.1, 1.0);
+                shininess = 5;
+                specular_color = (0.2, 0.2, 0.2);
             };
         };
         max_energy = 25000;
@@ -357,34 +357,8 @@
         roles = "jaguar_company_base station";
         rotating = yes;
         scanClass = "CLASS_STATION";
-        shaders =
-        {
-            "jaguar_company_base_diffuse.png" =
-            {
-                vertex_shader = "jaguar_company_base.vertex";
-                fragment_shader = "jaguar_company_base.fragment";
-                textures =
-                (
-                    "jaguar_company_base_diffuse.png",
-                    "jaguar_company_base_normal.png"
-                );
-                uniforms =
-                {
-                    uColorMap =
-                    {
-                        type = texture;
-                        value = 0;
-                    };
-                    uNormalMap =
-                    {
-                        type = texture;
-                        value = 1;
-                    };
-                };
-            };
-        };
         smooth = yes;
-        station_roll = -0.04;
+        station_roll = -0.01;
         subentities =
         (
             {
@@ -409,40 +383,13 @@
             "jaguar_company_base_dockingbay_diffuse.png" =
             {
                 diffuse_map = "jaguar_company_base_dockingbay_diffuse.png";
-                shininess = 2;
-                specular_color = (0.1, 0.1, 0.1, 1.0);
+                shininess = 5;
+                specular_color = (0.2, 0.2, 0.2);
             };
         };
         model = "jaguar_company_base_dockingbay.dat";
         name = "Jaguar Company Base Docking Bay";
         roles = "jaguar_company_base_dockingbay docking-slit-horizontal";
-        shaders =
-        {
-            "jaguar_company_base_dockingbay_diffuse.png" =
-            {
-                vertex_shader = "jaguar_company_base.vertex";
-                fragment_shader = "jaguar_company_base_dockingbay.fragment";
-                textures =
-                (
-                    "jaguar_company_base_dockingbay_diffuse.png",
-                    "jaguar_company_base_dockingbay_normal.png"
-                );
-                uniforms =
-                {
-                    uColorMap =
-                    {
-                        type = texture;
-                        value = 0;
-                    };
-                    uNormalMap =
-                    {
-                        type = texture;
-                        value = 1;
-                    };
-                    uTime = "universalTime";
-                };
-            };
-        };
         smooth = no;
    };
 }

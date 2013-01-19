@@ -182,9 +182,9 @@ void main()
   int   alertlevel = 0;
 
 #ifdef OO_LIGHT_0_FIX
-  LIGHT(0, vLight0Vector);
+  LIGHT(0, normalize(vLight0Vector));
 #endif
-  LIGHT(1, vLight1Vector);
+  LIGHT(1, normalize(vLight1Vector));
   diffuse += gl_FrontMaterial.ambient.rgb * gl_LightModel.ambient.rgb;
 
 #ifndef OO_REDUCED_COMPLEXITY
