@@ -1,9 +1,10 @@
-Jaguar Company 1.3.1 (2012-06-21)
+Jaguar Company 1.3 (2012-06-18)
+
+Requires Oolite 1.73+
 
 TOC
 ---
 Overview
-Requirements
 Install
 Uninstall
 Version History
@@ -15,19 +16,14 @@ Overview
 Adds in an Elite group of pilots to patrol the space lanes in Anarchy, Feudal
 and Multi-Government systems.
 
-Requirements
-------------
-Oolite 1.73+
-OXPConfig
-
 Install
 -------
-After unzipping, move or copy the folder, "jaguar_company_1.3.1.oxp", into your
+After unzipping, move or copy the folder, "jaguar_company_1.3.oxp", into your
 AddOns directory.
 
 Uninstall
 ---------
-Delete the directory, "jaguar_company_1.3.1.oxp", from your AddOns directory.
+Delete the directory, "jaguar_company_1.3.oxp", from your AddOns directory.
 
 Download
 --------
@@ -50,11 +46,6 @@ Version History
     Fixed the decal rotation.
     Added lots of new ship names. Altered one for profanity reasons.
     Tweaked all the AI's.
-1.3.1 (2012-06-21)
-    Simplified the AI for the leader.
-    Reduced accuracy to 7.5
-    Added in "randomshipnames" = no, into script_info of ship data.
-    Uses OXPConfig to change logging levels. Set 'displayAll' in OXPConfig to show this OXP.
 
 Future Versions
 ---------------

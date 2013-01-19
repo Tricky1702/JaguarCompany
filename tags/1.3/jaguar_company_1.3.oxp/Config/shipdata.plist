@@ -23,7 +23,7 @@
         model = "jaguar_company_griff_cobra_mk3_mainhull.dat";
         name = "Jaguar Company: Leader";
 
-        accuracy = 7.5;
+        accuracy = 8.5;
         aft_eject_position = "0.0 -17.0 -40.0";
         ai_type = "jaguar_company_leaderAI.plist";
         auto_ai = no;
@@ -55,8 +55,6 @@
         script = "jaguar_company_ship.js";
         script_info =
         {
-            /* Stop inteference from Randomship Names OXP */
-            "randomshipnames" = no;
             /* this is the missile equipment key that the ship will fire. */
             "missileRole" = "EQ_HARDENED_MISSILE";
         };
