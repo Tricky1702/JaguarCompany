@@ -38,7 +38,6 @@
     {
         ENTER = ("setSpeedFactorTo: 1.0", "sendScriptMessage: $checkRoute");
         "JAGUAR_COMPANY_INTERSTELLAR" = ("setStateTo: INTERSTELLAR");
-        "JAGUAR_COMPANY_NAVY_PATROL" = ("setStateTo: NAVY_PATROL");
         "JAGUAR_COMPANY_WITCHPOINT_FROM_BASE" = ("setStateTo: HEAD_FOR_WITCHPOINT_FROM_BASE");
         "JAGUAR_COMPANY_WITCHPOINT" = ("setStateTo: HEAD_FOR_WITCHPOINT");
         "JAGUAR_COMPANY_PLANET" = ("setStateTo: HEAD_FOR_PLANET");
@@ -302,79 +301,6 @@
             setDestinationFromCoordinates,
             "setDesiredRangeTo: 5000.0",
             checkCourseToDestination,
-            "sendScriptMessage: $scanForAttackers",
-            "sendScriptMessage: $scanForCascadeWeapon"
-        );
-    };
-
-    "NAVY_PATROL" =
-    {
-        /* Set a course for the navy, set a range and check it. */
-        ENTER =
-        (
-            "dropMessages: DESIRED_RANGE_ACHIEVED",
-            "sendScriptMessage: $setCoordsToNavyShips",
-            "pauseAI: 5.0"
-        );
-        /* See CLEAR_STATION for an explanantion of the next 4 messages. */
-        "CASCADE_WEAPON_FOUND" = ("sendScriptMessage: $saveAIState", "setStateTo: CASCADE_WEAPON_FOUND");
-        "HOSTILE_FIRE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $performJaguarCompanyAttackTarget");
-        "INCOMING_MISSILE" =
-        (
-            setTargetToPrimaryAggressor,
-            fightOrFleeMissile,
-            "sendScriptMessage: $performJaguarCompanyAttackTarget"
-        );
-        "JAGUAR_COMPANY_ATTACK_TARGET" =
-        (
-            "setStateTo: LOOT",
-            "setAITo: jaguar_company_interceptAI.plist",
-            fightOrFleeHostiles
-        );
-        /* Attackers found by '$scanForAttackers'. Let everyone else know.
-         * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
-         */
-        "ATTACKERS_FOUND" = ("sendScriptMessage: $performJaguarCompanyAttackTarget");
-        /* Co-ordinates set to the nearest navy ship so let's set a course to it. */
-        "JAGUAR_COMPANY_NAVY_FOUND" =
-        (
-            setDestinationFromCoordinates,
-            "setDesiredRangeTo: 7500.0",
-            checkCourseToDestination
-        );
-        /* Navy has gone.
-         * Probably blown up by pirates or thargoids. New route has already been set so just regroup.
-         */
-        "JAGUAR_COMPANY_NAVY_NOT_FOUND" = ("setStateTo: WAIT_FOR_REGROUP");
-        /* Course is OK so check if we are too close to any of the other ships. */
-        "COURSE_OK" =
-        (
-            setSpeedToCruiseSpeed,
-            performFlyToRangeFromDestination,
-            "sendScriptMessage: $checkJaguarCompanyClosestDistance 250.0"
-        );
-        /* We're too close to another ship so move away from it. */
-        "JAGUAR_COMPANY_TOO_CLOSE" =
-        (
-            "sendScriptMessage: $saveAIState",
-            "setStateTo: MOVE_AWAY",
-            "randomPauseAI: 0.1 0.5"
-        );
-        /* We're not too close so check if we have strayed too far. */
-        "JAGUAR_COMPANY_DISTANCE_OK" = ("sendScriptMessage: $checkJaguarCompanyRegroup 15000.0");
-        /* Regroup if we have strayed. */
-        "JAGUAR_COMPANY_REGROUP" = ("setStateTo: WAIT_FOR_REGROUP");
-        /* Something in the way. */
-        "WAYPOINT_SET" = ("setAITo: jaguar_company_waypointAI.plist");
-        /* Wandered into a wormhole whilst in waypoint AI. */
-        WORMHOLE = ("setStateTo: GLOBAL");
-        /* AI restarted. */
-        RESTARTED = ("setStateTo: WAIT_FOR_REGROUP");
-        /* Reset the course and range, re-check it and also scan for attackers and cascade weapons. */
-        UPDATE =
-        (
-            "pauseAI: 5.0",
-            "sendScriptMessage: $setCoordsToNavyShips",
             "sendScriptMessage: $scanForAttackers",
             "sendScriptMessage: $scanForCascadeWeapon"
         );

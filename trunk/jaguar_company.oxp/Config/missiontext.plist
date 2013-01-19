@@ -14,17 +14,49 @@
  */
 
 {
-    "jaguar_company_base_docked" = "[jaguar_company_base_greeting] [jaguar_company_base_docked]";
-    "jaguar_company_base_visited" = "[jaguar_company_base_greeting] [jaguar_company_base_visited]";
+    "jaguar_company_base_thankyou" = "[jaguar_company_base_thankyou]\n\n";
 
-    "jaguar_company_base_docked_thanks" = "[jaguar_company_base_greeting] [jaguar_company_base_docked_thanks]";
-    "jaguar_company_base_visited_thanks" = "[jaguar_company_base_greeting] [jaguar_company_base_visited_thanks]";
+    "jaguar_company_base_no_black_box1" = "[jaguar_company_base_no_black_box1]\n\n";
+    "jaguar_company_base_no_black_box2" = "[jaguar_company_base_no_black_box2]\n\n";
+    "jaguar_company_base_fix_black_box" = "[jaguar_company_base_fix_black_box]\n\n";
 
-    "jaguar_company_base_thanks_no_black_box1" = "[jaguar_company_base_greeting] [jaguar_company_base_thanks_no_black_box1]";
-    "jaguar_company_base_thanks_no_black_box2" = "[jaguar_company_base_greeting] [jaguar_company_base_thanks_no_black_box2]";
-    "jaguar_company_base_thanks_black_box_damaged" = "[jaguar_company_base_greeting] [jaguar_company_base_thanks_black_box_damaged]";
+    "jaguar_company_base_no_locator1" = "[jaguar_company_base_no_locator1]\n\n";
+    "jaguar_company_base_no_locator2" = "[jaguar_company_base_no_locator2]\n\n";
 
-    "jaguar_company_base_market" = "\n\n[jaguar_company_base_market]";
-    "jaguar_company_base_market_want" = "\n\n[jaguar_company_base_market_want]";
-    "jaguar_company_base_market_want_a" = "\n* [jaguar_company_base_market_want_a]";
+    "jaguar_company_base_market" = "[jaguar_company_base_market]\n";
+    "jaguar_company_base_market_want" = "[jaguar_company_base_market_want]\n";
+    "jaguar_company_base_market_want_a" = "* [jaguar_company_base_market_want_a]\n";
+
+    "jaguar_company_choices_1_page" =
+    {
+        "1_1_EXIT" = "Exit listing";
+    };
+    "jaguar_company_choices_1_of_2" =
+    {
+        "2_1_NEXT_PAGE" = "Next page";
+        "2_2_EXIT" = "Exit listing";
+    };
+    "jaguar_company_choices_2_of_2" =
+    {
+        "2_1_PREV_PAGE" = "Previous page";
+        "2_2_EXIT" = "Exit listing";
+    };
+    "jaguar_company_choices_start_of_many" =
+    {
+        "M_1_NEXT_PAGE" = "Next page";
+        "M_2_LAST_PAGE" = "Last page";
+        "M_3_EXIT" = "Exit listing";
+    };
+    "jaguar_company_choices_middle_of_many" =
+    {
+        "M_1_NEXT_PAGE" = "Next page";
+        "M_2_PREV_PAGE" = "Previous page";
+        "M_3_EXIT" = "Exit listing";
+    };
+    "jaguar_company_choices_end_of_many" =
+    {
+        "M_1_FIRST_PAGE" = "First page";
+        "M_2_PREV_PAGE" = "Previous page";
+        "M_3_EXIT" = "Exit listing";
+    };
 }

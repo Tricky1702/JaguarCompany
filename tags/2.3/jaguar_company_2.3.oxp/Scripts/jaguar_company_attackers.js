@@ -27,7 +27,7 @@ strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Script to initialise the Jaguar Company attackers.";
-    this.version = "1.3";
+    this.version = "1.2";
 
     /* Private variable. */
     var p_attackers = {};
@@ -43,14 +43,20 @@ strict: true, curly: true */
 
         log(this.name + " " + this.version + " loaded.");
 
-        /* Setup the private attackers variable + some public variables. Delay it. */
-        this.$setUpTimerReference = new Timer(this, this.$setUp, 0.5, 0.5);
+        /* Setup the private attackers variable. */
+        this.$setUp();
     };
 
     /* Reset everything just before exiting Witchspace. */
     this.shipWillExitWitchspace = function () {
-        /* Setup the private attackers variable + some public variables. */
+        /* Setup the private attackers variable. */
         this.$setUp();
+    };
+
+    /* Remove the attacker mark and reputation mark if the player jumps galaxies. */
+    this.playerEnteredNewGalaxy = function () {
+        delete missionVariables.jaguar_company_attacker;
+        delete missionVariables.jaguar_company_reputation;
     };
 
     /* Player fired a laser at someone and hit.
@@ -66,8 +72,7 @@ strict: true, curly: true */
         pilotName,
         reputation,
         helperLevel = p_attackers.mainScript.$reputationHelper,
-        blackboxLevel = p_attackers.mainScript.$reputationBlackbox,
-        locationsLevel = p_attackers.mainScript.$reputationLocations;
+        blackboxLevel = p_attackers.mainScript.$reputationBlackbox;
 
         if (!this.$isHostile(victim)) {
             /* Ignore victims that are not hostile to Jaguar Company. */
@@ -121,8 +126,6 @@ strict: true, curly: true */
             player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_help_buoy]"));
         } else if (reputation === blackboxLevel) {
             player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_help_blackbox]"));
-        } else if (reputation === locationsLevel) {
-            player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_help_locations]"));
         }
     };
 
@@ -140,8 +143,7 @@ strict: true, curly: true */
         newsSource,
         reputation,
         helperLevel = p_attackers.mainScript.$reputationHelper,
-        blackboxLevel = p_attackers.mainScript.$reputationBlackbox,
-        locationsLevel = p_attackers.mainScript.$reputationLocations;
+        blackboxLevel = p_attackers.mainScript.$reputationBlackbox;
 
         if (!this.$isHostile(victim)) {
             /* Ignore victims that are not hostile to Jaguar Company. */
@@ -198,13 +200,10 @@ strict: true, curly: true */
         } else if (reputation >= blackboxLevel && reputation < blackboxLevel + 10 &&
             player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") !== "EQUIPMENT_OK") {
             player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_help_blackbox]"));
-        } else if (reputation >= locationsLevel && reputation < locationsLevel + 10 &&
-            player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_OK") {
-            player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_help_locations]"));
         }
 
-        if (!p_attackers.newsSent || clock.seconds - p_attackers.newsSent > 10 * 60) {
-            /* First kill in the current system or more than 10 minutes since the last kill. */
+        if (!p_attackers.newsSent || clock.seconds - p_attackers.newsSent > 5 * 60) {
+            /* First kill or more than 5 minutes since the last kill. */
             p_attackers.newsSent = clock.seconds;
             /* Send news to Snoopers. */
             p_attackers.mainScript.$sendNewsToSnoopers(expandDescription("[jaguar_company_help_news]", {
@@ -217,20 +216,6 @@ strict: true, curly: true */
 
     /* Setup the private attackers variable and clear the public friend roles array. */
     this.$setUp = function () {
-        if (!worldScripts["Jaguar Company"]) {
-            /* Main script not loaded yet. */
-            return;
-        }
-
-        /* Stop and remove the timer. */
-        if (this.$setUpTimerReference) {
-            if (this.$setUpTimerReference.isRunning) {
-                this.$setUpTimerReference.stop();
-            }
-
-            delete this.$setUpTimerReference;
-        }
-
         /* Initialise the p_attackers variable object.
          * Encapsulates all private global data.
          */
@@ -977,12 +962,12 @@ strict: true, curly: true */
 
             if (victim.isPiloted) {
                 /* Player hostile message. */
-                player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
+                player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
             }
         } else {
             if (victim.isPiloted) {
                 /* Other ship hostile message. */
-                player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
+                player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
             }
         }
     };
@@ -1020,7 +1005,7 @@ strict: true, curly: true */
         if (this.$friendRoles.indexOf(attacker.entityPersonality) > -1 || attacker.isPolice) {
             if (victim.isPiloted && Math.random() > p_attackers.messageProbability) {
                 /* Broadcast a "friendly fire" message. */
-                player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_friendly_fire]"));
+                player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_friendly_fire]"));
             }
 
             /* Tell the attacker that we are a friend. */
@@ -1042,10 +1027,11 @@ strict: true, curly: true */
                 /* Show hostile message. */
                 if (attacker.isPlayer) {
                     /* Player hostile message. */
-                    player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
+                    player.commsMessage(pilotName + ": " +
+                        expandDescription("[jaguar_company_player_hostile_fire]"));
                 } else {
                     /* Other ship hostile message. */
-                    player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
+                    player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
                 }
             }
 
@@ -1072,11 +1058,12 @@ strict: true, curly: true */
                         /* Decrease reputation. */
                         missionVariables.jaguar_company_reputation -= 1;
                         /* Player warning. */
-                        player.consoleMessage(pilotName + ": " +
+                        player.commsMessage(pilotName + ": " +
                             expandDescription("[jaguar_company_player_friendly_fire]"));
                     } else {
                         /* Other ship warning. */
-                        player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_friendly_fire]"));
+                        player.commsMessage(pilotName + ": " +
+                            expandDescription("[jaguar_company_friendly_fire]"));
                     }
                 }
 
@@ -1099,12 +1086,12 @@ strict: true, curly: true */
 
             if (victim.isPiloted) {
                 /* Player hostile message. */
-                player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
+                player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
             }
         } else {
             if (victim.isPiloted) {
                 /* Other ship hostile message. */
-                player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
+                player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
             }
         }
 
@@ -1156,7 +1143,7 @@ strict: true, curly: true */
                 }
 
                 /* Death message. */
-                player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_death]"));
+                player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_death]"));
             }
         }
 
@@ -1183,10 +1170,10 @@ strict: true, curly: true */
             missionVariables.conhunt = "CONSTRICTOR_DESTROYED";
             player.score += 1;
             player.credits += target.bounty;
-            player.commsMessage(whom.ship.displayName + " assisted in the death of " + target.name);
-            player.commsMessage(
+            player.consoleMessage(whom.ship.displayName + " assisted in the death of " + target.name, 3);
+            player.consoleMessage(
                 whom.ship.displayName + ": Commander " + player.name +
-                ", you have the kill and bounty of " + target.bounty + "₢.");
+                ", you have the kill and bounty of " + target.bounty + "₢.", 3);
 
             if (p_attackers.logging && p_attackers.logExtra) {
                 log(this.name, "$shipTargetDestroyed::" + this.ship.displayName +
@@ -1323,8 +1310,7 @@ strict: true, curly: true */
                 return true;
             }
 
-            if (p_attackers.mainScript.$jaguarCompanyBase && p_attackers.mainScript.$jaguarCompanyBase.isValid &&
-                entity.position.distanceTo(p_attackers.mainScript.$jaguarCompanyBase.position) < 30000) {
+            if (entity.position.distanceTo(p_attackers.mainScript.$jaguarCompanyBase.position) < 30000) {
                 /* All ships not identified as hostile so far are safe within 30km of the base. */
                 return false;
             }
@@ -1376,10 +1362,11 @@ strict: true, curly: true */
                 /* Show hostile message. */
                 if (target.isPlayer) {
                     /* Player hostile message. */
-                    player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
+                    player.commsMessage(pilotName + ": " +
+                        expandDescription("[jaguar_company_player_hostile_fire]"));
                 } else {
                     /* Other ship hostile message. */
-                    player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
+                    player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
                 }
             }
 

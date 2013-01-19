@@ -41,12 +41,7 @@
 
     "jaguar_company_player_help_blackbox" =
     (
-        "Go back to one of our bases to receive a little thank you gift."
-    );
-
-    "jaguar_company_player_help_locations" =
-    (
-        "Go back to one of our bases to have your black box updated."
+        "Go to our base to receive a little thank you gift."
     );
 
     "jaguar_company_help_news" =
@@ -57,8 +52,8 @@
 
     "jaguar_company_help_news_quote" =
     (
-        "Without this help, all could have been lost. [commander_name] would do well to think of future navy service.",
-        "[commander_name] should think of signing up for navy service, assuming the Commander hasn't already.",
+        "Without this help, all could have been lost. [commander_name] would do well to think of future service.",
+        "[commander_name] should think of signing up for the service, assuming the Commander hasn't already.",
         "I'm at a loss for words! In the middle of battle and out of nowhere, Commander [commander_name] came swooping in and saved the day."
     );
 
@@ -194,6 +189,12 @@
         "Ahoy [commander_name]!"
     );
 
+    "jaguar_company_base_thankyou" =
+    (
+        "Thank you for giving a helping hand to our pilots.",
+        "Jaguar Company salutes your brave efforts"
+    );
+
     "jaguar_company_base_docked" =
     (
         "Welcome to the base of operations for Jaguar Company.",
@@ -206,20 +207,24 @@
         "We are glad that you decided to come back to us."
     );
 
-    "jaguar_company_base_thankyou" =
+    "jaguar_company_base_docked_thanks" =
     (
-        "Thank you for giving a helping hand to our pilots.",
-        "Jaguar Company salutes your brave efforts."
+        "[jaguar_company_base_docked] [jaguar_company_base_thankyou]"
     );
 
-    "jaguar_company_base_no_black_box1" =
+    "jaguar_company_base_visited_thanks" =
     (
-        "[jaguar_company_base_fit_black_box1] [jaguar_company_base_fit_black_box2]"
+        "[jaguar_company_base_visited] [jaguar_company_base_thankyou]"
     );
 
-    "jaguar_company_base_no_black_box2" =
+    "jaguar_company_base_thanks_no_black_box1" =
     (
-        "[jaguar_company_base_fit_black_box1]"
+        "[jaguar_company_base_docked_thanks] [jaguar_company_base_fit_black_box1] [jaguar_company_base_fit_black_box2]"
+    );
+
+    "jaguar_company_base_thanks_no_black_box2" =
+    (
+        "[jaguar_company_base_docked_thanks] [jaguar_company_base_fit_black_box1]"
     );
 
     "jaguar_company_base_fit_black_box1" =
@@ -232,29 +237,14 @@
         "Cycle the advanced space compass to beacon code 'T' after activation."
     );
 
+    "jaguar_company_base_thanks_black_box_damaged" =
+    (
+        "[jaguar_company_base_visited_thanks] [jaguar_company_base_fix_black_box]"
+    );
+
     "jaguar_company_base_fix_black_box" =
     (
         "Our base master has noticed that your black box locator is damaged and has tasked his workers to fix it."
-    );
-
-    "jaguar_company_base_no_locator1" =
-    (
-        "[jaguar_company_base_fit_locator] and then select the equipment page."
-    );
-
-    "jaguar_company_base_no_locator2" =
-    (
-        "[jaguar_company_base_fit_locator]. All bases are highlighted with a cyan coloured box."
-    );
-
-    "jaguar_company_base_fit_locator" =
-    (
-        "[jaguar_company_base_black_box_update] This software patch will allow you to see where Jaguar Company Bases are located. To use this go to the long range chart at any time"
-    );
-
-    "jaguar_company_base_black_box_update" =
-    (
-        "We have updated the base software in your Jaguar Company Black Box."
     );
 
     "jaguar_company_base_market" =

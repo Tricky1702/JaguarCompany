@@ -1,8 +1,7 @@
 /*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
 /*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
 strict: true, curly: true */
-/*global oolite, System, system, log, worldScripts, Timer, Vector3D, missionVariables, player, expandMissionText,
-expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
+/*global oolite, system, log, worldScripts, Timer, Vector3D, missionVariables, player, expandMissionText, mission */
 
 /* Jaguar Company
  *
@@ -28,7 +27,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Script to initialise the Jaguar Company.";
-    this.version = "2.4";
+    this.version = "2.3";
 
     /* Private variables. */
     var p_main = {},
@@ -154,36 +153,6 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
     /* Spawn Jaguar Company always if true */
     this.$alwaysSpawn = false;
 
-    /* OXPConfig settings. */
-    this.oxpcSettings = {
-        Info : {
-            Name : this.name,
-            Display : "Jaguar Company",
-            Notify : true,
-            InfoB : "Development frontend for the Jaguar Company OXP."
-        },
-        Bool0 : {
-            Name : "$logging",
-            Def : false,
-            Desc : "Turn logging on or off."
-        },
-        Bool1 : {
-            Name : "$logAIMessages",
-            Def : false,
-            Desc : "Log AI messages if true."
-        },
-        Bool2 : {
-            Name : "$logExtra",
-            Def : false,
-            Desc : "Log extra debug info if true."
-        },
-        Bool3 : {
-            Name : "$alwaysSpawn",
-            Def : false,
-            Desc : "Always spawn Jaguar Company if true."
-        }
-    };
-
     /* Other public variables. */
 
     /* Seed for the pseudo random number generator. Affects generation of Jaguar Company and placement of the base. */
@@ -194,8 +163,6 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
     this.$reputationHelper = 5;
     /* Minimum reputation to use the black box. Equivalent to 3 kills. */
     this.$reputationBlackbox = 30;
-    /* Minimum reputation to see the locations for Jaguar Company. Equivalent to 5 kills. */
-    this.$reputationLocations = 50;
     /* Set to 'true' to use visual effects. Ignored if using Oolite v1.76.1 or older. */
     this.$visualEffects = true;
 
@@ -210,13 +177,10 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
 
         log(this.name + " " + this.version + " loaded.");
 
-        delete this.$joinNavy;
-        /* Remove the closest naval ship variable. */
-        delete this.$closestNavyShip;
-        /* Setup the private main variable + some public variables. Delay it. */
-        this.$setUpTimerReference = new Timer(this, this.$setUp, 0.5, 0.5);
+        /* Setup. */
+        this.$setUp();
         /* Check if we need to create Jaguar Company in this system. Delay it. */
-        this.$setUpCompanyTimerReference = new Timer(this, this.$setUpCompany, 2);
+        this.$setUpCompanyTimerReference = new Timer(this, this.$setUpCompany, 1);
     };
 
     /* Player launched from a station.
@@ -230,17 +194,9 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             p_main.playerWelcomed = false;
         }
 
-        if (typeof missionVariables.jaguar_company_reputation_post_launch === "number") {
-            /* Add on any reputation awarded on docking with an escape pod. */
-            missionVariables.jaguar_company_reputation += missionVariables.jaguar_company_reputation_post_launch;
-            missionVariables.jaguar_company_reputation_post_launch = 0;
-        }
-    };
-
-    this.shipEnteredWitchspace = function () {
-        delete this.$joinNavy;
-        /* Remove the closest naval ship variable. */
-        delete this.$closestNavyShip;
+        /* Add on any reputation awarded on docking with an escape pod. */
+        missionVariables.jaguar_company_reputation += missionVariables.jaguar_company_reputation_post_launch;
+        missionVariables.jaguar_company_reputation_post_launch = 0;
     };
 
     /* Reset everything just before exiting Witchspace. */
@@ -249,8 +205,10 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         this.$removeTimers();
 
         if (!system.shipsWithRole("jaguar_company_patrol").length) {
-            /* Setup the private main variable + some public variables. */
+            /* Setup. */
             this.$setUp();
+            /* Check if we need to create Jaguar Company in this system. Delay it. */
+            this.$setUpCompanyTimerReference = new Timer(this, this.$setUpCompany, 1);
         } else {
             /* Followed Jaguar Company from interstellar space. */
 
@@ -261,20 +219,6 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    this.shipExitedWitchspace = function () {
-        /* Check if we need to create Jaguar Company in this system. */
-        this.$setUpCompany();
-    };
-
-    /* Remove all mission variables if the player jumps galaxies. */
-    this.playerEnteredNewGalaxy = function () {
-        delete missionVariables.jaguar_company_attacker;
-        delete missionVariables.jaguar_company_reputation;
-        delete missionVariables.jaguar_company_locations_activated;
-        delete missionVariables.jaguar_company_visited_base;
-        delete missionVariables.jaguar_company_reputation_post_launch;
-    };
-
     /* A ship has been born.
      *
      * INPUT
@@ -282,14 +226,6 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
      */
     this.shipSpawned = function (whom) {
         var friendRoles;
-
-        /* Check for Galactic Navy ships. */
-        if (!this.$joinNavy && this.$isNavyShip(whom)) {
-            /* Provisional. Will be re-calculated. */
-//            this.$joinNavy = true;
-
-            return;
-        }
 
         if (!worldScripts["Jaguar Company Attackers"]) {
             /* Attackers world script not setup yet. */
@@ -318,14 +254,13 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
 
     /* Show a welcome message on docking as a mission screen. */
     this.missionScreenOpportunity = function () {
-        var base = this.$jaguarCompanyBase;
-
-        if (!base || !base.isValid) {
+        if (!this.$jaguarCompanyBase || !this.$jaguarCompanyBase.isValid) {
             /* Base not setup. */
             return;
         }
 
-        if (player.ship.dockedStation.entityPersonality === base.entityPersonality && !p_main.playerWelcomed) {
+        if (player.ship.dockedStation.entityPersonality === this.$jaguarCompanyBase.entityPersonality &&
+            !p_main.playerWelcomed) {
             /* Player docked with Jaguar Company Base and not welcomed yet. */
             this.$welcomeMessage();
         }
@@ -338,8 +273,8 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
      */
     this.equipmentDamaged = function (equipment) {
         if (equipment === "EQ_JAGUAR_COMPANY_BLACK_BOX") {
-            player.commsMessage("Black Box Damaged!");
-            player.commsMessage("Return to the nearest Jaguar Company base for repairs.");
+            player.consoleMessage("Black Box Damaged!", 3);
+            player.consoleMessage("Return to a local Jaguar Company base for repairs.", 3);
         }
     };
 
@@ -362,111 +297,45 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         this.$rescued.push(whom.$pilotName);
     };
 
-    this.guiScreenChanged = function (to, from) {
-        var choicesKey,
-        locations,
-        counter,
-        length;
+    /* OXPConfig2 settings. */
+    this.oxpcLookup = function () {
+        delete this.oxpcLookup;
 
-        if (player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") !== "EQUIPMENT_OK" ||
-            !missionVariables.jaguar_company_locations_activated) {
-            /* No software patch uploaded to the black box. */
-            return;
-        }
-
-        if (to === "GUI_SCREEN_LONG_RANGE_CHART") {
-            player.consoleMessage("Press F5 for a list of Jaguar Company Base locations.", 5);
-
-            if (0 >= oolite.compareVersion("1.77")) {
-                /* Oolite v1.77 and newer. */
-                /* Add the marked systems to the long range chart. */
-                length = this.$jaguarCompanySystemIDs.length;
-
-                for (counter = 0; counter < length; counter += 1) {
-                    mission.markSystem({
-                        system : this.$jaguarCompanySystemIDs[counter],
-                        name : this.name,
-                        markerColor : "orangeColor",
-                        markerScale : 1.5,
-                        markerShape : "MARKER_SQUARE"
-                    });
-                }
-
-                player.consoleMessage("Orange coloured squares show Jaguar Company Base locations.", 5);
+        this.oxpcSettings = {
+            Info : {
+                Name : this.name,
+                Display : "Jaguar Company",
+                EarlyCall : true,
+                EarlySet : true,
+                InfoB : "Development frontend for the Jaguar Company OXP."
+            },
+            Bool0 : {
+                Name : "$logging",
+                Def : false,
+                Desc : "Turn logging on or off."
+            },
+            Bool1 : {
+                Name : "$logAIMessages",
+                Def : false,
+                Desc : "Log AI messages if true."
+            },
+            Bool2 : {
+                Name : "$logExtra",
+                Def : false,
+                Desc : "Log extra debug info if true."
+            },
+            Bool3 : {
+                Name : "$alwaysSpawn",
+                Def : false,
+                Desc : "Always spawn Jaguar Company if true."
             }
-        }
-
-        if (from === "GUI_SCREEN_LONG_RANGE_CHART") {
-            if (0 >= oolite.compareVersion("1.77")) {
-                /* Oolite v1.77 and newer. */
-                /* Remove the marked systems from the long range chart. */
-                length = this.$jaguarCompanySystemIDs.length;
-
-                for (counter = 0; counter < length; counter += 1) {
-                    mission.unmarkSystem({
-                        system : this.$jaguarCompanySystemIDs[counter],
-                        name : this.name
-                    });
-                }
-            }
-
-            if (to === "GUI_SCREEN_STATUS" && guiScreen !== "GUI_SCREEN_MISSION") {
-                /* Initial index. */
-                this.$printIndex = 0;
-                /* Need to work out the first choices key before we create the list. 2 column layout. */
-                choicesKey = this.$firstChoicesKey(this.$jaguarCompanySystemNames, 2);
-                /* Create the list. */
-                locations = this.$listNames(this.$jaguarCompanySystemNames);
-                /* Display it as a mission screen. */
-                mission.runScreen({
-                    title : "Jaguar Company Base locations",
-                    message : locations + "\n",
-                    choicesKey : choicesKey
-                }, this.$locationChoices);
-            }
-        }
-    };
-
-    /* Reset page count. */
-    this.viewDirectionChanged = function () {
-        this.$printIndex = 0;
+        };
     };
 
     /* Other global functions. */
 
-    /* This function is called by OXPConfig when settings are changed.
-     *
-     * INPUT
-     *   n - Number.
-     *       1 - boolean settings changed.
-     *       2 - short unsigned integers changed.
-     *       4 - unsigned 24Bit integer changed.
-     */
-    this.oxpcNotifyOnChange = function (n) {
-        if (n & 1 && this.$alwaysSpawn && !this.$jaguarCompanyBase) {
-            /* $alwaysSpawn has been set in OXPConfig and the base doesn't exist.
-             * Check if we need to create Jaguar Company in this system. Delay it.
-             */
-            this.$setUpCompanyTimerReference = new Timer(this, this.$setUpCompany, 2);
-        }
-    };
-
     /* Setup the private main variable + some public variables. */
     this.$setUp = function () {
-        if (!worldScripts["Jaguar Company Attackers"]) {
-            /* Attackers script not loaded yet. */
-            return;
-        }
-
-        /* Stop and remove the timer. */
-        if (this.$setUpTimerReference) {
-            if (this.$setUpTimerReference.isRunning) {
-                this.$setUpTimerReference.stop();
-            }
-
-            delete this.$setUpTimerReference;
-        }
-
         /* Initialise the p_main variable object.
          * Encapsulates all private global data.
          */
@@ -501,13 +370,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
                     range : 8000,
                     aiMessage : "JAGUAR_COMPANY_BASE"
                 }
-            ],
-            /* Initialise main seed for galaxy 1. */
-            seed : {
-                w0 : 0x5a4a,
-                w1 : 0x0248,
-                w2 : 0xb753
-            }
+            ]
         };
 
         if (!this.$rescued) {
@@ -527,11 +390,8 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         delete this.$hyperspaceFollow;
         /* Not visited the base. */
         delete missionVariables.jaguar_company_visited_base;
-        /* Create an array of Jaguar Company Base locations. */
-        this.$cacheJaguarCompanySystems();
     };
 
-    /* For debugging only. */
     this.$showProps = function () {
         var result = "",
         prop;
@@ -573,387 +433,6 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
 
             delete this.$baseSwapTimerReference;
         }
-    };
-
-    /* Figure out the first choices key for the pager.
-     *
-     * Modifies the maximum amount of lines that can be used for displaying the list.
-     *
-     * INPUTS
-     *   list - array of strings to be displayed.
-     *   columns - number of columns displayed.
-     *
-     * RESULT
-     *   return the first choices key.
-     */
-    this.$firstChoicesKey = function (list, columns) {
-        var choicesKey;
-
-        if (list.length <= columns * 19) {
-            /* Maximum lines available for the list on the mission screen with 1 choice and a blank line. */
-            this.$lines = 19;
-            /* Initial choices key. */
-            choicesKey = "jaguar_company_choices_1_page";
-        } else if (list.length <= 2 * columns * 18) {
-            /* Maximum lines available for the list on the mission screen with 2 choices and a blank line. */
-            this.$lines = 18;
-            /* Initial choices key. */
-            choicesKey = "jaguar_company_choices_1_of_2";
-        } else {
-            /* Maximum lines available for the list on the mission screen with 3 choices and a blank line. */
-            this.$lines = 17;
-            /* Initial choices key. */
-            choicesKey = "jaguar_company_choices_start_of_many";
-        }
-
-        return choicesKey;
-    };
-
-    /* Figure out the next choices key for the pager.
-     *
-     * INPUTS
-     *   choice - choice selected.
-     *   list - array of strings to be displayed.
-     *   columns - number of columns displayed.
-     *
-     * RESULT
-     *   return the next choices key.
-     */
-    this.$nextChoicesKey = function (choice, list, columns) {
-        var choicesKey;
-
-        if (choice === "M_1_FIRST_PAGE") {
-            this.$printIndex = 0;
-            choicesKey = "jaguar_company_choices_start_of_many";
-        } else if (choice === "2_1_NEXT_PAGE") {
-            this.$printIndex = columns * this.$lines;
-            choicesKey = "jaguar_company_choices_2_of_2";
-        } else if (choice === "M_1_NEXT_PAGE") {
-            this.$printIndex = this.$printIndex + (columns * this.$lines);
-
-            if (this.$printIndex + (columns * this.$lines) < list.length - 1) {
-                choicesKey = "jaguar_company_choices_middle_of_many";
-            } else {
-                choicesKey = "jaguar_company_choices_end_of_many";
-            }
-        } else if (choice === "2_1_PREV_PAGE") {
-            this.$printIndex = 0;
-            choicesKey = "jaguar_company_choices_1_of_2";
-        } else if (choice === "M_2_PREV_PAGE") {
-            this.$printIndex = this.$printIndex - (columns * this.$lines);
-
-            if (this.$printIndex) {
-                choicesKey = "jaguar_company_choices_middle_of_many";
-            } else {
-                choicesKey = "jaguar_company_choices_start_of_many";
-            }
-        } else if (choice === "M_2_LAST_PAGE") {
-            this.$printIndex = Math.floor(list.length / (columns * this.$lines)) * (columns * this.$lines);
-            choicesKey = "jaguar_company_choices_end_of_many";
-        } else if (choice === "1_1_EXIT" || choice === "2_2_EXIT" || choice === "M_3_EXIT") {
-            choicesKey = "EXIT";
-        } else {
-            player.consoleMessage("Error logged. Inform the author of Jaguar Company OXP.");
-            log(this.name, "$nextChoicesKey::choice: " + choice + "\n" +
-                "* list: " + list.join(", ") + " (" + list.length + ")\n" +
-                "* columns: " + columns + "\n" +
-                "* $printIndex: " + this.$printIndex + "\n" +
-                "* $lines: " + this.$lines + "\n");
-            choicesKey = "ERROR";
-        }
-
-        return choicesKey;
-    };
-
-    /* Callback for base location lister.
-     *
-     * INPUT
-     *   choice - key of the choice selected.
-     */
-    this.$locationChoices = function (choice) {
-        var choicesKey = this.$nextChoicesKey(choice, this.$jaguarCompanySystemNames, 2),
-        locations;
-
-        if (choicesKey === "EXIT" || choicesKey === "ERROR") {
-            /* Exit selected or there was an error. */
-            return;
-        }
-
-        locations = this.$listNames(this.$jaguarCompanySystemNames);
-        mission.runScreen({
-            title : "Jaguar Company Base locations",
-            message : locations + "\n",
-            choicesKey : choicesKey
-        }, this.$locationChoices);
-    };
-
-    /* Build a 2 column list of Jaguar Company Base locations.
-     * Borrowed from Spara's Trophy Collector OXP.
-     * Highly modified.
-     *
-     * INPUT
-     *   list - array of strings to be displayed.
-     *
-     * RESULT
-     *   return a columnized list of names.
-     */
-    this.$listNames = function (list) {
-        var columnized = "",
-        name,
-        nameWidth,
-        spaceWidth = defaultFont.measureString(" "),
-        start = this.$printIndex,
-        lines = this.$lines, // Maximum number of rows.
-        i,
-        j;
-
-        /* No Bases? */
-        if (!list.length) {
-            return "No bases in this sector.";
-        }
-
-        /* Less entries than rows? */
-        if (list.length - start < lines) {
-            lines = list.length - start;
-        }
-
-        for (i = 0; i < lines; i += 1) {
-            if (start + i + lines < list.length) {
-                /* Two column layout. */
-                name = list[start + i];
-                nameWidth = defaultFont.measureString(name);
-
-                /* Left column. */
-                if (nameWidth > 15) {
-                    /* Entry too wide, truncate. */
-                    while (defaultFont.measureString(name) > 15) {
-                        name = name.substring(0, name.length - 1);
-                    }
-
-                    nameWidth = defaultFont.measureString(name);
-                }
-
-                columnized += " " + name;
-
-                for (j = 0; j < (15 - nameWidth) / spaceWidth; j += 1) {
-                    columnized += " ";
-                }
-
-                /* Right column. */
-                name = list[start + i + lines];
-                nameWidth = defaultFont.measureString(name);
-
-                if (nameWidth > 15) {
-                    /* Entry too wide, truncate. */
-                    while (defaultFont.measureString(name) > 15) {
-                        name = name.substring(0, name.length - 1);
-                    }
-                }
-            } else {
-                /* One column layout. */
-                name = list[start + i];
-                nameWidth = defaultFont.measureString(name);
-
-                if (nameWidth > 31) {
-                    /* Entry too wide, truncate. */
-                    while (defaultFont.measureString(name) > 31) {
-                        name = name.substring(0, name.length - 1);
-                    }
-                }
-            }
-
-            columnized += " " + name + "\n";
-        }
-
-        return columnized;
-    };
-
-    /* Keep a record of system IDs and names for the current galaxy. */
-    this.$cacheJaguarCompanySystems = function () {
-        var a,
-        b,
-        c,
-        government,
-        governmentNames = [
-            "Anarchy",
-            "Feudal",
-            "Multi-Government"
-        ],
-        scrambledPRN,
-        systemProbability,
-        counter,
-        logMsg = "$cacheJaguarCompanySystems::\n";
-
-        /* Have the base locations for this galaxy been setup? */
-        if (this.$galaxyNumber === galaxyNumber) {
-            /* Already setup. */
-            return;
-        }
-
-        /* Save the galaxy number. */
-        this.$galaxyNumber = galaxyNumber;
-        /* Clear the base location arrays. */
-        this.$jaguarCompanySystemIDs = [];
-        this.$jaguarCompanySystemNames = [];
-        this.$jaguarCompanyInterstellar = [];
-
-        /* Alter the seed for the current galaxy. */
-        for (counter = 0; counter < galaxyNumber; counter += 1) {
-            this.$rng_nextgalaxy();
-        }
-
-        /* Reset the random seed. */
-        p_main.rnd_seed = {};
-
-        /* Check systems for Jaguar Company Base. */
-        for (counter = 0; counter < 256; counter += 1) {
-            /* Figure out pseudoRandomNumber, as a 24-bit integer, for the system being checked. */
-            p_main.rnd_seed.a = p_main.seed.w1 & 0xff;
-            p_main.rnd_seed.b = (p_main.seed.w1 >> 8) & 0xff;
-            p_main.rnd_seed.c = p_main.seed.w2 & 0xff;
-            p_main.rnd_seed.d = (p_main.seed.w2 >> 8) & 0xff;
-            a = this.$gen_rnd_number();
-            b = this.$gen_rnd_number();
-            c = this.$gen_rnd_number();
-            a = (a << 16) | (b << 8) | c;
-
-            /* Re-implementation of system.scrambledPseudoRandomNumber
-             * Add the salt to the pseudoRandomNumber to enable generation of different sequences.
-             */
-            a += this.$salt;
-            /* Scramble with basic LCG psuedo-random number generator. */
-            a = (214013 * a + 2531011) & 0xFFFFFFFF;
-            a = (214013 * a + 2531011) & 0xFFFFFFFF;
-            a = (214013 * a + 2531011) & 0xFFFFFFFF;
-            /* Convert from (effectively) 32-bit signed integer to float in [0..1]. */
-            scrambledPRN = a / 4294967296.0 + 0.5;
-
-            /* Calculate the system government from the current seed. */
-            government = (p_main.seed.w1 >> 3) & 7;
-
-            /* Now we do the actual system check for Jaguar Company. */
-            if (government <= 2) {
-                /* We only use the first 3 government types.
-                 * Therefore probabilities will be:
-                 *   Anarchy:          37.5%
-                 *   Feudal:           25.0%
-                 *   Multi-Government: 12.5%
-                 *
-                 * Intestellar space will halve these probabilites.
-                 */
-                systemProbability = 0.125 * (3 - government);
-
-                if (scrambledPRN <= systemProbability) {
-                    if (this.$logging && this.$logExtra) {
-                        logMsg += "* Name: " + System.systemNameForID(counter) +
-                            ", Government type: " + governmentNames[government] + "\n";
-                    }
-
-                    /* Insert the ID into an array. */
-                    this.$jaguarCompanySystemIDs.push(counter);
-                    /* Insert the name with government type into an array. */
-                    this.$jaguarCompanySystemNames.push(System.systemNameForID(counter) + " " +
-                         "(" + governmentNames[government] + ")");
-                }
-
-                if (scrambledPRN <= systemProbability / 2) {
-                    if (this.$logging && this.$logExtra) {
-                        logMsg += "** Interstellar.\n";
-                    }
-
-                    this.$jaguarCompanyInterstellar.push(counter);
-                }
-            }
-
-            /* Tweak the main seed for the next system. */
-            this.$rng_tweakseed();
-            this.$rng_tweakseed();
-            this.$rng_tweakseed();
-            this.$rng_tweakseed();
-        }
-
-        /* Sort the names. */
-        this.$jaguarCompanySystemNames.sort();
-
-        if (this.$logging && this.$logExtra) {
-            log(this.name, logMsg);
-        }
-    };
-
-    /* Rotate 8-bit number leftwards.
-     *
-     * INPUT
-     *   x - 8-bit number to rotate leftwards.
-     *
-     * RESULT
-     *   return rotated 8-bit number.
-     */
-    this.$rng_rotatel = function (x) {
-        x = (x & 0xff) * 2;
-
-        return (x & 0xff) | (x > 0xff);
-    };
-
-    /* Twist 16-bit number.
-     *
-     * INPUT
-     *   x - 16-bit number to twist.
-     *
-     * RESULT
-     *   return twisted 16-bit number.
-     */
-    this.$rng_twist = function (x) {
-        return (this.$rotatel(x >> 8) << 8) + this.$rotatel(x & 0xff);
-    };
-
-    /* Next galaxy.
-     *
-     * Apply to main seed; once for galaxy 2
-     * twice for galaxy 3, etc.
-     * Eighth application gives galaxy 1 again.
-     */
-    this.$rng_nextgalaxy = function () {
-        p_main.seed.w0 = this.$rng_twist(p_main.seed.w0);
-        p_main.seed.w1 = this.$rng_twist(p_main.seed.w1);
-        p_main.seed.w2 = this.$rng_twist(p_main.seed.w2);
-    };
-
-    /* Main seed tweaker. */
-    this.$rng_tweakseed = function () {
-        var tmp;
-
-        tmp = p_main.seed.w0 + p_main.seed.w1 + p_main.seed.w2;
-        tmp &= 0xffff;
-
-        p_main.seed.w0 = p_main.seed.w1;
-        p_main.seed.w1 = p_main.seed.w2;
-        p_main.seed.w2 = tmp;
-    };
-
-    /* Random number generator.
-     *
-     * RESULT
-     *   return a random number.
-     */
-    this.$gen_rnd_number = function () {
-        var x = (p_main.rnd_seed.a * 2) & 0xFF,
-        a = x + p_main.rnd_seed.c;
-
-        if (p_main.rnd_seed.a > 127) {
-            a += 1;
-        }
-
-        p_main.rnd_seed.a = a & 0xFF;
-        p_main.rnd_seed.c = x;
-
-        /* a = any carry left from above */
-        a = a / 256;
-        x = p_main.rnd_seed.b;
-        a = (a + x + p_main.rnd_seed.d) & 0xFF;
-        p_main.rnd_seed.b = a;
-        p_main.rnd_seed.d = x;
-
-        return a;
     };
 
     /* Periodic function to check if Jaguar Company has spawned correctly.
@@ -1114,9 +593,8 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
 
             if (blackBoxStatus === "EQUIPMENT_OK" || blackBoxStatus === "EQUIPMENT_DAMAGED") {
                 /* Remove the black box from players that have attacked Jaguar Company. */
-                missionVariables.jaguar_company_locations_activated = false;
                 player.ship.removeEquipment("EQ_JAGUAR_COMPANY_BLACK_BOX");
-                player.commsMessage("Black Box self-destructed!");
+                player.consoleMessage("Black Box self-destructed!", 3);
 
                 if (this.$tracker && this.$tracker.isValid) {
                     /* Remove the tracker quietly: don't trigger 'shipDied' in the ship script. */
@@ -1137,8 +615,8 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             patrolShips = system.shipsWithPrimaryRole("jaguar_company_patrol", player.ship);
 
             if (patrolShips.length > 0 && player.ship.position.distanceTo(patrolShips[0].position) < 5000) {
-                player.consoleMessage("Tracker deactivating.");
-                player.consoleMessage("Patrol ships close by.");
+                player.consoleMessage("Tracker deactivating.", 3);
+                player.consoleMessage("Patrol ships close by.", 3);
 
                 if (this.$tracker && this.$tracker.isValid) {
                     /* Remove the tracker quietly: don't trigger 'shipDied' in the ship script. */
@@ -1229,35 +707,35 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         this.$jaguarCompanyBase = newBase;
     };
 
-    /* Activate the black box.
-     *
-     * RESULT
-     *   return activation - true if activated, false if not.
-     */
+    /* Activate the black box. */
     this.$activateJaguarCompanyBlackbox = function () {
         var patrolShips = system.shipsWithPrimaryRole("jaguar_company_patrol", player.ship),
         ok = false;
 
         if (player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_OK") {
             if (!system.shipsWithPrimaryRole("jaguar_company_patrol").length) {
-                player.consoleMessage("Can not show tracker.");
-                player.consoleMessage("No patrol ships found.");
+                player.consoleMessage("Can not show tracker.", 3);
+                player.consoleMessage("No patrol ships found.", 3);
             } else if (player.ship.position.distanceTo(patrolShips[0].position) < 5000) {
-                player.consoleMessage("Tracker not activated.");
-                player.consoleMessage("Patrol ships close by.");
+                player.consoleMessage("Tracker not activated.", 3);
+                player.consoleMessage("Patrol ships close by.", 3);
             } else {
-                player.consoleMessage("Black Box activated.");
+                player.consoleMessage("Black Box activated.", 3);
                 /* Player has a functioning black box locator
                  * and there is at least 1 patrol ship in the system.
                  */
                 if (!this.$tracker || !this.$tracker.isValid) {
                     /* Spawn the tracker if there are no trackers in the system. */
-                    if (this.$visualEffects && 0 >= oolite.compareVersion("1.77")) {
-                        /* Visual effect for Oolite v1.77 and newer. */
-                        this.$tracker = system.addVisualEffect("jaguar_company_tracker", player.ship.position);
+                    if (this.$visualEffects) {
+                        if (0 < oolite.compareVersion("1.77")) {
+                            /* Invisible object for Oolite v1.76.1 and older. */
+                            this.$tracker = this.$jaguarCompanyBase.spawnOne("jaguar_company_tracker");
+                        } else {
+                            /* Visual effect for Oolite v1.77 and newer. */
+                            this.$tracker = system.addVisualEffect("jaguar_company_tracker", player.ship.position);
+                        }
                     } else {
-                        /* Invisible object. Visual effects off or Oolite v1.76.1 and older. */
-                        player.consoleMessage("Follow beacon code 'T' on your ASC.");
+                        player.consoleMessage("Follow beacon code 'T' on your ASC.", 3);
                         this.$tracker = this.$jaguarCompanyBase.spawnOne("jaguar_company_tracker");
                     }
                 }
@@ -1265,23 +743,19 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
                 ok = true;
             }
         } else if (player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_DAMAGED") {
-            player.commsMessage("Black Box Damaged!");
-            player.commsMessage("Return to the nearest Jaguar Company base for repairs.");
+            player.consoleMessage("Black Box Damaged!", 3);
+            player.consoleMessage("Return to a local Jaguar Company base for repairs.", 3);
         }
 
         return ok;
     };
 
-    /* Deactivate the black box.
-     *
-     * RESULT
-     *   return deactivation - true if deactivated, false if not.
-     */
+    /* Deactivate the black box. */
     this.$deactivateJaguarCompanyBlackbox = function () {
         var ok = false;
 
         if (player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_OK") {
-            player.consoleMessage("Black Box deactivated.");
+            player.consoleMessage("Black Box deactivated.", 3);
 
             if (this.$tracker && this.$tracker.isValid) {
                 /* Remove the tracker quietly: don't trigger 'shipDied' in the ship script. */
@@ -1291,8 +765,8 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
 
             ok = true;
         } else if (player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_DAMAGED") {
-            player.commsMessage("Black Box Damaged!");
-            player.commsMessage("Return to the nearest Jaguar Company base for repairs.");
+            player.consoleMessage("Black Box Damaged!", 3);
+            player.consoleMessage("Return to a local Jaguar Company base for repairs.", 3);
         }
 
         return ok;
@@ -1300,82 +774,62 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
 
     /* Show a welcome message. */
     this.$welcomeMessage = function () {
-        var reputation = missionVariables.jaguar_company_reputation,
-        helperLevel = this.$reputationHelper,
-        blackboxLevel = this.$reputationBlackbox,
-        locationsLevel = this.$reputationLocations,
-        welcome,
+        var welcome,
         logMsg;
 
         if (this.$logging && this.$logExtra) {
-            logMsg = "$welcomeMessage::reputation: " + reputation + "\n" +
+            logMsg = "$welcomeMessage::reputation: " + missionVariables.jaguar_company_reputation + "\n" +
                 "$welcomeMessage::visited_base: " + missionVariables.jaguar_company_visited_base + "\n";
         }
 
         p_main.playerWelcomed = true;
 
-        welcome = expandDescription("[jaguar_company_base_greeting] ");
-
-        if (!missionVariables.jaguar_company_visited_base) {
-            welcome += expandDescription("[jaguar_company_base_docked]");
+        if (missionVariables.jaguar_company_reputation < this.$reputationHelper) {
+            if (missionVariables.jaguar_company_visited_base) {
+                welcome = expandMissionText("jaguar_company_base_visited");
+            } else {
+                welcome = expandMissionText("jaguar_company_base_docked");
+            }
+        } else if (missionVariables.jaguar_company_reputation < this.$reputationBlackbox) {
+            if (missionVariables.jaguar_company_visited_base) {
+                welcome = expandMissionText("jaguar_company_base_visited_thanks");
+            } else {
+                welcome = expandMissionText("jaguar_company_base_docked_thanks");
+            }
         } else {
-            welcome += expandDescription("[jaguar_company_base_visited]");
-        }
-
-        if (reputation >= helperLevel) {
-            welcome += " " + expandMissionText("jaguar_company_base_thankyou");
-        }
-
-        if (reputation >= blackboxLevel) {
             if (player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") !== "EQUIPMENT_OK") {
                 /* Doesn't have the black box locator or is damaged. */
                 if (player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_DAMAGED") {
                     /* Black box damaged. */
-                    welcome += expandMissionText("jaguar_company_base_fix_black_box");
+                    welcome = expandMissionText("jaguar_company_base_thanks_black_box_damaged");
                     player.ship.setEquipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX", "EQUIPMENT_OK");
                 } else {
                     /* No black box locator. */
-                    if (this.$visualEffects && 0 >= oolite.compareVersion("1.77")) {
-                        /* Oolite v1.77 and newer. */
-                        welcome += expandMissionText("jaguar_company_base_no_black_box2");
+                    if (this.$visualEffects) {
+                        if (0 < oolite.compareVersion("1.77")) {
+                            welcome = expandMissionText("jaguar_company_base_thanks_no_black_box1");
+                        } else {
+                            welcome = expandMissionText("jaguar_company_base_thanks_no_black_box2");
+                        }
                     } else {
-                        /* Visual effects off or Oolite v1.76.1 and older. */
-                        welcome += expandMissionText("jaguar_company_base_no_black_box1");
+                        welcome = expandMissionText("jaguar_company_base_thanks_no_black_box1");
                     }
 
                     player.ship.awardEquipment("EQ_JAGUAR_COMPANY_BLACK_BOX");
-
-                    if (!this.$blackBoxTimerReference || !this.$blackBoxTimerReference.isRunning) {
-                        if (!this.$blackBoxTimerReference) {
-                            /* Create a new timer. Checks every 5 seconds. */
-                            this.$blackBoxTimerReference = new Timer(this, this.$blackBoxTimer, 5, 5);
-                        } else {
-                            /* Start the timer if it exists and has stopped. */
-                            this.$blackBoxTimerReference.start();
-                        }
-                    }
-
+                    this.$blackBoxTimerReference = new Timer(this, this.$blackBoxTimer, 5, 5);
                     /* Reset the check flag. */
                     this.$blackboxOK = false;
                 }
-            }
-        }
-
-        if (reputation >= locationsLevel) {
-            if (!missionVariables.jaguar_company_locations_activated) {
-                missionVariables.jaguar_company_locations_activated = true;
-
-                if (0 < oolite.compareVersion("1.77")) {
-                    /* Oolite v1.76.1 and older. */
-                    welcome += expandMissionText("jaguar_company_base_no_locator1");
+            } else {
+                if (missionVariables.jaguar_company_visited_base) {
+                    welcome = expandMissionText("jaguar_company_base_visited_thanks");
                 } else {
-                    /* Oolite v1.77 and newer. */
-                    welcome += expandMissionText("jaguar_company_base_no_locator2");
+                    welcome = expandMissionText("jaguar_company_base_docked_thanks");
                 }
             }
         }
 
-        if (reputation >= helperLevel && !system.isInterstellarSpace) {
+        if (missionVariables.jaguar_company_reputation >= this.$reputationHelper && !system.isInterstellarSpace) {
             /* Add on a market message if reputation is high enough and not in interstellar space. */
             welcome += expandMissionText("jaguar_company_base_market");
 
@@ -1432,100 +886,6 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         });
     };
 
-    /* Scan for a witchpoint buoy.
-     *
-     * RESULT
-     *   return witchpoint buoy entity. A fake entity is returned if it can't be found.
-     */
-    this.$scanForWitchpointBuoy = function () {
-        var buoy,
-        tmp;
-
-        /* Fake witchpoint buoy entity. Updated if one is found. */
-        buoy = {
-            isValid : true,
-            position : new Vector3D(0, 0, 0),
-            collisionRadius : 100
-        };
-
-        if (!system.isInterstellarSpace) {
-            /* Find the witchpoint buoy. Sorts using the fake entity. */
-            tmp = system.filteredEntities(this, function (entity) {
-                    if (!entity.isValid || entity.scanClass !== "CLASS_BUOY") {
-                        /* Ignore all entities that have one of these conditions:
-                         * 1) not valid
-                         * 2) not CLASS_BUOY
-                         */
-                        return false;
-                    }
-
-                    return entity.hasRole("buoy-witchpoint");
-                });
-
-            if (tmp.length) {
-                /* Closest one to the origin. */
-                buoy = tmp[0];
-            }
-        }
-
-        return buoy;
-    };
-
-    /* Checks for various Galactic Navy ships.
-     *
-     * This only checks for medical ships, frigates and carriers.
-     *
-     * INPUT
-     *   entity - entity of the ship to check.
-     *
-     * RESULT
-     *   return true if entity is a Galactic Navy ship, false if not.
-     */
-    this.$isNavyShip = function (entity) {
-        if (!entity.isValid ||
-            entity.isCloaked ||
-            !entity.isPiloted ||
-            entity.isDerelict) {
-            /* Ignore all entities that have one of these conditions:
-             * 1) not valid
-             * 2) cloaked
-             * 3) has no pilot
-             * 4) is a derelict.
-             */
-            return false;
-        }
-
-        return (entity.hasRole("navy-medship") ||
-            entity.hasRole("navy-frigate") ||
-            entity.hasRole("patrol-frigate") ||
-            entity.hasRole("picket-frigate") ||
-            entity.hasRole("picket-behemoth") ||
-            entity.hasRole("navy-behemoth") ||
-            entity.hasRole("navy-behemoth-battlegroup") ||
-            entity.hasRole("behemoth"));
-    };
-
-    /* Find any major Galactic Navy ships.
-     *
-     * INPUT
-     *   near - entity of the search origin. (Optional - will use the witchpoint if not specified)
-     *
-     * RESULT
-     *   return an array of ships.
-     */
-    this.$scanForNavyShips = function (near) {
-        var ships;
-
-        if (!near || !near.isValid) {
-            /* Defaults to the witchpoint as the origin. */
-            ships = system.filteredEntities(this, this.$isNavyShip);
-        } else {
-            ships = system.filteredEntities(this, this.$isNavyShip, near);
-        }
-
-        return ships;
-    };
-
     /* Spawn Jaguar Company
      *
      * INPUT
@@ -1535,11 +895,13 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
      */
     this.$spawnJaguarCompany = function (state) {
         var sysname,
+        counter,
+        length,
+        entity,
         logMsg = "$spawnJaguarCompany::";
 
-        if (!state || state <= 0 || state > 7) {
+        if (state <= 0 || state > 7) {
             log(this.name, logMsg + "This should NOT happen! Unknown state: " + state);
-
             return;
         }
 
@@ -1556,62 +918,52 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             missionVariables.jaguar_company_reputation_post_launch = 0;
         }
 
-        if (!this.$scriptSanityTimerReference || !this.$scriptSanityTimerReference.isRunning) {
-            /* This timer will check all Jaguar Company entities for script sanity. */
-            if (!this.$scriptSanityTimerReference) {
-                /* Create a new timer. Checked every 5 seconds. */
-                this.$scriptSanityTimerReference = new Timer(this, this.$scriptSanityTimer, 5, 5);
-            } else {
-                /* Start the timer if it exists and has stopped. */
-                this.$scriptSanityTimerReference.start();
-            }
-        }
-
-        if (!this.$baseSwapTimerReference || !this.$baseSwapTimerReference.isRunning) {
-            /* This timer will swap the base role if needed. */
-            if (!this.$baseSwapTimerReference) {
-                /* Create a new timer. Checked every 5 seconds. */
-                this.$baseSwapTimerReference = new Timer(this, this.$baseSwapTimer, 5, 5);
-            } else {
-                /* Start the timer if it exists and has stopped. */
-                this.$baseSwapTimerReference.start();
-            }
-        }
+        /* Check all Jaguar Company entities every 5 seconds for script sanity. */
+        this.$scriptSanityTimerReference = new Timer(this, this.$scriptSanityTimer, 5, 5);
+        /* Swap the base role if needed. Checked every 5 seconds. */
+        this.$baseSwapTimerReference = new Timer(this, this.$baseSwapTimer, 5, 5);
 
         if (player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_OK" ||
             player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_DAMAGED") {
-            /* The player has a black box.
-             * This timer will de-activate the tracker if too close to the patrol ships
-             * or it will self-destruct the black box if the player is not allowed it.
-             */
-            if (!this.$blackBoxTimerReference || !this.$blackBoxTimerReference.isRunning) {
-                if (!this.$blackBoxTimerReference) {
-                    /* Create a new timer. Checked every 5 seconds. */
-                    this.$blackBoxTimerReference = new Timer(this, this.$blackBoxTimer, 5, 5);
-                } else {
-                    /* Start the timer if it exists and has stopped. */
-                    this.$blackBoxTimerReference.start();
+            /* Check if the player is allowed the black box. Checked every 5 seconds. */
+            this.$blackBoxTimerReference = new Timer(this, this.$blackBoxTimer, 5, 5);
+        }
+
+        /* For logging. */
+        sysname = system.name;
+
+        /* Fake witchpoint buoy entity. Updated if one is found. */
+        this.$witchpointBuoy = {
+            isValid : true,
+            position : new Vector3D(0, 0, 0),
+            collisionRadius : 100
+        };
+
+        if (system.isInterstellarSpace) {
+            sysname = "Interstellar";
+        } else {
+            /* Find the witchpoint buoy. */
+            length = system.allShips.length;
+
+            for (counter = 0; counter < length; counter += 1) {
+                entity = system.allShips[counter];
+
+                if (entity.scanClass === "CLASS_BUOY" && entity.hasRole("buoy-witchpoint")) {
+                    this.$witchpointBuoy = entity;
+
+                    break;
                 }
             }
         }
 
-        /* Scan for the witchpoint buoy entity. */
-        this.$witchpointBuoy = this.$scanForWitchpointBuoy();
-
         if (this.$logging) {
-            sysname = system.name;
-
-            if (system.isInterstellarSpace) {
-                sysname = "Interstellar";
-            }
-
             if (state & 1) {
                 logMsg += "\n* Adding Jaguar Company to patrol in the " + sysname + " space lane.";
             }
 
             if (state & 2) {
                 logMsg +=
-                "\n* Adding Jaguar Company to patrol with the Galactic Navy in the " + sysname + " space lane.";
+                    "\n* Adding Jaguar Company to patrol with the Galactic Navy in the " + sysname + " space lane.";
             }
 
             if (state & 4) {
@@ -1621,36 +973,24 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             log(this.name, logMsg);
         }
 
-        if (state & 2) {
-            /* Create the patrol for navy work. */
-            this.$spawnJaguarCompanyNavyPatrol();
-        }
-
-        if (state & 1) {
+        if (state === 2 || state === 6) {
+            /* Create the patrol without the base. */
+            this.$spawnJaguarCompanyPatrol();
+        } else if (state <= 7) {
             /* Create the base. */
             this.$spawnJaguarCompanyBase();
         }
     };
 
-    /* Create the patrol for navy work. */
-    this.$spawnJaguarCompanyNavyPatrol = function () {
-        var navyShips;
+    /* Create the patrol without the base. */
+    this.$spawnJaguarCompanyPatrol = function () {
+        var startPosition = this.$witchpointBuoy.position.subtract(new Vector3D(0, 0, 51200));
 
-        if (!system.countShipsWithRole("jaguar_company_patrol")) {
-            navyShips = this.$scanForNavyShips();
-
-            if (navyShips.length) {
-                this.$joinNavy = true;
-                this.$closestNavyShip = navyShips[0];
-                /* Initialise the route list with the Navy route. */
-                this.$initRoute("NAVY");
-
-                if (!system.countShipsWithRole("jaguar_company_base")) {
-                    /* Add the patrol ships. */
-                    system.addShips("jaguar_company_patrol", this.$maxPatrolShips, navyShips[0].position, 7500);
-                }
-            }
-        }
+        /* Add the patrol ships. */
+        system.addShips("jaguar_company_patrol", this.$maxPatrolShips, startPosition, 0);
+        /* Initialise the route list with the Witchpoint->Planet route. */
+        this.$initRoute("WP");
+        this.$changeRoute(1);
     };
 
     /* Create the base. */
@@ -1723,45 +1063,19 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             "jaguar_company_base_no_discount");
         /* Add the base. */
         this.$jaguarCompanyBase = system.addShips(baseRole, 1, basePosition, 0)[0];
-
-        if (!this.$joinNavy) {
-            /* Initialise the route list with the default route. */
-            this.$initRoute();
-        }
+        /* Initialise the route list with the default route. */
+        this.$initRoute();
     };
 
-    /* Check to see if we need to spawn Jaguar Company.
-     *
-     * RESULT
-     *   return true if Jaguar Company will be spawned, false if not.
-     */
+    /* Check to see if we need to spawn Jaguar Company. */
     this.$setUpCompany = function () {
-        var scrambledPRN,
-        systemID,
-        navyPresent = false,
-        /* 50:50 chance of joining the Galactic Navy. */
-        joinNavyProbability = 0.5,
-        systemProbability = 0.0,
-        spawnInSystem = false,
+        var PRN,
+        navyPresent,
+        joinNavyProbability,
+        joinNavy,
+        systemProbability,
+        spawnInSystem,
         spawnCompany = 0;
-
-        if (!this.$alwaysSpawn) {
-            if (system.sun && (system.sun.isGoingNova || system.sun.hasGoneNova)) {
-                /* Don't setup if the system sun is going nova or has already gone nova. */
-                if (this.$logging && this.$logExtra) {
-                    log(this.name, "$setUpCompany::\n" +
-                        "system.sun.isGoingNova: " + system.sun.isGoingNova +
-                        ", system.sun.hasGoneNova: " + system.sun.hasGoneNova);
-                }
-
-                return false;
-            }
-        }
-
-        if (this.$jaguarCompanyBase && this.$jaguarCompanyBase.isValid) {
-            /* Already setup. */
-            return true;
-        }
 
         /* Bit pattern for spawning...
          *
@@ -1770,43 +1084,60 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
          * alwaysSpawn      - 100
          */
 
-        /* In interstellar space, the scrambledPRN will be for the last system you were in. */
-        scrambledPRN = system.scrambledPseudoRandomNumber(this.$salt);
-
-        if (!this.$joinNavy) {
-            navyPresent = this.$scanForNavyShips().length > 0;
-        } else {
-            navyPresent = true;
+        if (this.$jaguarCompanyBase && this.$jaguarCompanyBase.isValid) {
+            /* Already setup. */
+            return true;
         }
 
-        /* Jaguar Company are part-time reservists. */
-        this.$joinNavy = (navyPresent && scrambledPRN <= joinNavyProbability);
+        PRN = system.scrambledPseudoRandomNumber(this.$salt);
+        /* Jaguar Company are part-time reservists */
+        navyPresent = (system.countShipsWithRole("navy-frigate") > 0 ||
+            system.countShipsWithRole("patrol-frigate") > 0 ||
+            system.countShipsWithRole("picket-frigate") > 0 ||
+            system.countShipsWithRole("intercept-frigate") > 0 ||
+            system.countShipsWithRole("navy-medship") > 0 ||
+            system.countShipsWithRole("navy-behemoth-battlegroup") > 0);
+        joinNavyProbability = 0.5;
+        joinNavy = (navyPresent && PRN <= joinNavyProbability);
+        /* We only use the first 3 government types.
+         * Therefore probabilities will be:
+         *   Anarchy:          37.5%
+         *   Feudal:           25.0%
+         *   Multi-Government: 12.5%
+         *
+         * Intestellar space will halve these probabilites.
+         */
+        systemProbability = 0.125 * (3 - system.government);
 
         if (system.isInterstellarSpace) {
-            /* Use the last system ID. */
-            systemID = this.$lastSystemID;
-        } else {
-            /* Save the current system ID. */
-            systemID = this.$lastSystemID = system.ID;
+            systemProbability /= 2;
         }
 
-        if ((system.isInterstellarSpace && this.$jaguarCompanyInterstellar.indexOf(systemID) !== -1) ||
-            (!system.isInterstellarSpace && this.$jaguarCompanySystemIDs.indexOf(systemID) !== -1)) {
-            spawnInSystem = true;
-        }
+        spawnInSystem = (system.government <= 2 && PRN <= systemProbability);
 
         /* Anarchies, Feudals and Multi-Governments or systems with Galactic Naval presence */
         spawnCompany |= (spawnInSystem ? 1 : 0);
-        /* Always join the navy if we would have been created in this system. */
-        spawnCompany |= ((navyPresent && spawnInSystem) || this.$joinNavy ? 2 : 0);
-        /* Always spawn no matter what. */
+        spawnCompany |= (joinNavy ? 2 : 0);
         spawnCompany |= (this.$alwaysSpawn ? 4 : 0);
 
         if (this.$logging && this.$logExtra) {
             log(this.name, "$setUpCompany::\n" +
-                "* navyPresent: " + navyPresent + ", joinNavy: " + this.$joinNavy + "\n" +
-                "* spawnInSystem: " + spawnInSystem + "\n" +
-                "* spawnCompany (normally): " + (spawnCompany & 3 ? "Yes" : "No"));
+                "PRN: " + PRN + "\n" +
+                "navyPresent: " + navyPresent + ", joinNavy: " + joinNavy + "\n" +
+                "systemProbability: " + systemProbability + ", spawnInSystem: " + spawnInSystem + "\n" +
+                "spawnCompany (normally): " + (spawnCompany > 0 && spawnCompany < 4 ? "Yes" : "No"));
+        }
+
+        if (!this.$alwaysSpawn) {
+            if (system.sun && (system.sun.isGoingNova || system.sun.hasGoneNova)) {
+                if (this.$logging && this.$logExtra) {
+                    log(this.name, "$setUpCompany::\n" +
+                        "system.sun.isGoingNova: " + system.sun.isGoingNova +
+                        ", system.sun.hasGoneNova: " + system.sun.hasGoneNova);
+                }
+
+                return false;
+            }
         }
 
         if (spawnCompany) {
@@ -1825,7 +1156,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
      *   maxNameLength - maximum length (not including prefix) of the name.
      *
      * RESULT
-     *   return a unique name.
+     *   result - return a unique name.
      */
     this.$uniqueShipName = function (prefix, maxNameLength) {
         var index,
@@ -1916,7 +1247,6 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
      *   route - route code (optional).
      *     WPWB - Full route. Base -> Witchpoint -> Planet -> Witchpoint -> Base (dock).
      *     I - Interstellar space. Base -> (Fake) Witchpoint -> Base (dock).
-     *     NAVY - Patrol with the Galactic Navy.
      *     WP - Witchpoint <-> Planet.
      *     BP - Base -> Planet -> Base (dock).
      */
@@ -1927,8 +1257,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             route = "WPWB";
         }
 
-        /* Update the witchpoint buoy reference. */
-        this.$witchpointBuoy = this.$scanForWitchpointBuoy();
+        if (!this.$witchpointBuoy || !this.$witchpointBuoy.isValid) {
+            /* Fake witchpoint buoy entity. */
+            this.$witchpointBuoy = {
+                isValid : true,
+                position : new Vector3D(0, 0, 0),
+                collisionRadius : 100
+            };
+        }
 
         switch (route) {
         case "I":
@@ -1939,7 +1275,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
                     /* Range used in AI. */
                     range : 5000,
                     /* Message to be sent to the AI. */
-                    aiMessage : "JAGUAR_COMPANY_INTERSTELLAR"
+                    aiMessage : "JAGUAR_COMPANY_INTERSTELLAR",
                 }, {
                     /* Jaguar Company Base. */
                     entity : this.$jaguarCompanyBase,
@@ -1947,19 +1283,6 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
                     range : 8000,
                     /* Message to be sent to the AI. */
                     aiMessage : "JAGUAR_COMPANY_BASE"
-                }
-            ];
-
-            break;
-        case "NAVY":
-            /* Alters the route list for navy patrol. */
-            p_main.routes = [{
-                    /* Navy ship to shadow. */
-                    entity : this.$closestNavyShip,
-                    /* Range used in AI. */
-                    range : 7500,
-                    /* Message to be sent to the AI. */
-                    aiMessage : "JAGUAR_COMPANY_NAVY_PATROL"
                 }
             ];
 
@@ -1972,14 +1295,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
                     /* Range used in AI. */
                     range : 50000,
                     /* Message to be sent to the AI. */
-                    aiMessage : "JAGUAR_COMPANY_PLANET"
+                    aiMessage : "JAGUAR_COMPANY_PLANET",
                 }, {
                     /* Witchpoint. */
                     entity : this.$witchpointBuoy,
                     /* Range used in AI. */
                     range : 10000,
                     /* Message to be sent to the AI. */
-                    aiMessage : "JAGUAR_COMPANY_WITCHPOINT"
+                    aiMessage : "JAGUAR_COMPANY_WITCHPOINT",
                 }
             ];
 
@@ -1999,7 +1322,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
                     /* Range used in AI. */
                     range : 50000,
                     /* Message to be sent to the AI. */
-                    aiMessage : "JAGUAR_COMPANY_PLANET"
+                    aiMessage : "JAGUAR_COMPANY_PLANET",
                 }
             ];
 
@@ -2019,14 +1342,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
                     /* Range used in AI. */
                     range : 50000,
                     /* Message to be sent to the AI. */
-                    aiMessage : "JAGUAR_COMPANY_PLANET"
+                    aiMessage : "JAGUAR_COMPANY_PLANET",
                 }, {
                     /* Witchpoint. */
                     entity : this.$witchpointBuoy,
                     /* Range used in AI. */
                     range : 10000,
                     /* Message to be sent to the AI. */
-                    aiMessage : "JAGUAR_COMPANY_WITCHPOINT"
+                    aiMessage : "JAGUAR_COMPANY_WITCHPOINT",
                 }, {
                     /* Jaguar Company Base. */
                     entity : this.$jaguarCompanyBase,

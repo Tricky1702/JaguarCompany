@@ -28,7 +28,7 @@ strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the Jaguar Company Patrol ships.";
-    this.version = "1.9";
+    this.version = "1.8";
 
     /* Private variable. */
     var p_patrol = {};
@@ -74,11 +74,6 @@ strict: true, curly: true */
         this.ship.$pilotName = expandDescription("%N [nom1]");
         /* Get a unique name for the patrol ship. */
         this.ship.displayName = p_patrol.mainScript.$uniqueShipName(this.ship.name);
-
-        if (!p_patrol.mainScript.$numPatrolShips) {
-            p_patrol.mainScript.$numPatrolShips = 0;
-        }
-
         /* Increase the number of patrol ships in the system. */
         p_patrol.mainScript.$numPatrolShips += 1;
         /* Timer reference. */
@@ -272,7 +267,7 @@ strict: true, curly: true */
      *   otherShips - array of ships.
      *
      * RESULT
-     *   return average distance to all the other ships.
+     *   result - average distance to all the other ships.
      */
     this.$queryAverageDistance = function (otherShips) {
         var averageDistance = 0,
@@ -348,25 +343,6 @@ strict: true, curly: true */
     /* Set the co-ordinates to the surface of the main planet. */
     this.$setCoordsToMainPlanet = function () {
         this.$setCoordsToEntity(system.mainPlanet);
-    };
-
-    /* Set the co-ordinates to the nearest navy ship. */
-    this.$setCoordsToNavyShips = function () {
-        var navyShips = p_patrol.mainScript.$scanForNavyShips(this.ship);
-
-        if (navyShips.length) {
-            /* Update the main script public variable. */
-            p_patrol.mainScript.$closestNavyShip = navyShips[0];
-            p_patrol.mainScript.$initRoute("NAVY");
-            /* Set the coords to the nearest navy ship. */
-            this.$setCoordsToEntity(navyShips[0]);
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_NAVY_FOUND");
-        } else {
-            /* Navy has gone. Go back to base if possible. */
-            p_patrol.mainScript.$initRoute();
-            p_patrol.mainScript.$changeRoute(-1);
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_NAVY_NOT_FOUND");
-        }
     };
 
     /* Set the co-ordinates to the fake interstellar witchpoint buoy. */
