@@ -1,4 +1,4 @@
-Jaguar Company 1.6.2 (2012-07-14)
+Jaguar Company 1.6 (2012-07-??)
 
 A work in progress OXP.
 
@@ -38,20 +38,15 @@ Downloads
 
 Install
 -------
-After unzipping, move or copy the folder, "jaguar_company_1.6.2.oxp", into your AddOns directory.
+After unzipping, move or copy the folder, "jaguar_company_1.6.oxp", into your AddOns directory.
 
 Uninstall
 ---------
-Delete the directory, "jaguar_company_1.6.2.oxp", from your AddOns directory.
+Delete the directory, "jaguar_company_1.6.oxp", from your AddOns directory.
 
 Version History
 ---------------
-v1.6.2 (2012-07-14)
-    Bug fix for the ship script.
-    Bug fix to the waypoint AI. Never exited the stock AI.
-    Cascade Weapon detection actually works for pre v1.77
-    Took the opportunity to clean up some files and re-do the textures.
-v1.6 (2012-07-12)
+v1.6 (2012-07-??)
     There is now no concept of leaders and wingmen. All ships keep in a group.
     Complete rewrite of the AI to reflect the above.
 v1.5 (2012-07-08)
@@ -86,9 +81,7 @@ v1.0 (2012-06-07)
 
 Future Versions
 ---------------
-Jaguar Company to start off docked at the base.
-Currently if you attack Jaguar Company and then run away they forget about you. This will need to be changed.
-AI for the base needs to be written.
+Characters will be added at some point.
 
 Copyright
 ---------

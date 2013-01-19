@@ -29,145 +29,131 @@
     "REGROUP" =
     {
         ENTER = ("setSpeedFactorTo: 1.0", "sendScriptMessage: $locateJaguarCompany");
-        "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
+        "CASCADE_WEAPON_DETECTED" = ("setStateTo: QBOMB_DETECTED");
         ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist");
-        "JAGUAR_COMPANY_NOT_FOUND" = ("setStateTo: CHECK_ROUTE");
+        "JAGUAR_COMPANY_NOT_FOUND" = ("setStateTo: CHECK_CURRENT_ROUTE");
         "JAGUAR_COMPANY_FOUND" = ("setDesiredRangeTo: 3250.0", setDestinationToTarget, checkCourseToDestination);
         "COURSE_OK" = ("sendScriptMessage: $checkJaguarCompanyDistance");
         "JAGUAR_COMPANY_FAR_AWAY" = ("setSpeedFactorTo: 50.0", performFlyToRangeFromDestination);
         "JAGUAR_COMPANY_NEARBY" = ("setSpeedFactorTo: 7.0", performFlyToRangeFromDestination);
         "JAGUAR_COMPANY_CLOSE" = ("setSpeedFactorTo: 2.0", performFlyToRangeFromDestination);
-        "JAGUAR_COMPANY_REGROUPED" = (performIdle, "setStateTo: CHECK_ROUTE");
-        "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
-        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: CHECK_ROUTE");
-        UPDATE = ("addFuel: 1.0", "sendScriptMessage: $locateJaguarCompany", "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 5.0");
+        "JAGUAR_COMPANY_REGROUPED" = (performIdle, "setStateTo: CHECK_CURRENT_ROUTE");
+        "WAYPOINT_SET" = ("setAITo: gotoWaypointAI.plist");
+        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: CHECK_CURRENT_ROUTE");
+        UPDATE = ("addFuel: 1.0", "sendScriptMessage: $locateJaguarCompany", "sendScriptMessage: $detectQBomb", "pauseAI: 10.0");
     };
 
     /* Check our current route and go to it's state. */
-    "CHECK_ROUTE" =
+    "CHECK_CURRENT_ROUTE" =
     {
-        ENTER = ("sendScriptMessage: $checkRoute");
-        "JAGUAR_COMPANY_WITCHPOINT_FROM_BASE" = ("setStateTo: HEAD_FOR_WITCHPOINT_FROM_BASE");
-        "JAGUAR_COMPANY_WITCHPOINT" = ("setStateTo: HEAD_FOR_WITCHPOINT");
-        "JAGUAR_COMPANY_PLANET" = ("setStateTo: HEAD_FOR_PLANET");
-        "JAGUAR_COMPANY_BASE" = ("setStateTo: HEAD_FOR_BASE");
+        ENTER = ("sendScriptMessage: $checkCurrentRoute");
+        "GOTO_WITCHPOINT_FROM_BASE" = ("setStateTo: HEAD_FOR_WITCHPOINT_FROM_BASE");
+        "GOTO_WITCHPOINT" = ("setStateTo: HEAD_FOR_WITCHPOINT");
+        "GOTO_PLANET" = ("setStateTo: HEAD_FOR_PLANET");
+        "GOTO_BASE" = ("setStateTo: HEAD_FOR_BASE");
+        "INVALID_ROUTE" = ("setStateTo: REGROUP");
     };
 
-    /* Find out our next route. */
-    "CHANGE_ROUTE" =
+    /* Find out what the next route is and go to it's state. */
+    "FIND_NEXT_ROUTE" =
     {
-        ENTER = ("sendScriptMessage: $changeRoute", "setStateTo: REGROUP");
-    };
-
-    /* Finished the route, find out the next one and tell other ships to change. */
-    "FINISHED_ROUTE" =
-    {
-        ENTER = ("sendScriptMessage: $finishedRoute", "setStateTo: REGROUP");
+        ENTER = ("sendScriptMessage: $findNextRoute");
+        "GOTO_WITCHPOINT_FROM_BASE" = ("setStateTo: HEAD_FOR_WITCHPOINT_FROM_BASE");
+        "GOTO_WITCHPOINT" = ("setStateTo: HEAD_FOR_WITCHPOINT");
+        "GOTO_PLANET" = ("setStateTo: HEAD_FOR_PLANET");
+        "GOTO_BASE" = ("setStateTo: HEAD_FOR_BASE");
+        "INVALID_ROUTE" = ("setStateTo: REGROUP");
     };
 
     "HEAD_FOR_PLANET" =
     {
-        ENTER = (setCourseToPlanet, "setDesiredRangeTo: 50000.0", checkCourseToDestination);
-        "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
+        ENTER = ("dropMessages: DESIRED_RANGE_ACHIEVED", setCourseToPlanet, "setDesiredRangeTo: 50000.0", checkCourseToDestination);
+        "CASCADE_WEAPON_DETECTED" = ("setStateTo: QBOMB_DETECTED");
         "TARGET_FOUND" = (setTargetToFoundTarget, "sendScriptMessage: $jaguarCompanyAttackTarget");
         ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist");
         "COURSE_OK" = (setSpeedToCruiseSpeed, performFlyToRangeFromDestination, "sendScriptMessage: $checkJaguarCompanyRegroup 12500.0");
         "JAGUAR_COMPANY_REGROUP" = ("setStateTo: REGROUP");
-        "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
-        "AEGIS_CLOSE_TO_MAIN_PLANET" = ("setStateTo: FINISHED_ROUTE");
-        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: FINISHED_ROUTE");
+        "WAYPOINT_SET" = ("setAITo: gotoWaypointAI.plist");
+        "AEGIS_CLOSE_TO_MAIN_PLANET" = ("setStateTo: FIND_NEXT_ROUTE");
+        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: FIND_NEXT_ROUTE");
         RESTARTED = (checkAegis);
-        UPDATE = (setCourseToPlanet, "setDesiredRangeTo: 50000.0", checkCourseToDestination, scanForOffenders, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 5.0");
+        UPDATE = (setCourseToPlanet, "setDesiredRangeTo: 50000.0", checkCourseToDestination, scanForOffenders, "sendScriptMessage: $detectQBomb", "pauseAI: 10.0");
     };
 
     "HEAD_FOR_WITCHPOINT" =
     {
-        ENTER = (setCourseToWitchpoint, checkCourseToDestination);
-        "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
+        ENTER = ("dropMessages: DESIRED_RANGE_ACHIEVED", setCourseToWitchpoint, checkCourseToDestination);
+        "CASCADE_WEAPON_DETECTED" = ("setStateTo: QBOMB_DETECTED");
         "TARGET_FOUND" = (setTargetToFoundTarget, "sendScriptMessage: $jaguarCompanyAttackTarget");
         ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist");
         "COURSE_OK" = (setSpeedToCruiseSpeed, performFlyToRangeFromDestination, "sendScriptMessage: $checkJaguarCompanyRegroup 12500.0");
         "JAGUAR_COMPANY_REGROUP" = ("setStateTo: REGROUP");
-        "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
-        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: FINISHED_ROUTE");
-        UPDATE = (setCourseToWitchpoint, checkCourseToDestination, scanForOffenders, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 5.0");
+        "WAYPOINT_SET" = ("setAITo: gotoWaypointAI.plist");
+        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: FIND_NEXT_ROUTE");
+        UPDATE = (setCourseToWitchpoint, checkCourseToDestination, scanForOffenders, "sendScriptMessage: $detectQBomb", "pauseAI: 10.0");
     };
 
     /* Since we are injecting to the witchpoint from the base, ranges need to be increased. */
     "HEAD_FOR_WITCHPOINT_FROM_BASE" =
     {
-        ENTER = (setCourseToWitchpoint, "setDesiredRangeTo: 20000.0", checkCourseToDestination);
-        "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
+        ENTER = ("dropMessages: DESIRED_RANGE_ACHIEVED", setCourseToWitchpoint, "setDesiredRangeTo: 20000.0", checkCourseToDestination);
+        "CASCADE_WEAPON_DETECTED" = ("setStateTo: QBOMB_DETECTED");
         "TARGET_FOUND" = (setTargetToFoundTarget, "sendScriptMessage: $jaguarCompanyAttackTarget");
         ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist");
         "COURSE_OK" = ("setSpeedFactorTo: 7.0", performFlyToRangeFromDestination, "sendScriptMessage: $checkJaguarCompanyRegroup 22500.0");
         "JAGUAR_COMPANY_REGROUP" = ("setStateTo: REGROUP");
-        "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
-        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: FINISHED_ROUTE");
-        UPDATE = ("addFuel: 1.0", setCourseToWitchpoint, "setDesiredRangeTo: 20000.0", checkCourseToDestination, scanForOffenders, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 5.0");
+        "WAYPOINT_SET" = ("setAITo: gotoWaypointAI.plist");
+        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: FIND_NEXT_ROUTE");
+        UPDATE = (setCourseToWitchpoint, checkCourseToDestination, scanForOffenders, "sendScriptMessage: $detectQBomb", "pauseAI: 10.0");
     };
 
-    /* Head for the base. Docking will come later. Range increase as per previous state. */
+    /* Head for the base. Docking will come later. */
     "HEAD_FOR_BASE" =
     {
-        ENTER = ("sendScriptMessage: $locateJaguarCompanyBase");
-        "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
+        ENTER = ("dropMessages: DESIRED_RANGE_ACHIEVED", "sendScriptMessage: $locateJaguarCompanyBase");
+        "CASCADE_WEAPON_DETECTED" = ("setStateTo: QBOMB_DETECTED");
         "TARGET_FOUND" = (setTargetToFoundTarget, "sendScriptMessage: $jaguarCompanyAttackTarget");
         ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist");
-        "JAGUAR_COMPANY_BASE_FOUND" = ("setDesiredRangeTo: 20000.0", setDestinationToTarget, checkCourseToDestination);
+        "JAGUAR_COMPANY_BASE_FOUND" = ("setDesiredRangeTo: 10000.0", setDestinationToTarget, checkCourseToDestination);
         "JAGUAR_COMPANY_BASE_NOT_FOUND" = ("setStateTo: REGROUP");
-        "COURSE_OK" = ("setSpeedFactorTo: 7.0", performFlyToRangeFromDestination, "sendScriptMessage: $checkJaguarCompanyRegroup 22500.0");
+        "COURSE_OK" = (setSpeedToCruiseSpeed, performFlyToRangeFromDestination, "sendScriptMessage: $checkJaguarCompanyRegroup 12500.0");
         "JAGUAR_COMPANY_REGROUP" = ("setStateTo: REGROUP");
-        "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
-        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: FINISHED_ROUTE");
-        UPDATE = ("sendScriptMessage: $locateJaguarCompanyBase", scanForOffenders, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 5.0");
+        "WAYPOINT_SET" = ("setAITo: gotoWaypointAI.plist");
+        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: FIND_NEXT_ROUTE");
+        UPDATE = ("sendScriptMessage: $locateJaguarCompanyBase", "setDesiredRangeTo: 10000.0", scanForOffenders, "sendScriptMessage: $detectQBomb", "pauseAI: 10.0");
     };
 
     /* Pick up any cargo that's been ejected after a kill. */
     "LOOT" =
     {
         ENTER = ("setSpeedTo: 0.0", performIdle);
-        "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
+        "CASCADE_WEAPON_DETECTED" = ("setStateTo: QBOMB_DETECTED");
         ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
         "JAGUAR_COMPANY_ATTACK_TARGET" = ("setAITo: jaguar_company_interceptAI.plist");
         "TARGET_FOUND" = (setTargetToFoundTarget, "setAITo: collectLootAI.plist");
         "NOTHING_FOUND" = ("setStateTo: REGROUP");
         "HOLD_FULL" = ("setStateTo: REGROUP");
-        UPDATE = (scanForLoot, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 5.0");
-    };
-
-    /* Go to the new waypoint. */
-    "NEW_WAYPOINT" =
-    {
-        ENTER = ("sendScriptMessage: $detectCascadeWeapon", setDesiredRangeForWaypoint, checkCourseToDestination, "pauseAI: 2.0");
-        "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
-        ATTACKED = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
-        "INCOMING_MISSILE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $jaguarCompanyAttackTarget");
-        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: LOOT", "setAITo: jaguar_company_interceptAI.plist");
-        "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
-        "COURSE_OK" = ("setStateTo: REGROUP");
-        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: REGROUP");
-        "FRUSTRATED" = ("setStateTo: REGROUP");
+        UPDATE = (scanForLoot, "sendScriptMessage: $detectQBomb", "pauseAI: 10.0");
     };
 
     /* Run away (anywhere) as fast as possible. */
-    "CASCADE_WEAPON_DETECTED" =
+    "QBOMB_DETECTED" =
     {
         ENTER = ("setDesiredRangeTo: 51200.0", "setSpeedFactorTo: 7.0", performFlee);
-        "CASCADE_WEAPON_DETECTED" = ("setStateTo: CASCADE_WEAPON_DETECTED");
-		"REACHED_SAFETY" = (performIdle, "setStateTo: REGROUP", "pauseAI: 10.0");
-        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: REGROUP", "pauseAI: 10.0");
-        UPDATE = ("addFuel: 1.0", performFlee, "sendScriptMessage: $detectCascadeWeapon", "pauseAI: 2.0");
+        "CASCADE_WEAPON_DETECTED" = ("setStateTo: QBOMB_DETECTED");
+		"REACHED_SAFETY" = (performIdle, "pauseAI: 10.0", "setStateTo: REGROUP");
+        "DESIRED_RANGE_ACHIEVED" = (performIdle, "pauseAI: 10.0", "setStateTo: REGROUP");
+        UPDATE = ("addFuel: 1.0", performFlee, "sendScriptMessage: $detectQBomb", "pauseAI: 5.0");
     };
 }

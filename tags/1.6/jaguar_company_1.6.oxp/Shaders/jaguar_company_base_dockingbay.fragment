@@ -28,9 +28,12 @@ varying vec3        vLightVectors[MAX_LIGHTS];
 
 uniform sampler2D   uColorMap;
 uniform sampler2D   uNormalMap;
+uniform float       uTime;
 
-const float         Kgamma = 0.33;
-const float         KspecExponent = 16.0;
+const float         KspecExponent = 5.0;
+const float         Kgamma = 0.66;
+const float         Kalpha = 0.75;
+const vec3          Kwater = vec3(0.04, 0.08, 0.16);
 
 void Light(in vec3 lightVector, in vec3 normal, in vec3 lightColor, in vec3 eyeVector,
            in float KspecExponent, inout vec3 totalDiffuse, inout vec3 totalSpecular)
@@ -48,8 +51,13 @@ void main()
 {
     vec3 eyeVector = normalize(vEyeVector);
     vec3 diffuse = vec3(0.0), specular = vec3(0.0);
-    vec3 colorMap = texture2D(uColorMap, vTexCoord).rgb;
-    vec3 normal = normalize(texture2D(uNormalMap, vTexCoord).rgb - 0.5);
+
+    /* Ripple */
+    vec2 p = -1.0 + 2.0 * vTexCoord;
+    float len = length(p);
+    vec2 uv = vTexCoord + (p / len) * cos(len * 12.0 - uTime) * 0.005;
+    vec3 colorMap = texture2D(uColorMap, uv).rgb;
+    vec3 normal = normalize(texture2D(uNormalMap, uv).rgb - 0.5);
 
     /* Lights */
 #ifdef OO_LIGHT_0_FIX
@@ -66,8 +74,9 @@ void main()
     diffuse += gl_FrontMaterial.ambient.rgb * gl_LightModel.ambient.rgb;
     vec3 color = diffuse * colorMap;
     color += colorMap * specular;
+    color += Kwater;
     color *= Kgamma;
 
     /* Return final result */
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(color, Kalpha);
 }

@@ -29,8 +29,8 @@ varying vec3        vLightVectors[MAX_LIGHTS];
 uniform sampler2D   uColorMap;
 uniform sampler2D   uNormalMap;
 
-const float         Kgamma = 0.4;
 const float         KspecExponent = 5.0;
+const float         Kgamma = 0.66;
 
 void Light(in vec3 lightVector, in vec3 normal, in vec3 lightColor, in vec3 eyeVector,
            in float KspecExponent, inout vec3 totalDiffuse, inout vec3 totalSpecular)

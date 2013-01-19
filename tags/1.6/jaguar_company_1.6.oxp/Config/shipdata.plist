@@ -26,6 +26,7 @@
 
         accuracy = 7.5;
         aft_eject_position = "0.0 -17.0 -40.0";
+        ai_type = "jaguar_company_leaderAI.plist";
         auto_ai = no;
         energy_recharge_rate = 4;
         exhaust =
@@ -50,6 +51,14 @@
         pilot = "jaguar-company-pilot";
         roles = "jaguar_company_leader";
         scoop_position = "0.0 -9.57 7.66";
+        script = "jaguar_company_ship.js";
+        script_info =
+        {
+            /* Stop inteference from Randomship Names OXP */
+            "randomshipnames" = no;
+            /* this is the missile equipment key that the ship will fire. */
+            "missileRole" = "EQ_HARDENED_MISSILE";
+        };
         shaders =
         {
             "jaguar_company_griff_cobra_mk3_mainhull_diffuse_spec.png" =
@@ -162,7 +171,7 @@
                 type = "flasher";
                 initially_on = yes;
                 frequency = 2;
-                phase = 0.125;
+                phase = 0.1;
                 position = (-65.0, -2.52759, -32.4579);
                 color = "redColor";
                 size = 8.0;
@@ -183,14 +192,6 @@
 
         ai_type = "jaguar_company_patrolAI.plist";
         roles = "jaguar_company jaguar_company_patrol";
-        script = "jaguar_company_ship.js";
-        script_info =
-        {
-            /* Stop inteference from Randomship Names OXP */
-            "randomshipnames" = no;
-            /* this is the missile equipment key that the ship will fire. */
-            "missileRole" = "EQ_HARDENED_MISSILE";
-        };
     };
 
     "jaguar_company_griff_normalmapped_cobra_mk3_front_gun" =
@@ -321,12 +322,12 @@
 
     "jaguar_company_base" =
     {
-        ai_type = "rockHermitAI.plist";
+        ai_type = "stationAI.plist";
         allows_auto_docking = no;
-        /* beacon = "Jaguar Company Base"; */
+        beacon = "Jaguar Company Base";
         cargo_type = "CARGO_NOT_CARGO";
         energy_recharge_rate = 100;
-        equipment_price_factor = 3.5;
+        equipment_price_factor = 1.5;
         equivalent_tech_level = 15;
         forward_weapon_type = "WEAPON_NONE";
         frangible = no;
@@ -341,7 +342,7 @@
             "jaguar_company_base_diffuse.png" =
             {
                 diffuse_map = "jaguar_company_base_diffuse.png";
-                shininess = 5;
+                shininess = 2;
                 specular_color = (0.1, 0.1, 0.1, 1.0);
             };
         };
@@ -357,7 +358,7 @@
         name = "Jaguar Company Base";
         roles = "jaguar_company jaguar_company_base station";
         rotating = yes;
-        scan_class = "CLASS_ROCK";
+        scanClass = "CLASS_STATION";
         shaders =
         {
             "jaguar_company_base_diffuse.png" =
@@ -410,7 +411,7 @@
             "jaguar_company_base_dockingbay_diffuse.png" =
             {
                 diffuse_map = "jaguar_company_base_dockingbay_diffuse.png";
-                shininess = 5;
+                shininess = 2;
                 specular_color = (0.1, 0.1, 0.1, 1.0);
             };
         };

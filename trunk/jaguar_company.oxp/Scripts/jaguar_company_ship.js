@@ -21,39 +21,40 @@ this.author = "Tricky";
 this.copyright = "© 2012 Tricky";
 this.license = "CC BY-NC-SA 3.0";
 this.description = "Ship script for the Jaguar Company.";
-this.version = "1.2";
+this.version = "1.3";
 
 (function () {
     "use strict";
 
+    this.$jaguarCompanyScript = worldScripts["Jaguar Company"];
+
+    if (this.$jaguarCompanyScript.$logAIMessages) {
+        this.ship.reportAIMessages = true;
+    }
+
+    this.$currentRoute = "JAGUAR_COMPANY_BASE_TO_WP";
+    this.$attacking = false;
+
+    /* Thargoid's missile code. */
     this.shipSpawned = function shipSpawned() {
-        var shipNames,
+        var initialMissiles,
         addCounter;
 
-        /* OU's, GOU's, LOU's and (d)ROU's. Also some names I really like. */
-        shipNames = ["Profit Margin", "Trade Surplus", "Limiting Factor", "Gunboat Diplomat", "Zealot", "Xenophobe", "God Told Me To Do It", "Just Another Victim Of The Ambient Morality", "Synchronize Your Dogmas", "Thank you And Goodnight", "Well I Was In The Neighbourhood", "You'll Thank Me Later", "Shoot Them Later", "Attitude Adjuster", "Killing Time", "I Blame Your Mother", "I Blame My Mother", "Heavy Messing", "Frank Exchange Of Views", "Nuisance Value", "All Through With This Niceness And Negotiation Stuff", "I Said, I've Got A Big Stick", "Hand Me The Gun And Ask Me Again", "But Who's Counting?", "Germane Riposte", "We Haven't Met But You're A Great Fan Of Mine", "All The Same, I Saw It First", "Ravished By The Sheer Implausibility Of That Last Statement", "Zero Credibility", "Charming But Irrational", "Demented But Determined", "You May Not Be The Coolest Person Here", "Lucid Nonsense", "Awkward Customer", "Conventional Wisdom", "Fine Till You Came Along", "I Blame The Parents", "Inappropriate Response", "A Momentary Lapse Of Sanity", "Lapsed Pacifist", "Reformed Nice Guy", "Pride Comes Before A Fall", "Injury Time", "Now Look What You've Made Me Do", "Kiss This Then", "Eight Rounds Rapid", "You'll Clean That Up Before You Leave", "Me, I'm Counting", "The Usual But Etymologically Unsatisfactory", "Falling Outside The Normal Moral Constraints", "Hylozoist", "No One Knows What The Dead Think", "Flick to Kick", "Your Egg's Broken But Mine Is Ok", "Shall I Be Mummy?", "Is This Galaxy Taken?", "Famous Last Words", "Road Rage", "Live A Little", "Not in My Back Yard", "Playing A Sweeper", "You're Going Home In A Fracking Ambulance", "Rear Entry", "Open Wide, Say Aaaarrgghhh", "Hope You Like Explosions", "I Haven't Seen One Of Those For Years", "Are You Religious?", "Not Now Dear", "Something Had To Be Done", "Hideously Indefensible Sense Of Humour", "Camouflage", "Come And Have A Go If You Think You're Hard Enough", "Throwing Toys Out The Crib", "Podex Perfectus Es", "Stercorem Pro Cerebro Habes", "Futue Te Ipsum Et Caballum Tuum", "Remember To Wash Your Hands", "One Out All Out", "Looking At Me, Pal?", "You Showed Me Yours, Now I'll Show You Mine", "Salt In Your Vaseline", "Cracking My Knuckles", "Break Glass In Case Of War", "My Turn", "No Pun Intended", "Look No Hands", "Very Sharp Stick", "Weapons Of Mass Deception", "...And Another Thing", "Clerical Error", "Silly Mid On", "You And Whose Army?", "This Sector Ain't Big Enough For The Both Of Us", "Diplomacy Was Never My Strong Suite", "Such A Pretty Big Red Button", "Synthetic Paragon Rubber Company", "Forget And Fire", "I Was Just Following Orders", "Weapon of Mass Distraction", "Forgive and Forget", "Innocence Is No Excuse", "Psychosis Is Only One State Of Mind", "Lets Dance", "AI Avenger", "Dead Man Walking", "A Little Less Conversation", "Here One Minute, Gone The Next", "Here, Let Me Escort You", "Killed With Superior Skill", "External Agitation", "Catch Me If You Can", "But What About The Children?", "Single Fingered Hand Gestures", "A World Of Hurt", "Looking Down The Gun Barrel", "Terminal Atomic Headache", "Know Thy Enemy", "Cold Steel For An Iron Age", "The Malevolent Creation", "Gamma Ray Goggles", "End Of Green", "Terrorwheel", "Sickening Sense Of Humour", "Mines Bigger", "Friendly Fire Isn't", "No Need For Stealth", "All Guns Blazin!", "Harmony Dies", "The Controlled Psychopath", "It Ends Now", "Forced To Be Nice", "Axis of Advance", "Acts of God", "The Feeling's Mutual", "The Beautiful Nightmare", "If You Can Read This...", "Are You Saved?", "Cunning Linguist", "Gay Abandon", "My Finger", "Got Legs", "Hose Job", "Protect And Sever", "Rebuttal", "Not In The Face", "I Have Right Of Way", "It Ran Into My Missile", "Have A Nice Rest Of Your Life", "Nose Job", "Get My Point?", "Grid Worker", "Eraserhead", "What Star?", "All This (And Brains)", "Random Acts Of Senseless Violence", "God Will Recognize His Own", "Would You Like A Quick Suppository With That?", "Pop Me A Couple More Of Those Happy Pills (Eccentric)", "Trouble Maker?", "Talk Is Cheap", "Tightly Strung", "Have You Kept The Receipt?", "It Was Broke When I Got Here", "Insanity Plea Rejected", "Thora Hird", "Barbara Cartland", "Freddy Starr Ate My Hamster", "And You Thought You Knew What Terror Means", "I'm A 'Shoot First, Ask Questions Later' Kinda Guy", "Duck You Suckers", "Trumpton Riots", "Dodgy Transformer"];
-
-        if (worldScripts["Jaguar Company"].logAIMessages) {
-            this.ship.reportAIMessages = true;
-        }
-
-        this.ship.displayName = "Jaguar Company: " + shipNames[Math.floor(Math.random() * shipNames.length)];
-        this.route = "JAGUAR_COMPANY_BASE_TO_WP";
+        this.ship.displayName = this.$jaguarCompanyScript.$uniqueShipName();
 
         /* just to ensure ship is fully loaded with selected missile type and nothing else. */
         if (this.ship.scriptInfo.missileRole) {
             /* missileRole should be defined in shipdata.plist */
-            this.missileRole = this.ship.scriptInfo.missileRole;
+            this.$missileRole = this.ship.scriptInfo.missileRole;
         } else {
             /* default to standard missile if not. */
-            this.missileRole = "EQ_HARDENED_MISSILE";
+            this.$missileRole = "EQ_HARDENED_MISSILE";
         }
 
-        /* Thargoid's missile code. */
         if (this.ship.scriptInfo.initialMissiles) {
-            this.initialMissiles = parseInt(this.ship.scriptInfo.initialMissiles, 10);
+            initialMissiles = parseInt(this.ship.scriptInfo.initialMissiles, 10);
         } else {
-            this.initialMissiles = this.ship.missileCapacity;
+            initialMissiles = this.ship.missileCapacity;
         }
 
         if (this.ship.missiles.length > 0) {
@@ -61,33 +62,44 @@ this.version = "1.2";
             this.ship.awardEquipment("EQ_MISSILE_REMOVAL");
         }
 
-        for (addCounter = 0; addCounter < this.initialMissiles; addCounter++) {
-            this.ship.awardEquipment(this.missileRole);
+        for (addCounter = 0; addCounter < initialMissiles; addCounter++) {
+            this.ship.awardEquipment(this.$missileRole);
         }
     };
 
     /* Thargoid's missile code. */
     this.shipFiredMissile = function shipFiredMissile(missile, target) {
-        var subCounter;
+        var subCounter,
+        subEntities,
+        subEntity;
 
-        if (this.ship.subEntities.length === 0) {
+        function $localToGlobal(thisShip, position) {
+            /* sub-ent position is relative to mother, but for swapping we need the absolute global position. */
+            var orientation = thisShip.orientation;
+
+            return thisShip.position.add(position.rotateBy(orientation));
+        }
+
+        subEntities = this.ship.subEntities;
+
+        if (subEntities.length === 0) {
             /* if we've run out of sub-ents before we run out of missiles. */
             return;
         }
 
         /* Set counter to number of sub-ents minus 1 (as entity array goes up from zero). */
-        subCounter = this.ship.subEntities.length - 1;
+        for (subCounter = subEntities.length - 1; subCounter >= 0; subCounter--) {
+            subEntity = subEntities[subCounter];
 
-        for (subCounter = this.ship.subEntities.length - 1; subCounter >= 0; subCounter--) {
-            if (this.ship.subEntities[subCounter].hasRole(missile.primaryRole)) {
+            if (subEntity.hasRole(missile.primaryRole)) {
                 /* if the sub-ent is the same as the missile being fired. */
                 /* move the fired missile to the sub-ent position. */
-                missile.position = this.$localToGlobal(this.ship.subEntities[subCounter].position);
+                missile.position = $localToGlobal(this.ship, subEntity.position);
                 /* point the missile in the right direction. */
-                missile.orientation = this.ship.subEntities[subCounter].orientation.multiply(this.ship.orientation);
+                missile.orientation = subEntity.orientation.multiply(this.ship.orientation);
                 missile.desiredSpeed = missile.maxSpeed;
                 /* remove the sub-ent version of the missile. */
-                this.ship.subEntities[subCounter].remove();
+                subEntity.remove();
 
                 /* come out of the loop, as we've done our swap. */
                 break;
@@ -96,65 +108,67 @@ this.version = "1.2";
     };
 
     /* Thargoid's missile code. */
-    this.$localToGlobal = function $localToGlobal(position) {
-        /* sub-ent position is relative to mother, but for swapping we need the absolute global position. */
-        var orientation = this.ship.orientation;
-
-        return this.ship.position.add(position.rotateBy(orientation));
-    };
-
-    /* Thargoid's missile code. */
     this.shipTakingDamage = function shipTakingDamage(amount, fromEntity, damageType) {
-        var missileCounter,
+        var subEntities,
+        subEntity,
+        missiles,
+        missileSubs,
+        missileCounter,
         removeCounter,
-        subCounter;
+        subCounter,
+        difference;
 
-        if (this.ship.missiles.length === 0 && this.ship.subEntities.length === 0) {
+        missiles = this.ship.missiles;
+        subEntities = this.ship.subEntities;
+
+        if (missiles.length === 0 && subEntities.length === 0) {
             /* if we're all out of missiles and any sub-entities, bail out. */
             return;
         }
 
-        this.missileSubs = 0;
+        missileSubs = 0;
 
         /* Initially set subCounter to number of sub-ents minus 1 (as entity array goes up from zero). */
-        for (subCounter = this.ship.subEntities.length - 1; subCounter >= 0; subCounter--) {
-            if (this.ship.subEntities[subCounter].hasRole(this.missileRole)) {
+        for (subCounter = subEntities.length - 1; subCounter >= 0; subCounter--) {
+            if (subEntities[subCounter].hasRole(this.$missileRole)) {
                 /* if the sub-ent is a missile, count it. */
-                this.missileSubs++;
+                missileSubs++;
             }
         }
 
-        if (this.missileSubs === 0 && this.ship.subEntities.length === 0) {
+        if (missileSubs === 0 && subEntities.length === 0) {
             /* if we're all out of missiles and missile sub-entities, bail out. */
             return;
         }
 
-        if (this.missileSubs < this.ship.missiles.length) {
+        if (missileSubs < missiles.length) {
             /* if we've got more missiles than sub-entity missiles. */
             /* get rid of all missiles. */
             this.ship.awardEquipment("EQ_MISSILE_REMOVAL");
 
-            if (this.missileSubs > 0) {
-                for (missileCounter = 0; missileCounter < this.missileSubs; missileCounter++) {
+            if (missileSubs > 0) {
+                for (missileCounter = 0; missileCounter < missileSubs; missileCounter++) {
                     /* restock with the correct number of selected missile. */
-                    this.ship.awardEquipment(this.missileRole);
+                    this.ship.awardEquipment(this.$missileRole);
                 }
             }
 
             return;
         }
 
-        if (this.missileSubs > this.ship.missiles.length) {
+        if (missileSubs > missiles.length) {
             /* if we've got less missiles than sub-entity missiles. */
-            this.difference = this.missileSubs - this.ship.missiles.length;
+            difference = missileSubs - missiles.length;
 
-            for (removeCounter = 0; removeCounter < this.difference; removeCounter++) {
+            for (removeCounter = 0; removeCounter < difference; removeCounter++) {
                 /* loop through however many subs we need to remove. */
                 /* Initially set subCounter to number of sub-ents minus 1 (as entity array goes up from zero). */
-                for (subCounter = this.ship.subEntities.length - 1; subCounter >= 0; subCounter--) {
-                    if (this.ship.subEntities[subCounter].hasRole(this.missileRole)) {
+                for (subCounter = subEntities.length - 1; subCounter >= 0; subCounter--) {
+                    subEntity = subEntities[subCounter];
+
+                    if (subEntity.hasRole(this.$missileRole)) {
                         /* if the sub-ent is a missile, remove it. */
-                        this.ship.subEntities[subCounter].remove();
+                        subEntity.remove();
 
                         break;
                     }
@@ -165,110 +179,97 @@ this.version = "1.2";
         }
     };
 
+    this.shipDied = function shipDied(whom, why) {
+        this.$jaguarCompanyScript.$numShips--;
+
+        if (this.$jaguarCompanyScript.$logging) {
+            log(this.name, "Ship: " + this.ship.displayName + " was destroyed by " + whom + ", reason: " + why);
+        }
+    };
+
     /* Not doing any exotic routes for now. */
     /* route: Base->WP, WP->PLANET, PLANET->WP, WP->Base */
-    this.$checkCurrentRoute = function $checkCurrentRoute() {
-        switch (this.route) {
+    this.$checkRoute = function $checkRoute() {
+        switch (this.$currentRoute) {
         case "JAGUAR_COMPANY_BASE_TO_WP":
-            this.ship.reactToAIMessage("GOTO_WITCHPOINT_FROM_BASE");
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_WITCHPOINT_FROM_BASE");
             break;
         case "JAGUAR_COMPANY_WP_TO_PLANET":
-            this.ship.reactToAIMessage("GOTO_PLANET");
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_PLANET");
             break;
         case "JAGUAR_COMPANY_PLANET_TO_WP":
-            this.ship.reactToAIMessage("GOTO_WITCHPOINT");
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_WITCHPOINT");
             break;
         case "JAGUAR_COMPANY_WP_TO_BASE":
-            this.ship.reactToAIMessage("GOTO_BASE");
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE");
             break;
         default:
-            this.route = "JAGUAR_COMPANY_BASE_TO_WP";
-            this.ship.reactToAIMessage("INVALID_ROUTE");
+            /* Should never trigger. Better safe than sorry though. */
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_WITCHPOINT_FROM_BASE");
         }
     };
 
-    /* Find out our next route. */
-    this.$findNextRoute = function $findNextRoute() {
-        switch (this.route) {
+    /* Change our current route. */
+    this.$changeRoute = function $changeRoute() {
+        switch (this.$currentRoute) {
         case "JAGUAR_COMPANY_BASE_TO_WP":
-            this.route = "JAGUAR_COMPANY_WP_TO_PLANET";
+            this.$currentRoute = "JAGUAR_COMPANY_WP_TO_PLANET";
             break;
         case "JAGUAR_COMPANY_WP_TO_PLANET":
-            this.route = "JAGUAR_COMPANY_PLANET_TO_WP";
+            this.$currentRoute = "JAGUAR_COMPANY_PLANET_TO_WP";
             break;
         case "JAGUAR_COMPANY_PLANET_TO_WP":
-            this.route = "JAGUAR_COMPANY_WP_TO_BASE";
+            this.$currentRoute = "JAGUAR_COMPANY_WP_TO_BASE";
             break;
         case "JAGUAR_COMPANY_WP_TO_BASE":
-            this.route = "JAGUAR_COMPANY_BASE_TO_WP";
+            this.$currentRoute = "JAGUAR_COMPANY_BASE_TO_WP";
             break;
         default:
-            this.route = "JAGUAR_COMPANY_BASE_TO_WP";
+            /* Should never trigger. Better safe than sorry though. */
+            this.$currentRoute = "JAGUAR_COMPANY_BASE_TO_WP";
         }
-
-        this.$checkCurrentRoute();
     };
 
-    /* Return the ship furthest away. */
-    this.$queryMaxShip = function $queryMaxShip() {
-        var ships = system.shipsWithRole("jaguar_company_patrol", this.ship);
+    /* Finished the current route, change to the next one and tell other ships to change. */
+    this.$finishedRoute = function $finishedRoute() {
+        var otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship),
+        otherShipCounter;
 
-        /* If there is no other ships then return null */
-        if (ships.length === 1) {
-            return null;
+        this.$changeRoute();
+
+        /* Tell all other ships to change route. */
+        for (otherShipCounter = 0; otherShipCounter < otherShips.length; otherShipCounter++) {
+            otherShips[otherShipCounter].AIState = "CHANGE_ROUTE";
         }
-
-        /* Even though the ship group can be set up, all the ships may not be present. */
-        if (ships.length !== worldScripts["Jaguar Company"].shipGroup.ships.length) {
-            return;
-        }
-
-        /* Return the last ship in the array which is the furthest away. */
-        return ships[ships.length - 1];
     };
 
     /* Find the average distance to all the other ships. */
-    this.$queryAverageDistance = function $queryAverageDistance() {
-        var ships = system.shipsWithRole("jaguar_company_patrol", this.ship),
-        distance,
-        averageDistance,
+    this.$queryAverageDistance = function $queryAverageDistance(ships) {
+        var averageDistance = 0.0,
         logStr,
-        i,
-        j;
+        shipCounter;
 
-        /* If there is no other ships then return null */
-        if (ships.length === 1) {
-            return null;
-        }
-
-        if (worldScripts["Jaguar Company"].logging && worldScripts["Jaguar Company"].logExtra) {
+        if (this.$jaguarCompanyScript.$logging && this.$jaguarCompanyScript.$logExtra) {
             logStr = this.ship.displayName + " => ";
         }
 
-        averageDistance = 0.0;
+        for (shipCounter = 0; shipCounter < ships.length; shipCounter++) {
+            if (this.$jaguarCompanyScript.$logging && this.$jaguarCompanyScript.$logExtra) {
+                logStr += ships[shipCounter].displayName + " = " + this.ship.position.distanceTo(ships[shipCounter].position);
 
-        for (i = 0, j = 0; i < ships.length; i++) {
-            /* Don't check our own ship. */
-            if (this.ship !== ships[i]) {
-                distance = this.ship.position.distanceTo(ships[i].position);
-
-                if (worldScripts["Jaguar Company"].logging && worldScripts["Jaguar Company"].logExtra) {
-                    logStr += ships[i].displayName + " = " + distance;
-
-                    if (++j !== ships.length - 1) {
-                        logStr += ", ";
-                    }
+                if (shipCounter !== ships.length - 1) {
+                    logStr += ", ";
                 }
-
-                /* Add up the distances. */
-                averageDistance += distance;
             }
+
+            /* Add up the distances. */
+            averageDistance += this.ship.position.distanceTo(ships[shipCounter].position);
         }
 
         /* Average all the distances. */
-        averageDistance /= (ships.length - 1);
+        averageDistance /= ships.length;
 
-        if (worldScripts["Jaguar Company"].logging && worldScripts["Jaguar Company"].logExtra) {
+        if (this.$jaguarCompanyScript.$logging && this.$jaguarCompanyScript.$logExtra) {
             log(this.name, "Avg: " + averageDistance + " (" + logStr + ")");
         }
 
@@ -277,42 +278,41 @@ this.version = "1.2";
 
     /* Find the others ships and set the target to the one furthest away. */
     this.$locateJaguarCompany = function $locateJaguarCompany() {
-        var ships = system.shipsWithRole("jaguar_company_patrol", this.ship),
-        maxShip;
+        var otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship);
 
-        /* Even though the ship group can be set up, all the ships may not be present. */
-        if (ships.length !== worldScripts["Jaguar Company"].shipGroup.ships.length) {
-            return;
-        }
-
-        maxShip = this.$queryMaxShip();
-
-        if (maxShip === null) {
+        if (otherShips.length === 0) {
+            /* We are on our own. */
             this.ship.reactToAIMessage("JAGUAR_COMPANY_NOT_FOUND");
 
             return;
         }
 
-        this.ship.target = maxShip;
+        /* Even though the ships may have been added, all the ships may not have been spawned. */
+        if (otherShips.length !== this.$jaguarCompanyScript.$numShips - 1) {
+            return;
+        }
+
+        /* The last one in the ships array is the one furthest away. */
+        this.ship.target = otherShips[otherShips.length - 1];
         this.ship.reactToAIMessage("JAGUAR_COMPANY_FOUND");
     };
 
     this.$checkJaguarCompanyDistance = function $checkJaguarCompanyDistance() {
-        var ships = system.shipsWithRole("jaguar_company_patrol", this.ship),
+        var otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship),
         distance;
 
-        /* Even though the ship group can be set up, all the ships may not be present. */
-        if (ships.length !== worldScripts["Jaguar Company"].shipGroup.ships.length) {
+        if (otherShips.length === 0) {
+            /* We are on our own. */
+            return;
+        }
+
+        /* Even though the ships may have been added, all the ships may not have been spawned. */
+        if (otherShips.length !== this.$jaguarCompanyScript.$numShips - 1) {
             return;
         }
 
         /* Find the average distance to all the other ships. */
-        distance = this.$queryAverageDistance();
-
-        /* A 'null' distance means no other ships. */
-        if (distance === null) {
-            return;
-        }
+        distance = this.$queryAverageDistance(otherShips);
 
         /* I would love to create a fuzzy logic controller for this. */
         if (distance < 7500.0) {
@@ -333,46 +333,52 @@ this.version = "1.2";
     /* Tell everyone to regroup if the average distance to all the other ships is too great. */
     this.$checkJaguarCompanyRegroup = function $checkJaguarCompanyRegroup(maxDistance) {
         var ships = system.shipsWithRole("jaguar_company_patrol", this.ship),
-        distance,
-        i;
+        shipCounter;
 
-        /* Even though the ship group can be set up, all the ships may not be present. */
-        if (ships.length !== worldScripts["Jaguar Company"].shipGroup.ships.length) {
+        if (ships.length === 0) {
+            /* We are on our own. */
+            return;
+        }
+
+        /* Even though the ships may have been added, all the ships may not have been spawned. */
+        if (ships.length !== this.$jaguarCompanyScript.$numShips - 1) {
             return;
         }
 
         /* Find the average distance to all the other ships. */
-        distance = this.$queryAverageDistance();
-
-        /* A 'null' distance means no other ships. */
-        if (distance === null) {
-            return;
-        }
-
-        if (distance >= maxDistance) {
-            for (i = 0; i < ships.length; i++) {
-                /* Tell all ships, including ourself, to regroup. */
-                ships[i].reactToAIMessage("JAGUAR_COMPANY_REGROUP");
+        if (this.$queryAverageDistance(ships) >= maxDistance) {
+            /* Tell all ships, including ourself, to regroup. */
+            for (shipCounter = 0; shipCounter < ships.length; shipCounter++) {
+                ships[shipCounter].sendAIMessage("JAGUAR_COMPANY_REGROUP");
             }
+
+            this.ship.reactToAIMessage("JAGUAR_COMPANY_REGROUP");
         }
     };
 
     /* This does something similar to the groupAttack AI command. */
     this.$jaguarCompanyAttackTarget = function $jaguarCompanyAttackTarget() {
-        var ships = system.shipsWithRole("jaguar_company_patrol", this.ship),
-        i;
+        var otherShips = system.shipsWithRole("jaguar_company_patrol", this.ship),
+        otherShip,
+        otherShipCounter;
 
-        /* Even though the ship group can be set up, all the ships may not be present. */
-        if (ships.length !== worldScripts["Jaguar Company"].shipGroup.ships.length) {
+        if (otherShips.length === 0) {
+            /* We are on our own. */
             return;
         }
 
-        for (i = 0; i < ships.length; i++) {
-            /* Other ships may be busy killing baddies, react 25% of the time. */
-            if (this.ship !== ships[i] && Math.random() < 0.25) {
-                log(this.name, "ship #" + i + " responding: " + ships[i].displayName);
-                ships[i].target = this.ship.target;
-                ships[i].reactToAIMessage("JAGUAR_COMPANY_ATTACK_TARGET");
+        /* Even though the ships may have been added, all the ships may not have been spawned. */
+        if (otherShips.length !== this.$jaguarCompanyScript.$numShips - 1) {
+            return;
+        }
+
+        for (otherShipCounter = 0; otherShipCounter < otherShips.length; otherShipCounter++) {
+            otherShip = otherShips[otherShipCounter];
+
+            /* Other ships may be busy killing baddies. */
+            if (!otherShip.$attacking) {
+                otherShip.target = this.ship.target;
+                otherShip.sendAIMessage("JAGUAR_COMPANY_ATTACK_TARGET");
             }
         }
 
@@ -380,13 +386,21 @@ this.version = "1.2";
         this.ship.reactToAIMessage("JAGUAR_COMPANY_ATTACK_TARGET");
     };
 
+    this.$shipAttacking = function $shipAttacking() {
+        this.$attacking = true;
+    }
+
+    this.$shipStoppedAttacking = function $shipStoppedAttacking() {
+        this.$attacking = false;
+    }
+
     /* Locate the base. */
     this.$locateJaguarCompanyBase = function $locateJaguarCompanyBase() {
         var ships = system.shipsWithRole("jaguar_company_base", this.ship);
 
         if (ships.length === 0) {
             /* If it has gone, just patrol the witchpoint to the planet lane. */
-            this.route = "JAGUAR_COMPANY_WP_TO_PLANET";
+            this.$currentRoute = "JAGUAR_COMPANY_WP_TO_PLANET";
             this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE_NOT_FOUND");
         } else {
             /* Set the target to the base. */
@@ -396,17 +410,30 @@ this.version = "1.2";
     };
 
     /* Won't be needed when v1.78 comes out. */
-    this.$detectQBomb = function $detectQBomb() {
-        var qbomb = system.shipsWithRole("EQ_QC_MINE EQ_CASCADE_MISSILE", this.ship, 25600.0);
+    this.$detectCascadeWeapon = function $detectCascadeWeapon() {
+        var cascadeWeapon, mines, missiles;
 
         /* Let v1.77+ handle it. */
         if (0 >= oolite.compareVersion("1.77")) {
             return;
         }
 
-        if (qbomb.length !== 0) {
+        mines = system.shipsWithRole("EQ_QC_MINE", this.ship, 25600.0);
+        missiles = system.shipsWithRole("EQ_CASCADE_MISSILE", this.ship, 25600.0);
+
+        if (mines.length !== 0 || missiles.length !== 0) {
             /* First one is the closest. */
-            this.ship.target = qbomb[0];
+            if (mines.length === 0) {
+                cascadeWeapon = missiles[0];
+            } else if (missiles.length === 0) {
+                cascadeWeapon = mines[0];
+            } else if (this.ship.position.distanceTo(mines[0].position) < this.ship.position.distanceTo(missiles[0].position)) {
+                cascadeWeapon = mines[0];
+            } else {
+                cascadeWeapon = missiles[0];
+            }
+
+            this.ship.target = cascadeWeapon;
             this.ship.reactToAIMessage("CASCADE_WEAPON_DETECTED");
         }
     };
