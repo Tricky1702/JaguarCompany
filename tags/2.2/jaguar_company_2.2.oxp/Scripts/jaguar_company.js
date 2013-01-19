@@ -1,7 +1,7 @@
 /*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
 /*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
 strict: true, curly: true */
-/*global oolite, system, log, worldScripts, Timer, Vector3D, missionVariables, player, expandMissionText, mission */
+/*global oolite, system, log, Timer, Vector3D, missionVariables, player, expandMissionText, mission */
 
 /* Jaguar Company
  *
@@ -27,12 +27,11 @@ strict: true, curly: true */
     this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Script to initialise the Jaguar Company.";
-    this.version = "2.3";
+    this.version = "2.2";
 
     /* Private variables. */
     var p_main = {},
-    p_const = {},
-    p_newsForSnoopers = [];
+    p_const = {};
 
     /* This should really be defined as a const, but Notepad++ jsLint doesn't like that. */
     Object.defineProperties(p_const, {
@@ -94,52 +93,6 @@ strict: true, curly: true */
             writable : false,
             configurable : false,
             enumerable : true
-        },
-        "snoopersErrorCodes" : {
-            value : [
-                /* Warnings. */
-                "Snoopers buffer is full (max 10 news).",
-                "No free storing slot available.",
-                "CRC buffer is full.",
-                "CRC is still active.",
-                "Caller already sent a message (1 news per worldScript).",
-                /* News inserted successfully. */
-                "Success.",
-                /* Error messages. */
-                "Required properties not found (ID and Message).",
-                "Unknown properties passed.",
-                "To few or too much passed properties (at least 2).",
-                "Request from invalid caller (no worldScript).",
-                "Property 'Message' not a string (wrong type).",
-                "Property 'Message' too short or too long (expected >10 and <700 chars).",
-                "Property 'Message' starts with whitespace (\\f \\t \\r \\n or space).",
-                "Property 'Message' - Sent message not expandable.",
-                "Property 'Message' - Number of opening brackets doesn't match number of closing brackets.",
-                "Property 'Message' - Expanded key (descriptions.plist) too long (limit 700 chars).",
-                "Property 'Message' - Expanded key (missiontext.plist) too long (limit 700 chars).",
-                "Property 'Message' - Expanded Message too long.",
-                "Property 'Message' - Word with overlength detected (limit 79 chars).",
-                "Property 'Message' - To many linebreaks (limit 10).",
-                "Property 'Agency' - not valid (expected number in range 1 - 3).",
-                "Property 'Priority' - not valid (expected number in range 1 - 3).",
-                "Property 'Pic' - wrong type (expected string).",
-                "Property 'Pic' - not a valid fileextension.",
-                "Property 'Music' - wrong type (expected string).",
-                "Property 'Music' not a valid fileextension.",
-                "Property 'Model' - wrong type (expected string).",
-                "Property 'Pos' - wrong type (expected array).",
-                "Property 'Pos' - wrong number of arguments (expected 3 numbers).",
-                "Property 'Pos' - contains NaN.",
-                "Property 'Ori' - wrong type (expected number or array).",
-                "Property 'Ori' - not valid (expected 1, 2, 4 or 8).",
-                "Snoopers was shutdown. Requirements not fullfilled.",
-                "Player not valid anymore.",
-                "Player not docked while trying to display a direct mission screen.",
-                "Attempt to override a missionscreen blocked."
-            ],
-            writable : false,
-            configurable : false,
-            enumerable : true
         }
     });
 
@@ -170,33 +123,42 @@ strict: true, curly: true */
 
     /* We only need to do this once.
      * This will get redefined after a new game or loading of a new Commander.
+     *
+     * Just show on the debug console to confirm it has loaded.
      */
     this.startUp = function () {
         /* No longer needed after setting up. */
         delete this.startUp;
 
         log(this.name + " " + this.version + " loaded.");
+    };
+
+    /* We only need to do this once.
+     * This will get redefined after a new game or loading of a new Commander.
+     */
+    this.shipWillLaunchFromStation = function () {
+        /* No longer needed after setting up. */
+        delete this.shipWillLaunchFromStation;
 
         /* Setup. */
         this.$setUp();
-        /* Check if we need to create Jaguar Company in this system. Delay it. */
-        this.$setUpCompanyTimerReference = new Timer(this, this.$setUpCompany, 1);
+        /* Check if we need to create Jaguar Company in this system. */
+        this.$setUpCompany();
     };
 
-    /* Player launched from a station.
+    /* Player launching from a station.
      *
      * INPUT
      *   station - entity of the station.
      */
     this.shipLaunchedFromStation = function (station) {
-        if (station.entityPersonality === this.$jaguarCompanyBase.entityPersonality) {
+        if (station === this.$jaguarCompanyBase) {
             /* Reset welcomed flag on launch from base. */
             p_main.playerWelcomed = false;
+            /* Add on any reputation awarded on docking. */
+            missionVariables.jaguar_company_reputation += missionVariables.jaguar_company_reputation_post_launch;
+            missionVariables.jaguar_company_reputation_post_launch = 0;
         }
-
-        /* Add on any reputation awarded on docking with an escape pod. */
-        missionVariables.jaguar_company_reputation += missionVariables.jaguar_company_reputation_post_launch;
-        missionVariables.jaguar_company_reputation_post_launch = 0;
     };
 
     /* Reset everything just before exiting Witchspace. */
@@ -207,8 +169,8 @@ strict: true, curly: true */
         if (!system.shipsWithRole("jaguar_company_patrol").length) {
             /* Setup. */
             this.$setUp();
-            /* Check if we need to create Jaguar Company in this system. Delay it. */
-            this.$setUpCompanyTimerReference = new Timer(this, this.$setUpCompany, 1);
+            /* Check if we need to create Jaguar Company in this system. */
+            this.$setUpCompany();
         } else {
             /* Followed Jaguar Company from interstellar space. */
 
@@ -266,35 +228,12 @@ strict: true, curly: true */
         }
     };
 
-    /* Equipment has become damaged.
-     *
-     * INPUT
-     *   equipment - identifier.
-     */
+    /* Equipment has become damaged. */
     this.equipmentDamaged = function (equipment) {
         if (equipment === "EQ_JAGUAR_COMPANY_BLACK_BOX") {
             player.consoleMessage("Black Box Damaged!", 3);
             player.consoleMessage("Return to a local Jaguar Company base for repairs.", 3);
         }
-    };
-
-    /* Player has scooped something.
-     *
-     * INPUT
-     *   whom - entity of the scooped object.
-     */
-    this.shipScoopedOther = function (whom) {
-        if (!whom.$jaguarCompany) {
-            /* Does not contain a member of Jaguar Company. */
-            return;
-        }
-
-        if (this.$logging && this.$logExtra) {
-            log(this.name, "shipScoopedOther::Scooped Jaguar Company member: " + whom.$pilotName);
-        }
-
-        /* Save the pilot's name that was rescued. */
-        this.$rescued.push(whom.$pilotName);
     };
 
     /* OXPConfig2 settings. */
@@ -373,11 +312,6 @@ strict: true, curly: true */
             ]
         };
 
-        if (!this.$rescued) {
-            /* Array of Jaguar Company pilot names that have been rescued. */
-            this.$rescued = [];
-        }
-
         /* Buoy object. */
         this.$buoy = null;
         /* Tracker object. */
@@ -390,19 +324,6 @@ strict: true, curly: true */
         delete this.$hyperspaceFollow;
         /* Not visited the base. */
         delete missionVariables.jaguar_company_visited_base;
-    };
-
-    this.$showProps = function () {
-        var result = "",
-        prop;
-
-        for (prop in p_main) {
-            if (p_main.hasOwnProperty(prop)) {
-                result += "p_main." + prop + " = " + p_main[prop] + "\n";
-            }
-        }
-
-        return result;
     };
 
     /* Stop and remove the timers. */
@@ -507,7 +428,6 @@ strict: true, curly: true */
                 if (!p_main.asteroids) {
                     /* Don't re-check. */
                     this.$asteroidsOK = true;
-                    delete p_main.asteroids;
                 }
             }
         }
@@ -622,7 +542,7 @@ strict: true, curly: true */
                     /* Remove the tracker quietly: don't trigger 'shipDied' in the ship script. */
                     this.$tracker.remove(true);
                     this.$trackerOK = false;
-                }
+               }
             }
         }
     };
@@ -900,11 +820,6 @@ strict: true, curly: true */
         entity,
         logMsg = "$spawnJaguarCompany::";
 
-        if (state <= 0 || state > 7) {
-            log(this.name, logMsg + "This should NOT happen! Unknown state: " + state);
-            return;
-        }
-
         /* Reset the check flags. */
         this.$baseOK = false;
         this.$asteroidsOK = false;
@@ -958,22 +873,25 @@ strict: true, curly: true */
 
         if (this.$logging) {
             if (state & 1) {
-                logMsg += "\n* Adding Jaguar Company to patrol in the " + sysname + " space lane.";
+                logMsg += "Adding Jaguar Company to patrol in the " + sysname + " space lane.\n";
             }
 
             if (state & 2) {
-                logMsg +=
-                    "\n* Adding Jaguar Company to patrol with the Galactic Navy in the " + sysname + " space lane.";
+                logMsg += "Adding Jaguar Company to patrol with the Galactic Navy in the " + sysname + " space lane.\n";
             }
 
             if (state & 4) {
-                logMsg += "\n* Always spawn set - Adding Jaguar Company to the " + sysname + " space lane.";
+                logMsg += "Always spawn set - Adding Jaguar Company to the " + sysname + " space lane.\n";
+            }
+
+            if (state > 7) {
+                logMsg += "This should NOT happen! Unknown state: " + state;
             }
 
             log(this.name, logMsg);
         }
 
-        if (state === 2 || state === 6) {
+        if (state === 2) {
             /* Create the patrol without the base. */
             this.$spawnJaguarCompanyPatrol();
         } else if (state <= 7) {
@@ -1022,7 +940,7 @@ strict: true, curly: true */
             mainPlanet = system.mainPlanet;
             wpPosition = this.$witchpointBuoy.position;
             wpsunDirection = wpPosition.subtract(system.sun.position).direction();
-            wpmpDirection = wpPosition.subtract(mainPlanet.position).direction();
+            wpmpDirection  = wpPosition.subtract(mainPlanet.position).direction();
             dot = wpsunDirection.dot(wpmpDirection);
 
             /* Some systems have the witchpoint, main planet and sun all in conjunction. */
@@ -1052,7 +970,7 @@ strict: true, curly: true */
                 /* Move it 4 to 6 times scanning range upwards with respect to the main planet's surface. */
                 ratio = (4 + (system.scrambledPseudoRandomNumber(this.$salt) * 2)) * 25600;
                 mPovUp = mainPlanet.orientation.vectorUp();
-                basePosition = basePosition.add(mPovUp.multiply(mainPlanet.radius + ratio));
+                basePosition = basePosition.add(mPovUp.multiply(mainPlanet.radius + ratio)); 
             }
         }
 
@@ -1140,13 +1058,9 @@ strict: true, curly: true */
             }
         }
 
-        if (spawnCompany) {
-            this.$spawnJaguarCompany(spawnCompany);
+        this.$spawnJaguarCompany(spawnCompany);
 
-            return true;
-        }
-
-        return false;
+        return (spawnCompany !== 0);
     };
 
     /* Create a unique ship name.
@@ -1481,73 +1395,6 @@ strict: true, curly: true */
         for (otherShipsCounter = 0; otherShipsCounter < otherShipsLength; otherShipsCounter += 1) {
             /* Force all other ships to regroup. The ship that called this is already regrouping. */
             otherShips[otherShipsCounter].reactToAIMessage(aiResponse);
-        }
-    };
-
-    /* Send news to Snoopers.
-     *
-     * INPUTS
-     *   message - news to show.
-     *   agency - agency to use. (Optional)
-     */
-    this.$sendNewsToSnoopers = function (message, agency) {
-        var news = {},
-        result,
-        index;
-
-        if (!worldScripts.snoopers) {
-            /* Snoopers not installed. */
-            return;
-        }
-
-        if (!agency) {
-            /* Random agency. */
-            agency = Math.floor(Math.random() * 3.0) + 1;
-        }
-
-        news.ID = this.name;
-        news.Message = message;
-        news.Agency = agency;
-        result = worldScripts.snoopers.insertNews(news);
-        index = result + 5;
-
-        if (result < 0) {
-            /* Save for later. Snoopers only allows one news item at a time. */
-            p_newsForSnoopers.push(news);
-
-            if (this.$logging && this.$logExtra) {
-                log(this.name, "$sendNewsToSnoopers::Saving news for later.\n" +
-                    "* ID: '" + this.name + "'\n" +
-                    "* Message: '" + message + "'\n" +
-                    "* Agency: " + agency + "\n" +
-                    "* result: " + result + (result >= -5 ? ") " + p_const.snoopersErrorCodes[index] : ""));
-            }
-        } else if (result > 0) {
-            /* Problem. */
-            log(this.name, "$sendNewsToSnoopers::Problem with news.\n" +
-                "* ID: '" + this.name + "'\n" +
-                "* Message: '" + message + "'\n" +
-                "* Agency: " + agency + "\n" +
-                "* result: " + result + (result <= 30 ? ") " + p_const.snoopersErrorCodes[index] : ""));
-        } else {
-            /* News inserted. */
-            if (this.$logging && this.$logExtra) {
-                log(this.name, "$sendNewsToSnoopers::News inserted.\n" +
-                    "* ID: '" + this.name + "'\n" +
-                    "* Message: '" + message + "'\n" +
-                    "* Agency: " + agency + "\n" +
-                    "* result: " + result + ") " + p_const.snoopersErrorCodes[index]);
-            }
-        }
-    };
-
-    /* News has been displayed through Snoopers. Check for more. */
-    this.newsDisplayed = function () {
-        var news = p_newsForSnoopers.shift();
-
-        if (news) {
-            /* More news available. Send it to Snoopers. */
-            this.$sendNewsToSnoopers(news.Message, news.Agency);
         }
     };
 }).call(this);

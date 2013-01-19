@@ -70,8 +70,6 @@ strict: true, curly: true */
 
         /* Register this ship as a friendly. */
         p_patrol.attackersScript.$addFriendly(this.ship);
-        /* Random name for the pilot. Used when talking about attacks and sending a report to Snoopers. */
-        this.ship.$pilotName = expandDescription("%N [nom1]");
         /* Get a unique name for the patrol ship. */
         this.ship.displayName = p_patrol.mainScript.$uniqueShipName(this.ship.name);
         /* Increase the number of patrol ships in the system. */
@@ -99,19 +97,6 @@ strict: true, curly: true */
         for (counter = 0; counter < p_patrol.initialMissiles; counter += 1) {
             this.ship.awardEquipment(p_patrol.missileRole);
         }
-    };
-
-    /* The shipLaunchedEscapePod handler is called when the pilot bails out.
-     *
-     * INPUT
-     *   escapepod - contains the main pod with the pilot.
-     */
-    this.shipLaunchedEscapePod = function(escapepod)
-    {
-        /* Identify this pod as containg a member of Jaguar Company. */
-        escapepod.$jaguarCompany = true;
-        /* Transfer pilot name to the escape pod. */
-        escapepod.$pilotName = this.ship.$pilotName;
     };
 
     /* Thargoid's missile code. (Simplified - taken out the local function.)

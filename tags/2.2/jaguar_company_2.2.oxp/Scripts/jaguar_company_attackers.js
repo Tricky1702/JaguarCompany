@@ -34,14 +34,20 @@ strict: true, curly: true */
 
     /* World event handlers. */
 
-    /* We only need to do this once.
-     * This will get redefined after a new game or loading of a new Commander.
-     */
+    /* Just show on the debug console to confirm it has loaded. */
     this.startUp = function () {
         /* No longer needed after setting up. */
         delete this.startUp;
 
         log(this.name + " " + this.version + " loaded.");
+    };
+
+    /* We only need to do this once.
+     * This will get redefined after a new game or loading of a new Commander.
+     */
+    this.shipWillLaunchFromStation = function () {
+        /* No longer needed after setting up. */
+        delete this.shipWillLaunchFromStation;
 
         /* Setup the private attackers variable. */
         this.$setUp();
@@ -68,11 +74,7 @@ strict: true, curly: true */
     this.shipAttackedOther = function (victim) {
         var jaguarCompany,
         attackerIndex,
-        observer,
-        pilotName,
-        reputation,
-        helperLevel = p_attackers.mainScript.$reputationHelper,
-        blackboxLevel = p_attackers.mainScript.$reputationBlackbox;
+        observer;
 
         if (!this.$isHostile(victim)) {
             /* Ignore victims that are not hostile to Jaguar Company. */
@@ -84,22 +86,19 @@ strict: true, curly: true */
                 return (this.$friendRoles.indexOf(entity.entityPersonality) > -1);
             }, player.ship, player.ship.scannerRange);
 
-        /* Skip the next bit if the victim is a thargoid/tharglet. */
-        if (!victim.isThargoid) {
-            if (!jaguarCompany.length) {
-                /* Nobody around. */
-                return;
-            }
-
-            /* Find the index of the victim. */
-            attackerIndex = p_attackers.attackersIndex.indexOf(victim.entityPersonality);
-            /* Re-filter to find out if any of Jaguar Company found so far
-             * are victims of the ship the player is attacking.
-             */
-            jaguarCompany = jaguarCompany.filter(function (ship) {
-                    return (p_attackers.attackers[attackerIndex].victimsIndex.indexOf(ship.entityPersonality) > -1);
-                });
+        if (!jaguarCompany.length) {
+            /* Nobody around. */
+            return;
         }
+
+        /* Find the index of the victim. */
+        attackerIndex = p_attackers.attackersIndex.indexOf(victim.entityPersonality);
+        /* Re-filter to find out if any of Jaguar Company found so far
+         * are victims of the ship the player is attacking.
+         */
+        jaguarCompany = jaguarCompany.filter(function (ship) {
+            return (p_attackers.attackers[attackerIndex].victimsIndex.indexOf(ship.entityPersonality) > -1);
+        });
 
         if (!jaguarCompany.length || Math.random() < 0.9) {
             /* Nobody around or Jaguar Company is too busy to see you helping. */
@@ -107,25 +106,16 @@ strict: true, curly: true */
         }
 
         /* Increase the reputation of the player with Jaguar Company. */
-        reputation = missionVariables.jaguar_company_reputation += 1;
+        missionVariables.jaguar_company_reputation += 1;
         /* Pick a random member of Jaguar Company as the observer. */
         observer = jaguarCompany[Math.floor(Math.random() * jaguarCompany.length)];
-
-        if (observer.$pilotName) {
-            /* Get the observer's name. */
-            pilotName = observer.$pilotName;
-        } else {
-            /* Use displayName as the name of the observer. */
-            pilotName = observer.displayName;
-        }
-
         /* Send a thank you message to the player. */
-        player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_help]"));
+        observer.commsMessage(expandDescription("[jaguar_company_player_help]"), player.ship);
 
-        if (reputation === helperLevel) {
-            player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_help_buoy]"));
-        } else if (reputation === blackboxLevel) {
-            player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_help_blackbox]"));
+        if (missionVariables.jaguar_company_reputation === p_attackers.mainScript.$reputationHelper) {
+            observer.commsMessage(expandDescription("[jaguar_company_player_help_buoy]"), player.ship);
+        } else if (missionVariables.jaguar_company_reputation === p_attackers.mainScript.$reputationBlackbox) {
+            observer.commsMessage(expandDescription("[jaguar_company_player_help_blackbox]"), player.ship);
         }
     };
 
@@ -139,11 +129,7 @@ strict: true, curly: true */
         var jaguarCompany,
         attackerIndex,
         observer,
-        pilotName,
-        newsSource,
-        reputation,
-        helperLevel = p_attackers.mainScript.$reputationHelper,
-        blackboxLevel = p_attackers.mainScript.$reputationBlackbox;
+        message;
 
         if (!this.$isHostile(victim)) {
             /* Ignore victims that are not hostile to Jaguar Company. */
@@ -155,22 +141,17 @@ strict: true, curly: true */
                 return (this.$friendRoles.indexOf(entity.entityPersonality) > -1);
             }, player.ship, player.ship.scannerRange);
 
-        /* Skip the next bit if the victim is a thargoid/tharglet. */
-        if (!victim.isThargoid) {
-            if (!jaguarCompany.length) {
-                /* Nobody around. */
-                return;
-            }
-
-            /* Find the index of the victim. */
-            attackerIndex = p_attackers.attackersIndex.indexOf(victim.entityPersonality);
-            /* Re-filter to find out if any of Jaguar Company found so far
-             * are victims of the ship the player has killed.
-             */
-            jaguarCompany = jaguarCompany.filter(function (ship) {
-                    return (p_attackers.attackers[attackerIndex].victimsIndex.indexOf(ship.entityPersonality) > -1);
-                });
+        if (!jaguarCompany.length) {
+            /* Nobody around. */
+            return;
         }
+
+        /* Find the index of the victim. */
+        attackerIndex = p_attackers.attackersIndex.indexOf(victim.entityPersonality);
+        /* Re-filter to find out if any of Jaguar Company found so far are victims of the ship the player has killed. */
+        jaguarCompany = jaguarCompany.filter(function (ship) {
+            return (p_attackers.attackers[attackerIndex].victimsIndex.indexOf(ship.entityPersonality) > -1);
+        });
 
         if (!jaguarCompany.length) {
             /* Nobody around. */
@@ -178,38 +159,22 @@ strict: true, curly: true */
         }
 
         /* Increase the reputation of the player with Jaguar Company. */
-        reputation = missionVariables.jaguar_company_reputation += 10;
+        missionVariables.jaguar_company_reputation += 10;
+        message = "[jaguar_company_player_help]";
+
+        if (missionVariables.jaguar_company_reputation >= p_attackers.mainScript.$reputationHelper &&
+            missionVariables.jaguar_company_reputation < p_attackers.mainScript.$reputationHelper + 10) {
+            message += " [jaguar_company_player_help_buoy]";
+        } else if (missionVariables.jaguar_company_reputation >= p_attackers.mainScript.$reputationBlackbox &&
+            missionVariables.jaguar_company_reputation < p_attackers.mainScript.$reputationBlackbox + 10 &&
+            player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") !== "EQUIPMENT_OK") {
+            message += " [jaguar_company_player_help_blackbox]";
+        }
+
         /* Pick a random member of Jaguar Company as the observer. */
         observer = jaguarCompany[Math.floor(Math.random() * jaguarCompany.length)];
-
-        if (observer.$pilotName) {
-            /* News source is the observer. */
-            newsSource = pilotName = observer.$pilotName;
-        } else {
-            /* Random name for the news source. */
-            newsSource = expandDescription("%N [nom1]");
-            /* Use displayName as the name of the observer. */
-            pilotName = observer.displayName;
-        }
-
         /* Send a thank you message to the player. */
-        player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_help]"));
-
-        if (reputation >= helperLevel && reputation < helperLevel + 10) {
-            player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_help_buoy]"));
-        } else if (reputation >= blackboxLevel && reputation < blackboxLevel + 10 &&
-            player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") !== "EQUIPMENT_OK") {
-            player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_help_blackbox]"));
-        }
-
-        if (!p_attackers.newsSent || clock.seconds - p_attackers.newsSent > 5 * 60) {
-            /* First kill or more than 5 minutes since the last kill. */
-            p_attackers.newsSent = clock.seconds;
-            /* Send news to Snoopers. */
-            p_attackers.mainScript.$sendNewsToSnoopers(expandDescription("[jaguar_company_help_news]", {
-                    jaguar_company_pilot_name : newsSource
-                }));
-        }
+        observer.commsMessage(expandDescription(message), player.ship);
     };
 
     /* Other global public functions. */
@@ -339,7 +304,7 @@ strict: true, curly: true */
             /* Start the attack cleanup timer. */
             if (!this.$attackersCleanupTimerReference) {
                 /* New timer. */
-                this.$attackersCleanupTimerReference = new Timer(this, this.$attackersCleanupTimer, 30, 30);
+                this.$attackersCleanupTimerReference = new Timer(this, this.$attackersCleanupTimer, 5, 30);
             } else {
                 /* Restart current timer. */
                 this.$attackersCleanupTimerReference.start();
@@ -624,7 +589,7 @@ strict: true, curly: true */
                 if (attackerIndex !== -1 && !p_attackers.attackers[attackerIndex].victims.length) {
                     if (p_attackers.logging && p_attackers.logExtra) {
                         logMsg += "\n** attacker#" + attackerKey + " (" + attacker.ship.displayName + ")" +
-                        ", removing (no victims)";
+                            ", removing (no victims)";
                     }
 
                     /* Has no victims so no longer an attacker.
@@ -766,11 +731,6 @@ strict: true, curly: true */
         var attackerIndex;
 
         if (attacker.isThargoid) {
-            /* Add the attacker (if needed) and get the attacker index. */
-            attackerIndex = this.$addAttacker(attacker);
-            /* Set the hostile property. */
-            p_attackers.attackers[attackerIndex].hostile = true;
-
             /* Always true for Thargoids/tharglets. */
             return true;
         }
@@ -932,8 +892,6 @@ strict: true, curly: true */
      *   attacker - entity of the attacker.
      */
     this.$shipIsBeingAttackedWithMissile = function (victim, attacker) {
-        var pilotName;
-
         if (!attacker || !attacker.isValid || victim.isDerelict) {
             /* No longer valid. */
             return;
@@ -946,14 +904,6 @@ strict: true, curly: true */
         /* Make the attacker a hostile for future checking. */
         this.$makeHostile(attacker);
 
-        if (victim.$pilotName) {
-            /* Get the victims's name. */
-            pilotName = victim.$pilotName;
-        } else {
-            /* Use displayName as the name of the victim. */
-            pilotName = victim.displayName;
-        }
-
         if (attacker.isPlayer) {
             /* Remember the player, even if they jump system. */
             missionVariables.jaguar_company_attacker = true;
@@ -962,12 +912,12 @@ strict: true, curly: true */
 
             if (victim.isPiloted) {
                 /* Player hostile message. */
-                player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
+                victim.commsMessage(expandDescription("[jaguar_company_player_hostile_fire]"), player.ship);
             }
         } else {
             if (victim.isPiloted) {
                 /* Other ship hostile message. */
-                player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
+                victim.commsMessage(expandDescription("[jaguar_company_hostile_fire]"));
             }
         }
     };
@@ -986,26 +936,17 @@ strict: true, curly: true */
      *   attacker - entity of the attacker.
      */
     this.$shipIsBeingAttacked = function (victim, attacker) {
-        var attackCounter,
-        pilotName;
+        var attackCounter;
 
         if (!attacker || !attacker.isValid || victim.isDerelict) {
             /* No longer valid. */
             return;
         }
 
-        if (victim.$pilotName) {
-            /* Get the victims's name. */
-            pilotName = victim.$pilotName;
-        } else {
-            /* Use displayName as the name of the victim. */
-            pilotName = victim.displayName;
-        }
-
         if (this.$friendRoles.indexOf(attacker.entityPersonality) > -1 || attacker.isPolice) {
             if (victim.isPiloted && Math.random() > p_attackers.messageProbability) {
                 /* Broadcast a "friendly fire" message. */
-                player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_friendly_fire]"));
+                victim.commsMessage(expandDescription("[jaguar_company_friendly_fire]"));
             }
 
             /* Tell the attacker that we are a friend. */
@@ -1027,11 +968,10 @@ strict: true, curly: true */
                 /* Show hostile message. */
                 if (attacker.isPlayer) {
                     /* Player hostile message. */
-                    player.commsMessage(pilotName + ": " +
-                        expandDescription("[jaguar_company_player_hostile_fire]"));
+                    victim.commsMessage(expandDescription("[jaguar_company_player_hostile_fire]"), player.ship);
                 } else {
                     /* Other ship hostile message. */
-                    player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
+                    victim.commsMessage(expandDescription("[jaguar_company_hostile_fire]"));
                 }
             }
 
@@ -1058,12 +998,11 @@ strict: true, curly: true */
                         /* Decrease reputation. */
                         missionVariables.jaguar_company_reputation -= 1;
                         /* Player warning. */
-                        player.commsMessage(pilotName + ": " +
-                            expandDescription("[jaguar_company_player_friendly_fire]"));
+                        victim.commsMessage(
+                            expandDescription("[jaguar_company_player_friendly_fire]"), player.ship);
                     } else {
                         /* Other ship warning. */
-                        player.commsMessage(pilotName + ": " +
-                            expandDescription("[jaguar_company_friendly_fire]"));
+                        victim.commsMessage(expandDescription("[jaguar_company_friendly_fire]"));
                     }
                 }
 
@@ -1086,12 +1025,12 @@ strict: true, curly: true */
 
             if (victim.isPiloted) {
                 /* Player hostile message. */
-                player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
+                victim.commsMessage(expandDescription("[jaguar_company_player_hostile_fire]"), player.ship);
             }
         } else {
             if (victim.isPiloted) {
                 /* Other ship hostile message. */
-                player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
+                victim.commsMessage(expandDescription("[jaguar_company_hostile_fire]"));
             }
         }
 
@@ -1110,8 +1049,7 @@ strict: true, curly: true */
      *   why - cause as a string.
      */
     this.$shipDied = function (victim, attacker, why) {
-        var destroyedBy = attacker,
-        pilotName;
+        var destroyedBy = attacker;
 
         if (attacker && attacker.isValid && !victim.isDerelict) {
             destroyedBy = "ship#" + attacker.entityPersonality + " (" + attacker.displayName + ")";
@@ -1134,16 +1072,8 @@ strict: true, curly: true */
             }
 
             if (victim.isPiloted && Math.random() > p_attackers.messageProbability) {
-                if (victim.$pilotName) {
-                    /* Get the victims's name. */
-                    pilotName = victim.$pilotName;
-                } else {
-                    /* Use displayName as the name of the victim. */
-                    pilotName = victim.displayName;
-                }
-
                 /* Death message. */
-                player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_death]"));
+                victim.commsMessage(expandDescription("[jaguar_company_death]"));
             }
         }
 
@@ -1283,8 +1213,7 @@ strict: true, curly: true */
         var target = null,
         counter,
         length,
-        attackersWithinRange,
-        pilotName;
+        attackersWithinRange;
 
         function $identifyAttacker(entity) {
             if (!entity.isValid ||
@@ -1351,22 +1280,13 @@ strict: true, curly: true */
             target = attackersWithinRange[0];
 
             if (callerShip.isPiloted && Math.random() > p_attackers.messageProbability) {
-                if (callerShip.$pilotName) {
-                    /* Get the callerShip's name. */
-                    pilotName = callerShip.$pilotName;
-                } else {
-                    /* Use displayName as the name of the callerShip. */
-                    pilotName = callerShip.displayName;
-                }
-
                 /* Show hostile message. */
                 if (target.isPlayer) {
                     /* Player hostile message. */
-                    player.commsMessage(pilotName + ": " +
-                        expandDescription("[jaguar_company_player_hostile_fire]"));
+                    callerShip.commsMessage(expandDescription("[jaguar_company_player_hostile_fire]"), player.ship);
                 } else {
                     /* Other ship hostile message. */
-                    player.commsMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
+                    callerShip.commsMessage(expandDescription("[jaguar_company_hostile_fire]"));
                 }
             }
 

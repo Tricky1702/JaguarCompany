@@ -1,4 +1,4 @@
-Jaguar Company 2.3 (2012-12-08)
+Jaguar Company 2.2 (2012-12-02)
 
 Sometime ago I posted some images on the Screenshots thread ( http://aegidian.org/bb/viewtopic.php?f=2&t=4494 ) of the
 Oolite BB ( http://aegidian.org/bb/ ), of what is possible with Griff's multi-decal Player Cobra Mk III OXP.
@@ -38,11 +38,11 @@ This is highly recommended.
 
 Install
 -------
-After unzipping, move or copy the folder, "jaguar_company_2.3.oxp", into your AddOns directory.
+After unzipping, move or copy the folder, "jaguar_company_2.2.oxp", into your AddOns directory.
 
 Uninstall
 ---------
-Delete the directory, "jaguar_company_2.3.oxp", from your AddOns directory.
+Delete the directory, "jaguar_company_2.2.oxp", from your AddOns directory.
 
 Oolite v1.77 and newer
 ----------------------
@@ -51,21 +51,18 @@ in the Scripts directory.
 
 Version History
 ---------------
-v2.3 (2012-12-08)
-    Integration with Snoopers OXP if available.
-    Pilot name for patrol, tug and miner ships.
-    Pilot name transfered to escape pod and then used in rescue message on arrival at a station.
-    Use pilot's name if available in attack messages. Otherwise use the displayName.
-    Use pilot's name if available as the Snoopers news source. Otherwise use a random name.
-    Force Snoopers news to be shown at the base.
-    New const in the main script for Snoopers Error Codes.
-    Make sure thargoids/tharglets are ALWAYS seen as hostile.
+v2.2 (2012-12-02)
+    Wrong variable in the buoy script.
+    Corrected a logic check in the asteroid script.
+    Optimized the cleanup code in jaguar_company_attackers.js
+    Fewer boulders.
 
 For a full version history see jaguar_company_changelog.txt in the directory you loaded this readme file from.
 
 Future Versions
 ---------------
 Torus drive sync for the boring bits.
+Integration with Snoopers OXP if available.
 
 Copyright
 ---------

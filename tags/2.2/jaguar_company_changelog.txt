@@ -1,14 +1,5 @@
 ChangeLog
 ---------
-v2.3 (2012-12-08)
-    Integration with Snoopers OXP if available.
-    Pilot name for patrol, tug and miner ships.
-    Pilot name transfered to escape pod and then used in rescue message on arrival at a station.
-    Use pilot's name if available in attack messages. Otherwise use the displayName.
-    Use pilot's name if available as the Snoopers news source. Otherwise use a random name.
-    Force Snoopers news to be shown at the base.
-    New const in the main script for Snoopers Error Codes.
-    Make sure thargoids/tharglets are ALWAYS seen as hostile.
 v2.2 (2012-12-02)
     Wrong variable in the buoy script.
     Corrected a logic check in the asteroid script.

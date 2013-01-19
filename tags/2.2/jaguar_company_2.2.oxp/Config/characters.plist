@@ -17,10 +17,6 @@
     jaguar-company-pilot =
     {
         name = "a pilot of Jaguar Company";
-        /* Show a rescue message. Actual insurance set in script. */
-        insurance = 500;
-        bounty = 0;
-        legal_status = 0;
         role = "jaguar_company";
         script = "jaguar_company_pilot.js";
     };

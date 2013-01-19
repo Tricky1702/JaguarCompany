@@ -44,31 +44,6 @@
         "Go to our base to receive a little thank you gift."
     );
 
-    "jaguar_company_help_news" =
-    (
-        "[jaguar_company_pilot_name], a member of Jaguar Company, has put in a special commendation for Commander [commander_name], for the timely help that was given in a recent battle. [jaguar_company_pilot_name] quoted, '[jaguar_company_help_news_quote]'",
-        "In a recent battle, Commander [commander_name] has earned the respect of Jaguar Company. In a quote given by [jaguar_company_pilot_name], a member of Jaguar Company, it was mentioned that, '[jaguar_company_help_news_quote]'"
-    );
-
-    "jaguar_company_help_news_quote" =
-    (
-        "Without this help, all could have been lost. [commander_name] would do well to think of future service.",
-        "[commander_name] should think of signing up for the service, assuming the Commander hasn't already.",
-        "I'm at a loss for words! In the middle of battle and out of nowhere, Commander [commander_name] came swooping in and saved the day."
-    );
-
-    "jaguar_company_rescue_news" =
-    (
-        "Commander [commander_name] has just received a special commendation for recently rescuing [jaguar_company_pilot_name], a member of Jaguar Company. A very relieved pilot gave out the following quote, '[jaguar_company_rescue_news_quote]'",
-        "Commander [commander_name] has earned the respect of Jaguar Company for the recent daring rescue of [jaguar_company_pilot_name], a member of Jaguar Company. The grateful pilot gave out this following quote, '[jaguar_company_rescue_news_quote]'"
-    );
-
-    "jaguar_company_rescue_news_quote" =
-    (
-        "I owe [commander_name] my life. I'm gonna name my next kid after you!",
-        "I'm at a loss for words! I thought I was a gonna when out of nowhere, Commander [commander_name] came swooping in and saved me."
-    );
-
     "jaguar_company_friendly_fire" =
     (
         "[jaguar_company_friendly_fire1] [jaguar_company_insult]!",

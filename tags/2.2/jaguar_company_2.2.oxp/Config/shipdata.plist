@@ -596,11 +596,6 @@
         roles = "jaguar_company_tug jaguar_company";
         scoop_position = "0.0 -6.0 -10.5";
         script = "jaguar_company_tug.js";
-        script_info =
-        {
-            /* Stop inteference from Randomship Names OXP */
-            "randomshipnames" = no;
-        };
         subentities =
         (
             {
@@ -660,11 +655,6 @@
         roles = "jaguar_company_miner jaguar_company";
         scoop_position = "0.0 -6.0 -10.5";
         script = "jaguar_company_miner.js";
-        script_info =
-        {
-            /* Stop inteference from Randomship Names OXP */
-            "randomshipnames" = no;
-        };
         thrust = 20;
         weapon_position_forward   = " 0.0 -3.57123  20.76385";
         weapon_position_aft       = " 0.0  0.0     -17.5";
@@ -1001,8 +991,6 @@
         {
             /* Stop inteference from Randomship Names OXP */
             "randomshipnames" = no;
-            /* Allows Snoopers messages to be shown at the base. */
-            "snoopersNews" = yes;
         };
     };
 
@@ -1019,8 +1007,6 @@
         {
             /* Stop inteference from Randomship Names OXP */
             "randomshipnames" = no;
-            /* Allows Snoopers messages to be shown at the base. */
-            "snoopersNews" = yes;
         };
     };
 
