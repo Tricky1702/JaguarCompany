@@ -1,4 +1,4 @@
-/* jaguar_company_cobra_mk3.fragment for the Jaguar Company.
+/* jaguar_company_cobra_mk3.frag.glsl for the Jaguar Company.
  *
  * Copyright © 2012-2013 Tricky
  *

@@ -1,4 +1,4 @@
-/* jaguar_company_base.fragment for the Jaguar Company Base.
+/* jaguar_company_base.frag.glsl for the Jaguar Company Base.
  *
  * Copyright © 2012-2013 Tricky
  *

@@ -1,4 +1,4 @@
-/* jaguar_company_base.vertex for the Jaguar Company Base.
+/* jaguar_company_base.vert.glsl for the Jaguar Company Base.
  *
  * Copyright © 2012-2013 Tricky
  *
