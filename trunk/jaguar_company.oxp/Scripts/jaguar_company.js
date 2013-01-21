@@ -205,8 +205,40 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
      * This will get redefined after a new game or loading of a new Commander.
      */
     this.startUp = function () {
+        var ccl_version;
+
         /* No longer needed after setting up. */
         delete this.startUp;
+
+        if (!worldScripts.Cabal_Common_Functions ||
+            worldScripts.Cabal_Common_Functions.Cabal_Common === 'undefined') {
+            this.$killSelf(" -> Cabal Common Library is missing.");
+
+            return;
+        }
+
+        this.$ccl = new worldScripts.Cabal_Common_Functions.Cabal_Common();
+        ccl_version = this.$ccl.internalVersion;
+
+        if (ccl_version < 14) {
+            this.$killSelf(" -> Cabal Common Library is too old.");
+
+            return;
+        }
+
+        if (ccl_version === 14 && 0 >= oolite.compareVersion("1.77")) {
+            /* Oolite v1.77 or newer. */
+            this.$killSelf(" -> Cabal Common Library is too old.");
+
+            return;
+        }
+
+        if (ccl_version > 14 && 0 < oolite.compareVersion("1.77")) {
+            /* Oolite v1.76.1 or older. */
+            this.$killSelf(" -> Cabal Common Library is too new.");
+
+            return;
+        }
 
         log(this.name + " " + this.version + " loaded.");
 
@@ -301,14 +333,6 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
      */
     this.shipSpawned = function (whom) {
         var friendRoles;
-
-        /* Check for Galactic Navy ships. */
-        if (!this.$joinNavy && this.$isNavyShip(whom)) {
-            /* Provisional. Will be re-calculated. */
-//            this.$joinNavy = true;
-
-            return;
-        }
 
         if (!worldScripts["Jaguar Company Attackers"]) {
             /* Attackers world script not setup yet. */
@@ -536,14 +560,54 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         this.$cacheJaguarCompanySystems();
     };
 
+    /* Removes all functions and variables.
+     *
+     * INPUT
+     *   desc - optional description for the removal.
+     */
+    this.$killSelf = function (desc) {
+        var prop,
+        counter,
+        length;
+
+        if (desc !== null) {
+            player.consoleMessage(this.name + " - Check your Latest.log", 10);
+            log(this.name, this.name + " - Shutting down" + desc);
+        }
+
+        /* Cache the length. */
+        length = this.length;
+
+        /* Delete public functions and variables. */
+        for (counter = 0; counter < length; counter += 1) {
+            prop = this[counter];
+
+            if (prop !== 'name' && prop !== 'version') {
+                delete this[counter];
+            }
+        }
+
+        /* Set the deactivated flag for Cabal Common Library. */
+        this.deactivated = true;
+
+        return;
+    };
+
     /* For debugging only. */
     this.$showProps = function () {
         var result = "",
-        prop;
+        prop,
+        counter,
+        length;
 
-        for (prop in p_main) {
+        /* Cache the length. */
+        length = p_main.length;
+
+        for (counter = 0; counter < length; counter += 1) {
+            prop = p_main[counter];
+
             if (p_main.hasOwnProperty(prop)) {
-                result += "p_main." + prop + " = " + p_main[prop] + "\n";
+                result += "p_main." + prop + " = " + p_main[counter] + "\n";
             }
         }
 
@@ -736,8 +800,9 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
     };
 
     /* Build a 2 column list of Jaguar Company Base locations.
-     * Borrowed from Spara's Trophy Collector OXP.
-     * Highly modified.
+     * Original idea from Spara's Trophy Collector OXP.
+     * Highly modified and simplified.
+     * Modified using Cabal Common Library for Oolite v1.77 or newer.
      *
      * INPUT
      *   list - array of strings to be displayed.
@@ -747,17 +812,17 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
      */
     this.$listNames = function (list) {
         var columnized = "",
-        name,
-        nameWidth,
-        spaceWidth = defaultFont.measureString(" "),
+        row,
         start = this.$printIndex,
-        lines = this.$lines, // Maximum number of rows.
-        i,
-        j;
+        /* Maximum number of rows. */
+        lines = this.$lines,
+        lname,
+        rname,
+        i;
 
         /* No Bases? */
         if (!list.length) {
-            return "No bases in this sector.";
+            return "No bases in this sector.\n";
         }
 
         /* Less entries than rows? */
@@ -768,49 +833,37 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         for (i = 0; i < lines; i += 1) {
             if (start + i + lines < list.length) {
                 /* Two column layout. */
-                name = list[start + i];
-                nameWidth = defaultFont.measureString(name);
+                /* Left column. Truncated or padded with spaces. */
+                lname = this.$ccl.strToWidth(list[start + i], 15, " ");
+                /* Right column. Truncated. */
+                rname = this.$ccl.strToWidth(list[start + i + lines], 15);
 
-                /* Left column. */
-                if (nameWidth > 15) {
-                    /* Entry too wide, truncate. */
-                    while (defaultFont.measureString(name) > 15) {
-                        name = name.substring(0, name.length - 1);
-                    }
-
-                    nameWidth = defaultFont.measureString(name);
-                }
-
-                columnized += " " + name;
-
-                for (j = 0; j < (15 - nameWidth) / spaceWidth; j += 1) {
-                    columnized += " ";
-                }
-
-                /* Right column. */
-                name = list[start + i + lines];
-                nameWidth = defaultFont.measureString(name);
-
-                if (nameWidth > 15) {
-                    /* Entry too wide, truncate. */
-                    while (defaultFont.measureString(name) > 15) {
-                        name = name.substring(0, name.length - 1);
-                    }
+                if (0 >= oolite.compareVersion("1.77")) {
+                    /* Oolite v1.77 or newer. */
+                    /* Create the row. */
+                    row = this.$ccl.strAdd2Columns(lname, 1, rname, 17);
+                } else {
+                    /* Oolite v1.76.1 or older. */
+                    /* Create the row. */
+                    row = " " + lname + " " + rname;
                 }
             } else {
                 /* One column layout. */
-                name = list[start + i];
-                nameWidth = defaultFont.measureString(name);
+                /* Left column. Truncated. */
+                lname = this.$ccl.strToWidth(list[start + i], 31);
 
-                if (nameWidth > 31) {
-                    /* Entry too wide, truncate. */
-                    while (defaultFont.measureString(name) > 31) {
-                        name = name.substring(0, name.length - 1);
-                    }
+                if (0 >= oolite.compareVersion("1.77")) {
+                    /* Oolite v1.77 or newer. */
+                    /* Create the row. */
+                    row = this.$ccl.strAddIndentedText(lname, 1);
+                } else {
+                    /* Oolite v1.76.1 or older. */
+                    /* Create the row. */
+                    row = " " + lname;
                 }
             }
 
-            columnized += " " + name + "\n";
+            columnized += row + "\n";
         }
 
         return columnized;
@@ -894,14 +947,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
                 if (scrambledPRN <= systemProbability) {
                     if (this.$logging && this.$logExtra) {
                         logMsg += "* Name: " + System.systemNameForID(counter) +
-                            ", Government type: " + governmentNames[government] + "\n";
+                        ", Government type: " + governmentNames[government] + "\n";
                     }
 
                     /* Insert the ID into an array. */
                     this.$jaguarCompanySystemIDs.push(counter);
                     /* Insert the name with government type into an array. */
                     this.$jaguarCompanySystemNames.push(System.systemNameForID(counter) + " " +
-                         "(" + governmentNames[government] + ")");
+                        "(" + governmentNames[government] + ")");
                 }
 
                 if (scrambledPRN <= systemProbability / 2) {
@@ -1615,17 +1668,6 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             }
         }
 
-        if (!this.$baseSwapTimerReference || !this.$baseSwapTimerReference.isRunning) {
-            /* This timer will swap the base role if needed. */
-            if (!this.$baseSwapTimerReference) {
-                /* Create a new timer. Checked every 5 seconds. */
-                this.$baseSwapTimerReference = new Timer(this, this.$baseSwapTimer, 5, 5);
-            } else {
-                /* Start the timer if it exists and has stopped. */
-                this.$baseSwapTimerReference.start();
-            }
-        }
-
         if (player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_OK" ||
             player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_DAMAGED") {
             /* The player has a black box.
@@ -1733,7 +1775,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             wpmpDirection = wpPosition.subtract(mainPlanet.position).direction();
             dot = wpsunDirection.dot(wpmpDirection);
 
-            /* Some systems have the witchpoint, main planet and sun all in conjunction. */
+            /* Some systems have the witchpoint, main planet and sun all in opposition/conjunction. */
             if (dot > -0.5 && dot < 0.5) {
                 /* The sun is somewhere out to the right or left.
                  *  - or up or down or any variety of directions that isn't infront or behind.
@@ -1748,11 +1790,18 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
                 basePosition = Vector3D.interpolate(basePosition, mainPlanet.position, ratio);
             } else {
                 if (this.$logging && this.$logExtra) {
-                    log(this.name, "$spawnJaguarCompanyBase::" +
-                        "Conjunction! Choosing alternate base position.");
+                    if (dot >= 0.5) {
+                        /* Witchpoint is on the opposite side of the planet to the sun. */
+                        log(this.name, "$spawnJaguarCompanyBase::" +
+                            "Conjunction! Choosing alternate base position.");
+                    } else {
+                        /* Witchpoint in between the planet and the sun. */
+                        log(this.name, "$spawnJaguarCompanyBase::" +
+                            "Opposition! Choosing alternate base position.");
+                    }
                 }
 
-                /* The witchpoint, main planet and sun are getting close to being in conjunction. */
+                /* The witchpoint, main planet and sun are getting close to being in opposition/conjunction. */
                 /* Pick a ratio between 0.1 and 0.3 */
                 ratio = 0.1 + (system.scrambledPseudoRandomNumber(this.$salt) * 0.2);
                 /* Place the base on the witchpoint -> main planet route. */
@@ -1772,6 +1821,17 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         /* Add the base. */
         this.$jaguarCompanyBase = system.addShips(baseRole, 1, basePosition, 0)[0];
 
+        if (!this.$baseSwapTimerReference || !this.$baseSwapTimerReference.isRunning) {
+            /* This timer will swap the base role if needed. */
+            if (!this.$baseSwapTimerReference) {
+                /* Create a new timer. Checked every 5 seconds. */
+                this.$baseSwapTimerReference = new Timer(this, this.$baseSwapTimer, 5, 5);
+            } else {
+                /* Start the timer if it exists and has stopped. */
+                this.$baseSwapTimerReference.start();
+            }
+        }
+
         if (!this.$joinNavy) {
             /* Initialise the route list with the default route. */
             this.$initRoute();
@@ -1789,7 +1849,6 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         navyPresent = false,
         /* 50:50 chance of joining the Galactic Navy. */
         joinNavyProbability = 0.5,
-        systemProbability = 0.0,
         spawnInSystem = false,
         spawnCompany = 0;
 
