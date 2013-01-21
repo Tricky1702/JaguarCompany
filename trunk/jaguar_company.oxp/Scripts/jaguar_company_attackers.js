@@ -1010,12 +1010,12 @@ strict: true, curly: true */
             /* Clear the reputation of the player. */
             delete missionVariables.jaguar_company_reputation;
 
-            if (victim.isPiloted) {
+            if (victim.isPiloted && victim.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
                 /* Player hostile message. */
                 player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
             }
         } else {
-            if (victim.isPiloted) {
+            if (victim.isPiloted && victim.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
                 /* Other ship hostile message. */
                 player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
             }
@@ -1053,7 +1053,9 @@ strict: true, curly: true */
         }
 
         if (this.$friendRoles.indexOf(attacker.entityPersonality) > -1 || attacker.isPolice) {
-            if (victim.isPiloted && Math.random() > p_attackers.messageProbability) {
+            if (victim.isPiloted &&
+                victim.position.distanceTo(player.ship.position) < player.ship.scannerRange &&
+                Math.random() > p_attackers.messageProbability) {
                 /* Broadcast a "friendly fire" message. */
                 player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_friendly_fire]"));
             }
@@ -1073,7 +1075,9 @@ strict: true, curly: true */
 
         if (this.$isHostile(attacker)) {
             /* Already been marked as hostile. */
-            if (victim.isPiloted && Math.random() > p_attackers.messageProbability) {
+            if (victim.isPiloted &&
+                victim.position.distanceTo(player.ship.position) < player.ship.scannerRange &&
+                Math.random() > p_attackers.messageProbability) {
                 /* Show hostile message. */
                 if (attacker.isPlayer) {
                     /* Player hostile message. */
@@ -1101,7 +1105,9 @@ strict: true, curly: true */
 
             if (attackCounter < 5) {
                 /* We've only hit this ship less than 5 times. Assume "friendly fire". */
-                if (victim.isPiloted && attackCounter === 1) {
+                if (victim.isPiloted &&
+                    victim.position.distanceTo(player.ship.position) < player.ship.scannerRange &&
+                    attackCounter === 1) {
                     /* Only show "friendly fire" message on the first hit. */
                     if (attacker.isPlayer) {
                         /* Decrease reputation. */
@@ -1132,12 +1138,12 @@ strict: true, curly: true */
             /* Clear the reputation of the player. */
             delete missionVariables.jaguar_company_reputation;
 
-            if (victim.isPiloted) {
+            if (victim.isPiloted && victim.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
                 /* Player hostile message. */
                 player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
             }
         } else {
-            if (victim.isPiloted) {
+            if (victim.isPiloted && victim.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
                 /* Other ship hostile message. */
                 player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
             }
@@ -1181,7 +1187,9 @@ strict: true, curly: true */
                 }
             }
 
-            if (victim.isPiloted && Math.random() > p_attackers.messageProbability) {
+            if (victim.isPiloted &&
+                victim.position.distanceTo(player.ship.position) < player.ship.scannerRange &&
+                Math.random() > p_attackers.messageProbability) {
                 if (victim.$pilotName) {
                     /* Get the victims's name. */
                     pilotName = victim.$pilotName;
@@ -1399,7 +1407,9 @@ strict: true, curly: true */
             /* Set target to the closest attacker. */
             target = attackersWithinRange[0];
 
-            if (callerShip.isPiloted && Math.random() > p_attackers.messageProbability) {
+            if (callerShip.isPiloted &&
+                callerShip.position.distanceTo(player.ship.position) < player.ship.scannerRange &&
+                Math.random() > p_attackers.messageProbability) {
                 if (callerShip.$pilotName) {
                     /* Get the callerShip's name. */
                     pilotName = callerShip.$pilotName;
