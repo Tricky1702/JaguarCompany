@@ -68,10 +68,22 @@
         "Commander [commander_name] has earned the respect of Jaguar Company for the recent daring rescue of [jaguar_company_pilot_name], a member of Jaguar Company. The grateful pilot gave out this following quote, '[jaguar_company_rescue_news_quote]'"
     );
 
+    "jaguar_company_rescue_multiple_news" =
+    (
+        "Commander [commander_name] has just received a special commendation for recently rescuing [jaguar_company_pilot_names], all members of Jaguar Company. A very relieved pilot speaking for the group gave out the following quote, '[jaguar_company_rescue_multiple_news_quote]'",
+        "Commander [commander_name] has earned the respect of Jaguar Company for the recent daring rescue of [jaguar_company_pilot_names], all members of Jaguar Company. A grateful pilot who spoke for all the pilots gave out this following quote, '[jaguar_company_rescue_multiple_news_quote]'"
+    );
+
     "jaguar_company_rescue_news_quote" =
     (
         "I owe [commander_name] my life. I'm gonna name my next kid after you!",
-        "I'm at a loss for words! I thought I was a gonna when out of nowhere, Commander [commander_name] came swooping in and saved me."
+        "I'm at a loss for words! I thought I was a gonna, just one more star on the mess wall back at HQ when out of nowhere, Commander [commander_name] came swooping in and saved me."
+    );
+
+    "jaguar_company_rescue_multiple_news_quote" =
+    (
+        "We owe [commander_name] our lives. We're gonna name our next base trumble mascot after you!",
+        "We're all at a loss for words! We all thought, \"This is it! No more patrols, no more R&R dirtside, just one more group of stars on the mess wall back at HQ,\" when out of nowhere, Commander [commander_name] came swooping in and saved all of us."
     );
 
     "jaguar_company_friendly_fire" =

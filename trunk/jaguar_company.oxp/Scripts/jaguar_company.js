@@ -279,6 +279,26 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
 
     /* Player docked with a station. */
     this.shipDockedWithStation = function () {
+        var rescuedNames,
+        lastName;
+
+        if (this.$rescued2.length) {
+            if (this.$rescued2.length === 1) {
+                /* Send rescued news for the pilot the player brought in to Snoopers. */
+                this.$sendNewsToSnoopers(expandDescription("[jaguar_company_rescue_news]", {
+                        jaguar_company_pilot_name : this.$rescued2.shift()
+                    }));
+            } else {
+                /* Send rescued news for the multiple pilots the player brought in to Snoopers. */
+                lastName = this.$rescued2.pop();
+                rescuedNames = this.$rescued2.join(", ") + " and " + lastName;
+                this.$rescued2 = [];
+                this.$sendNewsToSnoopers(expandDescription("[jaguar_company_rescue_multiple_news]", {
+                        jaguar_company_pilot_names : rescuedNames
+                    }));
+            }
+        }
+
         /* Add the interface system if Oolite v1.77 or newer is used. */
         this.$addInterface();
     };
@@ -368,8 +388,9 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             return;
         }
 
-        if (player.ship.dockedStation.entityPersonality === base.entityPersonality && !p_main.playerWelcomed) {
-            /* Player docked with Jaguar Company Base and not welcomed yet. */
+        if (player.ship.dockedStation.entityPersonality === base.entityPersonality &&
+            guiScreen !== "GUI_SCREEN_MISSION") {
+            /* Player docked with Jaguar Company Base. */
             this.$welcomeMessage();
         }
     };
@@ -402,7 +423,8 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
 
         /* Save the pilot's name that was rescued. */
-        this.$rescued.push(whom.$pilotName);
+        this.$rescued1.push(whom.$pilotName);
+        this.$rescued2.push(whom.$pilotName);
     };
 
     this.guiScreenChanged = function (to, from) {
@@ -415,9 +437,9 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             return;
         }
 
-        if (to === "GUI_SCREEN_LONG_RANGE_CHART") {
-            if (0 >= oolite.compareVersion("1.77")) {
-                /* Oolite v1.77 and newer. */
+        if (0 >= oolite.compareVersion("1.77")) {
+            /* Oolite v1.77 and newer. */
+            if (to === "GUI_SCREEN_LONG_RANGE_CHART") {
                 /* Add the marked systems to the long range chart. */
                 length = this.$jaguarCompanySystemIDs.length;
 
@@ -432,15 +454,15 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
                 }
 
                 player.consoleMessage("Orange coloured squares show Jaguar Company Base locations.", 5);
-                player.consoleMessage("Press F4 for a list of Jaguar Company Base locations.", 5);
-            } else {
-                player.consoleMessage("Press F5 for a list of Jaguar Company Base locations.", 5);
-            }
-        }
 
-        if (from === "GUI_SCREEN_LONG_RANGE_CHART") {
-            if (0 >= oolite.compareVersion("1.77")) {
-                /* Oolite v1.77 and newer. */
+                if (player.ship.docked) {
+                    player.consoleMessage("Press F4 for a list of Jaguar Company Base locations.", 5);
+                } else {
+                    player.consoleMessage("Press F7 then F5 for a list of Jaguar Company Base locations.", 5);
+                }
+            }
+
+            if (from === "GUI_SCREEN_LONG_RANGE_CHART") {
                 /* Remove the marked systems from the long range chart. */
                 length = this.$jaguarCompanySystemIDs.length;
 
@@ -450,9 +472,16 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
                         name : this.name
                     });
                 }
-            } else if (to === "GUI_SCREEN_STATUS" && guiScreen !== "GUI_SCREEN_MISSION") {
-                this.$showBaseLocations();
             }
+        } else {
+            /* Oolite v1.76.1 and older. */
+            if (to === "GUI_SCREEN_LONG_RANGE_CHART") {
+                player.consoleMessage("Press F7 then F5 for a list of Jaguar Company Base locations.", 5);
+            }
+        }
+
+        if (from === "GUI_SCREEN_SYSTEM_DATA" && to === "GUI_SCREEN_STATUS" && guiScreen !== "GUI_SCREEN_MISSION") {
+            this.$showBaseLocations();
         }
     };
 
@@ -539,9 +568,10 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             }
         };
 
-        if (!this.$rescued) {
+        if (!this.$rescued1) {
             /* Array of Jaguar Company pilot names that have been rescued. */
-            this.$rescued = [];
+            this.$rescued1 = [];
+            this.$rescued2 = [];
         }
 
         /* Buoy object. */
@@ -683,7 +713,9 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         mission.runScreen({
             title : "Jaguar Company Base locations",
             message : locations + "\n",
-            choicesKey : choicesKey
+            choicesKey : choicesKey,
+            /* exitScreen is ignored by Oolite v1.76.1 and older. */
+            exitScreen : "GUI_SCREEN_INTERFACES"
         }, this.$locationChoices, this);
     };
 
@@ -795,7 +827,9 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         mission.runScreen({
             title : "Jaguar Company Base locations",
             message : locations + "\n",
-            choicesKey : choicesKey
+            choicesKey : choicesKey,
+            /* exitScreen is ignored by Oolite v1.76.1 and older. */
+            exitScreen : "GUI_SCREEN_INTERFACES"
         }, this.$locationChoices, this);
     };
 

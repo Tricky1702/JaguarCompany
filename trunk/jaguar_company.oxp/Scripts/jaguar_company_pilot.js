@@ -38,9 +38,9 @@ strict: true, curly: true */
         basePersonality = mainScript.$jaguarCompanyBase.entityPersonality,
         pilotName;
 
-        if (mainScript.$rescued.length) {
+        if (mainScript.$rescued1.length) {
             /* Get the name of one of the rescued pilots. */
-            pilotName = mainScript.$rescued.shift();
+            pilotName = mainScript.$rescued1.shift();
         } else {
             /* Random name. Shouldn't be executed. */
             pilotName = expandDescription("%N [nom1]");
@@ -67,8 +67,8 @@ strict: true, curly: true */
         /* Show message on arrival. */
         player.addMessageToArrivalReport(expandDescription(message));
         /* Send news to Snoopers. */
-        mainScript.$sendNewsToSnoopers(expandDescription("[jaguar_company_rescue_news]", {
-                jaguar_company_pilot_name : pilotName
-            }));
+//        mainScript.$sendNewsToSnoopers(expandDescription("[jaguar_company_rescue_news]", {
+//                jaguar_company_pilot_name : pilotName
+//            }));
      };
 }).call(this);
