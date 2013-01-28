@@ -22,12 +22,12 @@
         "EQ_JAGUAR_COMPANY_BLACK_BOX",
         "Black box locator for Jaguar Company.",
         {
-            "available_to_all" = yes;
-            "available_to_NPCs" = no;
-            "available_to_player" = yes;
-            "portable_between_ships" = yes;
-            "script" = "jaguar_company_blackbox.js";
-            "script_info" =
+            available_to_all = yes;
+            available_to_NPCs = no;
+            available_to_player = yes;
+            portable_between_ships = yes;
+            script = "jaguar_company_blackbox.js";
+            script_info =
             {
                 /* Only the Jaguar Company Base can repair this. */
                 thargoidRepairBotChance = 0;

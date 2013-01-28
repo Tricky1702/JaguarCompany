@@ -16,6 +16,12 @@
 {
     /* Based on the basic Cobra MK III but with placement tweaks for Griff's model
      * and alterations to some other properties.
+     *
+     * Note that NPCs can't have Extra- or Naval-energy units.
+     * These can be simulated by increasing the energy_recharge_rate.
+     * For extra-energy multiply by 1.8 and naval-energy by 2.6,
+     * so if a ship has a standard energy_recharge_rate of 2,
+     * energy_recharge_rate of 3.6 will simulate an extra-energy unit etc.
      */
     "jaguar_company_template" =
     {
@@ -23,7 +29,8 @@
 
         accuracy = 7.5;
         aft_eject_position = "0.0 -17.0 -40.0";
-        energy_recharge_rate = 7.8; // Was 4. Now 3 * 2.6
+        /* Was 4. Now 3 * 2.6 */
+        energy_recharge_rate = 7.8;
         exhaust =
         (
             " 10.7601 6.3008 -31.8587 6.3 5.6 9.0",
@@ -31,21 +38,13 @@
         );
         frangible = no;
         has_ecm = yes;
-        has_energy_unit = yes;
         has_escape_pod = yes;
         has_fuel_injection = yes;
         has_scoop = yes;
-        /* Also note that NPCs can't have Extra- or Naval-energy units.
-        * These can be simulated by increasing the energy_recharge_rate.
-        * For extra-energy multiply by 1.8 and naval-energy by 2.6,
-        * so if a ship has a standard energy_recharge_rate of 2,
-        * energy_recharge_rate of 3.6 will simulate an extra-energy unit etc.
-        has_shield_booster = yes;
-        has_shield_enhancer = 0.8;
-        */
         is_template = yes;
         laser_color = "redColor";
-        max_cargo = 35;
+        /* 5 tons used up for the extra speed over the standard Cobra MkIII. */
+        max_cargo = 30;
         max_energy = 256;
         max_flight_speed = 350;
         max_missiles = 4;
@@ -905,6 +904,7 @@
         model = "jaguar_company_base.dat";
         name = "Jaguar Company Base";
         requires_docking_clearance = yes;
+        roles = "jaguar_company_base station";
         rotating = no;
         scan_class = "CLASS_STATION";
         smooth = no;
