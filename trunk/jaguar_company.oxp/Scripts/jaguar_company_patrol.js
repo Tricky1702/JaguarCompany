@@ -25,7 +25,7 @@ strict: true, curly: true */
     /* Standard public variables for OXP scripts. */
     this.name = "jaguar_company_patrol.js";
     this.author = "Tricky";
-    this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
+    this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the Jaguar Company Patrol ships.";
     this.version = "1.9";
@@ -301,7 +301,7 @@ strict: true, curly: true */
         }
 
         /* Average all the distances and return it. */
-        return (averageDistance /= otherShipsLength);
+        return (averageDistance / otherShipsLength);
     };
 
     /* Set the co-ordinates to the surface of the entity.

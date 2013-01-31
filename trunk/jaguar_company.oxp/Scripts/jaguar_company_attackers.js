@@ -24,7 +24,7 @@ strict: true, curly: true */
     /* Standard public variables for OXP scripts. */
     this.name = "Jaguar Company Attackers";
     this.author = "Tricky";
-    this.copyright = "© 2012 Richard Thomas Harrison (Tricky)";
+    this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Script to initialise the Jaguar Company attackers.";
     this.version = "1.4";
