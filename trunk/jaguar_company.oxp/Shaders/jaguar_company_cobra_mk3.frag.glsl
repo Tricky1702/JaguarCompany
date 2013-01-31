@@ -1,6 +1,6 @@
 /* jaguar_company_cobra_mk3.frag.glsl for the Jaguar Company.
  *
- * Copyright © 2012-2013 Tricky
+ * Copyright © 2012-2013 Richard Thomas Harrison (Tricky)
  *
  * This work is licensed under the Creative Commons
  * Attribution-Noncommercial-Share Alike 3.0 Unported License.

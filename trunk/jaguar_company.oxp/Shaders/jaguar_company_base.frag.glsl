@@ -1,6 +1,6 @@
 /* jaguar_company_base.frag.glsl for the Jaguar Company Base.
  *
- * Copyright © 2012-2013 Tricky
+ * Copyright © 2012-2013 Richard Thomas Harrison (Tricky)
  *
  * This work is licensed under the Creative Commons
  * Attribution-Noncommercial-Share Alike 3.0 Unported License.
