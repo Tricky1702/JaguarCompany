@@ -49,8 +49,8 @@ strict: true, curly: true */
             /* Local copies of the logging variables. */
             logging : worldScripts["Jaguar Company"].$logging,
             logExtra : worldScripts["Jaguar Company"].$logExtra,
-            /* Local copy of the friends array. */
-            friendRoles : worldScripts["Jaguar Company Attackers"].$friendRoles
+            /* Local copy of the friendList array. */
+            friendList : worldScripts["Jaguar Company Attackers"].$friendList
         };
 
         /* Register this tug as a friendly. */
@@ -107,7 +107,7 @@ strict: true, curly: true */
             return;
         }
 
-        if (p_tug.friendRoles.indexOf(attacker.entityPersonality) > -1 && type === "scrape damage") {
+        if (p_tug.friendList.indexOf(attacker.entityPersonality) !== -1 && type === "scrape damage") {
             /* Cancel damage from collision with Jaguar Company ships. */
             this.ship.energy += amount;
         }

@@ -32,10 +32,14 @@ strict: true, curly: true */
     /* Private variable. */
     var p_attackers = {};
 
-    /* World event handlers. */
+    /* World script event handlers. */
 
-    /* We only need to do this once.
-     * This will get redefined after a new game or loading of a new Commander.
+    /* NAME
+     *   startUp
+     *
+     * FUNCTION
+     *   We only need to do this once.
+     *   This will get redefined after a new game or loading of a new Commander.
      */
     this.startUp = function () {
         /* No longer needed after setting up. */
@@ -47,14 +51,22 @@ strict: true, curly: true */
         this.$setUpTimerReference = new Timer(this, this.$setUp, 0.5, 0.5);
     };
 
-    /* Reset everything just before exiting Witchspace. */
+    /* NAME
+     *   shipWillExitWitchspace
+     *
+     * FUNCTION
+     *   Reset everything just before exiting Witchspace.
+     */
     this.shipWillExitWitchspace = function () {
         /* Setup the private attackers variable + some public variables. */
         this.$setUp();
     };
 
-    /* Player fired a laser at someone and hit.
-     * Check if they are a known hostile of Jaguar Company.
+    /* NAME
+     *   shipAttackedOther
+     *
+     * FUNCTION
+     *   Player fired a laser at someone and hit.
      *
      * INPUT
      *   victim - entity of the ship the player is attacking.
@@ -76,7 +88,7 @@ strict: true, curly: true */
 
         /* Search for any members of Jaguar Company within maximum scanner range of the player ship. */
         jaguarCompany = system.filteredEntities(this, function (entity) {
-                return (this.$friendRoles.indexOf(entity.entityPersonality) > -1);
+                return (this.$friendList.indexOf(entity.entityPersonality) > -1);
             }, player.ship, player.ship.scannerRange);
 
         /* Skip the next bit if the victim is a thargoid/tharglet. */
@@ -126,11 +138,14 @@ strict: true, curly: true */
         }
     };
 
-    /* Player killed something.
-     * Check if they are a known hostile of Jaguar Company.
+    /* NAME
+     *   shipKilledOther
+     *
+     * FUNCTION
+     *   Player killed something.
      *
      * INPUT
-     *   victim - entity of the ship the player killed.
+     *   victim - entity of the ship the player killed
      */
     this.shipKilledOther = function (victim) {
         var jaguarCompany,
@@ -150,7 +165,7 @@ strict: true, curly: true */
 
         /* Search for any members of Jaguar Company within maximum scanner range of the player ship. */
         jaguarCompany = system.filteredEntities(this, function (entity) {
-                return (this.$friendRoles.indexOf(entity.entityPersonality) > -1);
+                return (this.$friendList.indexOf(entity.entityPersonality) > -1);
             }, player.ship, player.ship.scannerRange);
 
         /* Skip the next bit if the victim is a thargoid/tharglet. */
@@ -215,7 +230,12 @@ strict: true, curly: true */
 
     /* Other global public functions. */
 
-    /* Setup the private attackers variable and clear the public friend roles array. */
+    /* NAME
+     *   $setUp
+     *
+     * FUNCTION
+     *   Setup the private attackers variable and clear the public friend list array.
+     */
     this.$setUp = function () {
         if (!worldScripts["Jaguar Company"]) {
             /* Main script not loaded yet. */
@@ -246,31 +266,66 @@ strict: true, curly: true */
             /* 95% probability of a message being transmitted. */
             messageProbability : 0.95
         };
-        this.$friendRoles = [];
+        /* A list of all ship entities that are considered friendly to each other. */
+        this.$friendList = [];
     };
 
-    /* Add the primary role of a ship to the friend roles array.
+    /* NAME
+     *   $stopAttackersTimer
+     *
+     * FUNCTION
+     *   Stop and remove the attacker's timer.
+     */
+    this.$stopAttackersTimer = function () {
+        if (this.$attackersCleanupTimerReference) {
+            if (this.$attackersCleanupTimerReference.isRunning) {
+                this.$attackersCleanupTimerReference.stop();
+            }
+
+            delete this.$attackersCleanupTimerReference;
+
+            if (p_attackers.logging && p_attackers.logExtra) {
+                log(this.name, "$stopAttackersTimer::Removed the attack cleanup timer.");
+            }
+        }
+    };
+
+    /* NAME
+     *   $addFriendly
+     *
+     * FUNCTION
+     *   Add the unique key (entityPersonality) of a ship to the friend list array.
+     *   Chains some new ship event hooks to the originals.
      *
      * INPUT
-     *   friend - entity of the friend.
+     *   ship - entity of the friend
      */
     this.$addFriendly = function (friend) {
-        if (this.$friendRoles.indexOf(friend.entityPersonality) !== -1) {
+        if (this.$friendList.indexOf(friend.entityPersonality) !== -1) {
             /* Already setup. */
             return;
         }
 
-        this.$friendRoles.push(friend.entityPersonality);
+        this.$friendList.push(friend.entityPersonality);
 
-        /* Save the original ship event hooks. */
+        /* Save the original ship script event handler hooks. */
         friend.script.$attackers_shipAttackedWithMissile = friend.script.shipAttackedWithMissile;
         friend.script.$attackers_shipBeingAttacked = friend.script.shipBeingAttacked;
         friend.script.$attackers_shipDied = friend.script.shipDied;
         friend.script.$attackers_shipTargetDestroyed = friend.script.shipTargetDestroyed;
 
-        /* New ship event hooks. */
+        /* New ship script event handler hooks. */
 
-        /* A ship is being attacked with a missile. */
+        /* NAME
+         *   shipAttackedWithMissile
+         *
+         * FUNCTION
+         *   A ship is being attacked with a missile.
+         *
+         * INPUTS
+         *   missile - entity of the missile
+         *   attacker - entity of the attacker
+         */
         friend.script.shipAttackedWithMissile = function (missile, attacker) {
             worldScripts["Jaguar Company Attackers"].$shipIsBeingAttackedWithMissile(this.ship, attacker);
 
@@ -280,7 +335,15 @@ strict: true, curly: true */
             }
         };
 
-        /* A ship is being attacked. */
+        /* NAME
+         *   shipBeingAttacked
+         *
+         * FUNCTION
+         *   A ship is being attacked.
+         *
+         * INPUT
+         *   attacker - entity of the attacker
+         */
         friend.script.shipBeingAttacked = function (attacker) {
             worldScripts["Jaguar Company Attackers"].$shipIsBeingAttacked(this.ship, attacker);
 
@@ -290,7 +353,16 @@ strict: true, curly: true */
             }
         };
 
-        /* A ship has died. */
+        /* NAME
+         *   shipDied
+         *
+         * FUNCTION
+         *   A ship has died.
+         *
+         * INPUTS
+         *   attacker - entity of the attacker
+         *   why - cause as a string
+         */
         friend.script.shipDied = function (attacker, why) {
             worldScripts["Jaguar Company Attackers"].$shipDied(this.ship, attacker, why);
 
@@ -300,9 +372,35 @@ strict: true, curly: true */
             }
         };
 
-        /* We killed someone. */
-        friend.script.shipTargetDestroyed = function (target) {
-            worldScripts["Jaguar Company Attackers"].$shipTargetDestroyed(this.ship, target);
+        /* NAME
+         *   shipTargetDestroyed
+         *
+         * FUNCTION
+         *   We killed someone.
+         *
+         *   Inlined this function because it doesn't call functions within the OXP.
+         *
+         * INPUT
+         *   target - entity of the target
+         */
+        ship.script.shipTargetDestroyed = function (target) {
+            if (target.primaryRole === "constrictor" &&
+                missionVariables.conhunt &&
+                missionVariables.conhunt === "STAGE_1") {
+                /* Just in case the ship kills the constrictor, let's not break the mission for the player... */
+                missionVariables.conhunt = "CONSTRICTOR_DESTROYED";
+                player.score += 1;
+                player.credits += target.bounty;
+                player.consoleMessage(this.ship.displayName + " assisted in the death of " + target.name);
+                player.consoleMessage(
+                    this.ship.displayName + ": Commander " + player.name +
+                    ", you have the kill and bounty of " + target.bounty + "₢.");
+
+                if (p_attackers.logging && p_attackers.logExtra) {
+                    log(this.name, "shipTargetDestroyed::" + this.ship.displayName +
+                        " killed - " + target.name + " : " + target.bounty);
+                }
+            }
 
             if (this.$attackers_shipTargetDestroyed) {
                 /* Call the original. */
@@ -310,27 +408,84 @@ strict: true, curly: true */
             }
         };
 
-        /* AI functions. */
+        /* AI sendScriptMessage functions. */
 
-        /* Checks the current target to make sure it is still valid. */
-        friend.script.$checkTargetIsValid = function () {
-            worldScripts["Jaguar Company Attackers"].$checkTargetIsValid(this.ship);
+        /* NAME
+         *   $checkTargetIsValid
+         *
+         * FUNCTION
+         *   Checks the current target to make sure it is still valid.
+         *
+         *   Responds to the caller ship with a 'TARGET_LOST' AI message.
+         *
+         *   Inlined this function because it is small.
+         */
+        ship.script.$checkTargetIsValid = function () {
+            if (!this.ship.target || !this.ship.target.isValid) {
+                /* Target was lost or became invalid. */
+                this.ship.reactToAIMessage("TARGET_LOST");
+            }
         };
 
-        /* This does something similar to a mix between the deployEscorts and groupAttackTarget AI commands. */
+        /* NAME
+         *   $performJaguarCompanyAttackTarget
+         *
+         * FUNCTION
+         *   This does something similar to a mix between the deployEscorts and groupAttackTarget AI commands.
+         */
         friend.script.$performJaguarCompanyAttackTarget = function () {
             worldScripts["Jaguar Company Attackers"].$performAttackTarget(this.ship);
         };
 
-        /* Check for any previous attackers that have run away. */
+        /* NAME
+         *   $scanForAttackers
+         *
+         * FUNCTION
+         *   Scan for current ships or players from the past that have attacked us.
+         *   Also scan for potential attackers.
+         *
+         * INPUT
+         *   callerShip - entity of the caller ship
+         */
         friend.script.$scanForAttackers = function () {
             worldScripts["Jaguar Company Attackers"].$scanForAttackers(this.ship);
         };
 
         if (0 < oolite.compareVersion("1.77")) {
-            /* Scan for cascade weapons. Won't be needed when v1.78 comes out. */
+            /* NAME
+             *   $scanForCascadeWeapon
+             *
+             * FUNCTION
+             *   Scan for cascade weapons. Won't be needed when v1.78 comes out.
+             *   Reacts with a 'CASCADE_WEAPON_FOUND' AI message rather than 'CASCADE_WEAPON_DETECTED'
+             *   used by Oolite v1.77 and newer.
+             *
+             *   Inlined this function because it doesn't call functions within the OXP.
+             */
             friend.script.$scanForCascadeWeapon = function () {
-                worldScripts["Jaguar Company Attackers"].$scanForCascadeWeapon(this.ship);
+                /* This is modified from some code in Random Hits spacebar ship script. */
+                var cascadeWeaponRoles = [
+                    "EQ_QC_MINE",
+                    "EQ_CASCADE_MISSILE",
+                    "EQ_LAW_MISSILE",
+                    "EQ_OVERRIDE_MISSILE",
+                    "energy-bomb",
+                    "RANDOM_HITS_MINE"
+                ],
+                cascadeWeapons;
+
+                /* Search for any cascade weapons within maximum scanner range of the caller ship. */
+                cascadeWeapons = system.filteredEntities(this, function (entity) {
+                        return (cascadeWeaponRoles.indexOf(entity.primaryRole) > -1);
+                    }, this.ship, this.ship.scannerRange);
+
+                if (cascadeWeapons.length > 0) {
+                    /* Found at least one. First one in the cascadeWeapons array is the closest.
+                     * Set the target and send a CASCADE_WEAPON_FOUND message to the AI.
+                     */
+                    this.ship.target = cascadeWeapons[0];
+                    this.ship.reactToAIMessage("CASCADE_WEAPON_FOUND");
+                }
             };
         } else {
             /* Oolite v1.77 and newer. */
@@ -342,15 +497,21 @@ strict: true, curly: true */
             /* Save the original ship event hook. */
             friend.script.$attackers_cascadeWeaponDetected = friend.script.cascadeWeaponDetected;
 
-            /* The cascadeWeaponDetected handler fires when a Q-bomb (or equivalent device) detonates within
-             * scanner range of the player. The stock Q-mine (and potentially OXP equivalents) will also send
-             * this handler at the start of the countdown, giving ships more time to react.
+            /* NAME
+             *   cascadeWeaponDetected
              *
-             * Reacts with a 'CASCADE_WEAPON_FOUND' AI message rather than 'CASCADE_WEAPON_DETECTED'
-             * used by Oolite v1.77 and newer.
+             * FUNCTION
+             *   The cascadeWeaponDetected handler fires when a Q-bomb (or equivalent device) detonates within
+             *   scanner range of the player. The stock Q-mine (and potentially OXP equivalents) will also send
+             *   this handler at the start of the countdown, giving ships more time to react.
+             *
+             *   Reacts with a 'CASCADE_WEAPON_FOUND' AI message rather than 'CASCADE_WEAPON_DETECTED'
+             *   used by Oolite v1.77 and newer.
+             *
+             *   Inlined this function because it doesn't call functions within the OXP.
              *
              * INPUT
-             *   weapon - entity of the cascade weapon.
+             *   weapon - entity of the cascade weapon
              */
             friend.script.cascadeWeaponDetected = function (weapon) {
                 /* Set the target and send a CASCADE_WEAPON_FOUND message to the AI. */
@@ -365,21 +526,30 @@ strict: true, curly: true */
         }
     };
 
-    /* Add an attacker to the attackers array.
+    /* NAME
+     *   $addAttacker
      *
-     * INPUT
-     *   attacker - entity of the attacker.
+     * FUNCTION
+     *   Add an attacker and victim to the attackers array.
+     *
+     * INPUTS
+     *   attacker - entity of the attacker
+     *
+     *   Optional argument
+     *     victim - entity of the victim
      *
      * RESULT
-     *   return the index of the attacker.
+     *   result - object containing attacker and victim indexes, -1 on error.
      */
-    this.$addAttacker = function (attacker) {
-        var attackerKey = attacker.entityPersonality,
-        attackerIndex = p_attackers.attackersIndex.indexOf(attackerKey);
+    this.$addAttacker = function (attacker, victim) {
+        var attackerKey,
+        attackerIndex,
+        victimKey,
+        victimIndex;
 
-        if (attackerIndex !== -1) {
-            /* Already added to the attackers array. */
-            return attackerIndex;
+        if (!attacker || !attacker.isValid) {
+            /* The attacker is no longer valid. */
+            return -1;
         }
 
         if (!this.$attackersCleanupTimerReference || !this.$attackersCleanupTimerReference.isRunning) {
@@ -397,72 +567,78 @@ strict: true, curly: true */
             }
         }
 
-        if (p_attackers.logging && p_attackers.logExtra) {
-            log(this.name, "$addAttacker::Adding attacker#" + attackerKey +
-                " (" + attacker.displayName + ")");
+        /* Get the attacker's key. */
+        attackerKey = attacker.entityPersonality;
+        /* Get the attacker's index. */
+        attackerIndex = p_attackers.attackersIndex.indexOf(attackerKey);
+
+        if (attackerIndex === -1) {
+            /* Attacker not known. Setup a new entry. */
+            if (p_attackers.logging && p_attackers.logExtra) {
+                log(this.name, "$addAttacker::Adding attacker#" + attackerKey +
+                    " (" + attacker.displayName + ")");
+            }
+
+            /* Create an entry for the attacker if it doesn't exist.
+             * push() returns the new length. The attacker index will be 1 less than this.
+             */
+            attackerIndex = p_attackers.attackers.push({
+                    entityPersonality : attackerKey,
+                    ship : attacker,
+                    hostile : false,
+                    victimsIndex : [],
+                    victims : []
+                }) - 1;
+            /* Create the index entry for the attacker. */
+            p_attackers.attackersIndex[attackerIndex] = attackerKey;
         }
 
-        /* Create an entry for the attacker if it doesn't exist.
-         * push() returns the new length. The attacker index will be 1 less than this.
-         */
-        attackerIndex = p_attackers.attackers.push({
-                entityPersonality : attackerKey,
-                ship : attacker,
-                hostile : false,
-                victimsIndex : [],
-                victims : []
-            }) - 1;
-        /* Create the index entry for the attacker. */
-        p_attackers.attackersIndex[attackerIndex] = attackerKey;
+        if (!victim || !victim.isValid) {
+            victimIndex = -1;
+        } else {
+            /* Get the victim's key. */
+            victimKey = victim.entityPersonality;
+            /* Get the victim's index. */
+            victimIndex = p_attackers.attackers[attackerIndex].victimsIndex.indexOf(victimKey);
 
-        /* Return the index of the attacker. */
-        return attackerIndex;
+            if (victimIndex === -1) {
+                /* Victim not known. Setup a new entry. */
+                if (p_attackers.logging && p_attackers.logExtra) {
+                    log(this.name, "$addAttacker::Adding victim#" + victimKey +
+                        " (" + victim.displayName + ")" +
+                        " attacked by attacker#" + attacker.entityPersonality + " (" + attacker.displayName + ")");
+                }
+
+                /* Create an entry for the victim if it doesn't exist.
+                 * push() returns the new length. The victim index will be 1 less than this.
+                 */
+                victimIndex = p_attackers.attackers[attackerIndex].victims.push({
+                        entityPersonality : victimKey,
+                        ship : victim,
+                        attackCounter : 0,
+                        attackTime : clock.seconds,
+                        missCounter : 0,
+                        missTime : clock.seconds
+                    }) - 1;
+                /* Create the index entry for the victim. */
+                p_attackers.attackers[attackerIndex].victimsIndex[victimIndex] = victimKey;
+            }
+        }
+
+        return {
+            attacker : attackerIndex,
+            victim : victimIndex
+        };
     };
 
-    /* Add a victim to the victims array of the attacker.
+    /* NAME
+     *   $removeAttacker
+     *
+     * FUNCTION
+     *   Remove an attacker from the attackers array.
      *
      * INPUT
-     *   victim - entity of the victim.
-     *   attacker - entity of the attacker.
-     */
-    this.$addVictimToAttacker = function (victim, attacker) {
-        var victimKey = victim.entityPersonality,
-        attackerIndex,
-        victimIndex;
-
-        /* Add the attacker (if needed) and get the attacker index. */
-        attackerIndex = this.$addAttacker(attacker);
-        /* Get the current victim index. */
-        victimIndex = p_attackers.attackers[attackerIndex].victimsIndex.indexOf(victimKey);
-
-        if (victimIndex !== -1) {
-            /* Already added to the victims array. */
-            return;
-        }
-
-        if (p_attackers.logging && p_attackers.logExtra) {
-            log(this.name, "$addVictimToAttacker::Adding victim#" + victimKey +
-                " (" + victim.displayName + ")" +
-                " attacked by attacker#" + attacker.entityPersonality + " (" + attacker.displayName + ")");
-        }
-
-        /* Create an entry for the victim if it doesn't exist.
-         * push() returns the new length. The victim index will be 1 less than this.
-         */
-        victimIndex = p_attackers.attackers[attackerIndex].victims.push({
-                entityPersonality : victimKey,
-                ship : victim,
-                attackCounter : 0,
-                attackTime : clock.seconds
-            }) - 1;
-        /* Create the index entry for the victim. */
-        p_attackers.attackers[attackerIndex].victimsIndex[victimIndex] = victimKey;
-    };
-
-    /* Remove an attacker from the attackers array.
-     *
-     * INPUT
-     *   attackerKey - unique key (entityPersonality) of the attacker.
+     *   attackerKey - unique key (entityPersonality) of the attacker
      */
     this.$removeAttacker = function (attackerKey) {
         var attackerIndex;
@@ -472,7 +648,7 @@ strict: true, curly: true */
             return;
         }
 
-        /* Get the current attacker index. */
+        /* Get the attacker's index. */
         attackerIndex = p_attackers.attackersIndex.indexOf(attackerKey);
         /* Remove the attacker from the attackers array. */
         p_attackers.attackers.splice(attackerIndex, 1);
@@ -480,11 +656,15 @@ strict: true, curly: true */
         p_attackers.attackersIndex.splice(attackerIndex, 1);
     };
 
-    /* Remove a victim from the victims array of the attacker.
+    /* NAME
+     *   $removeVictimFromAttacker
      *
-     * INPUT
-     *   victimKey - unique key (entityPersonality) of the victim.
-     *   attackerKey - unique key (entityPersonality) of the attacker.
+     * FUNCTION
+     *   Remove a victim from the victims array of the attacker.
+     *
+     * INPUTS
+     *   victimKey - unique key (entityPersonality) of the victim
+     *   attackerKey - unique key (entityPersonality) of the attacker
      */
     this.$removeVictimFromAttacker = function (victimKey, attackerKey) {
         var attackerIndex,
@@ -495,7 +675,7 @@ strict: true, curly: true */
             return;
         }
 
-        /* Get the current attacker index. */
+        /* Get the attacker's index. */
         attackerIndex = p_attackers.attackersIndex.indexOf(attackerKey);
 
         if (!p_attackers.attackers[attackerIndex].victimsIndex.length ||
@@ -504,7 +684,7 @@ strict: true, curly: true */
             return;
         }
 
-        /* Get the current victim index. */
+        /* Get the victim's index. */
         victimIndex = p_attackers.attackers[attackerIndex].victimsIndex.indexOf(victimKey);
         /* Remove the victim from the victims array. */
         p_attackers.attackers[attackerIndex].victims.splice(victimIndex, 1);
@@ -512,9 +692,13 @@ strict: true, curly: true */
         p_attackers.attackers[attackerIndex].victimsIndex.splice(victimIndex, 1);
     };
 
-    /* Periodic timer to clean up the attackers array.
+    /* NAME
+     *   $attackersCleanupTimer
      *
-     * Called every 30 seconds.
+     * FUNCTION
+     *   Periodic timer to clean up the attackers array.
+     *
+     *   Called every 30 seconds.
      */
     this.$attackersCleanupTimer = function () {
         var attackers,
@@ -531,23 +715,17 @@ strict: true, curly: true */
 
         if (!p_attackers.attackers.length) {
             /* No attackers, stop and remove this timer. */
-            if (this.$attackersCleanupTimerReference) {
-                if (this.$attackersCleanupTimerReference.isRunning) {
-                    this.$attackersCleanupTimerReference.stop();
-                }
-
-                delete this.$attackersCleanupTimerReference;
-
-                if (p_attackers.logging && p_attackers.logExtra) {
-                    log(this.name, "$attackersCleanupTimer::Start - Removed the attack cleanup timer.");
-                }
-            }
+            this.$stopAttackersTimer();
 
             /* Reset the attackers and index array. Pointless, but done for potential error avoidance. */
             p_attackers.attackersIndex = [];
             p_attackers.attackers = [];
 
             return;
+        }
+
+        if (p_attackers.logging && p_attackers.logExtra) {
+            logMsg = "$attackersCleanupTimer::Checking attackers...";
         }
 
         /* Cache the length. */
@@ -585,10 +763,6 @@ strict: true, curly: true */
             }
         }
 
-        if (p_attackers.logging && p_attackers.logExtra) {
-            logMsg = "$attackersCleanupTimer::Checking attackers...";
-        }
-
         /* attackersLength already set-up. */
         for (attackersCounter = 0; attackersCounter < attackersLength; attackersCounter += 1) {
             /* Iterate over each attacker. */
@@ -601,6 +775,8 @@ strict: true, curly: true */
                 if (attacker.ship.displayName !== undefined) {
                     logMsg += " (" + attacker.ship.displayName + ")";
                 }
+
+                logMsg += ", " + attacker.victims.length + " victims";
             }
 
             if (!attacker.ship.isValid) {
@@ -625,13 +801,13 @@ strict: true, curly: true */
 
                 /* Remove the player from the real attackers array. */
                 this.$removeAttacker(attackerKey);
-            } else {
+            } else if (attacker.hostile && attacker.victims.length) {
+                if (p_attackers.logging && p_attackers.logExtra) {
+                    logMsg += ", hostile - checking victims...";
+                }
+
                 /* Cache the length. */
                 victimsLength = attacker.victims.length;
-
-                if (p_attackers.logging && p_attackers.logExtra) {
-                    logMsg += ", checking victims...";
-                }
 
                 for (victimsCounter = 0; victimsCounter < victimsLength; victimsCounter += 1) {
                     /* Iterate over each victim. */
@@ -653,7 +829,41 @@ strict: true, curly: true */
 
                         /* Remove the invalid victim from the real victims array. */
                         this.$removeVictimFromAttacker(victimKey, attackerKey);
-                    } else if (!attacker.hostile && clock.seconds - victim.attackTime > 5) {
+                    }
+                }
+
+                if (p_attackers.logging && p_attackers.logExtra) {
+                    logMsg += "\n" + "$attackersCleanupTimer::Finished checking victims.";
+                }
+            } else if (!attacker.hostile) {
+                if (p_attackers.logging && p_attackers.logExtra) {
+                    logMsg += ", not hostile - checking victims...";
+                }
+
+                /* Cache the length. */
+                victimsLength = attacker.victims.length;
+
+                for (victimsCounter = 0; victimsCounter < victimsLength; victimsCounter += 1) {
+                    /* Iterate over each victim. */
+                    victim = attacker.victims[victimsCounter];
+                    victimKey = victim.entityPersonality;
+
+                    if (p_attackers.logging && p_attackers.logExtra) {
+                        logMsg += "\n** victim#" + victimKey;
+
+                        if (victim.ship.displayName !== undefined) {
+                            logMsg += " (" + victim.ship.displayName + ")";
+                        }
+                    }
+
+                    if (!victim.ship.isValid) {
+                        if (p_attackers.logging && p_attackers.logExtra) {
+                            logMsg += ", removing (dead/not valid)";
+                        }
+
+                        /* Remove the invalid victim from the real victims array. */
+                        this.$removeVictimFromAttacker(victimKey, attackerKey);
+                    } else if (clock.seconds - victim.attackTime > 5) {
                         if (p_attackers.logging && p_attackers.logExtra) {
                             logMsg += ", removing (no longer attacked)";
                         }
@@ -665,22 +875,19 @@ strict: true, curly: true */
                     }
                 }
 
-                /* Only if the attacker is not hostile, i.e., "friendly fire". */
-                if (!attacker.hostile) {
-                    /* Find the real index of the attacker. May have changed. */
-                    attackerIndex = p_attackers.attackersIndex.indexOf(attackerKey);
+                /* Find the real index of the attacker. May have changed. */
+                attackerIndex = p_attackers.attackersIndex.indexOf(attackerKey);
 
-                    if (attackerIndex !== -1 && !p_attackers.attackers[attackerIndex].victims.length) {
-                        if (p_attackers.logging && p_attackers.logExtra) {
-                            logMsg += "\n** attacker#" + attackerKey + " (" + attacker.ship.displayName + ")" +
-                            ", removing (no victims)";
-                        }
-
-                        /* Has no victims so no longer an attacker.
-                         * Remove the attacker from the real attackers array.
-                         */
-                        this.$removeAttacker(attackerKey);
+                if (attackerIndex !== -1 && !p_attackers.attackers[attackerIndex].victims.length) {
+                    if (p_attackers.logging && p_attackers.logExtra) {
+                        logMsg += "\n** attacker#" + attackerKey + " (" + attacker.ship.displayName + ")" +
+                        ", removing (no victims)";
                     }
+
+                    /* Has no victims so no longer an attacker.
+                     * Remove the attacker from the real attackers array.
+                     */
+                    this.$removeAttacker(attackerKey);
                 }
 
                 if (p_attackers.logging && p_attackers.logExtra) {
@@ -695,17 +902,7 @@ strict: true, curly: true */
 
         if (!p_attackers.attackers.length) {
             /* No attackers, stop and remove this timer. */
-            if (this.$attackersCleanupTimerReference) {
-                if (this.$attackersCleanupTimerReference.isRunning) {
-                    this.$attackersCleanupTimerReference.stop();
-                }
-
-                delete this.$attackersCleanupTimerReference;
-
-                if (p_attackers.logging && p_attackers.logExtra) {
-                    logMsg += "\n" + "$attackersCleanupTimer::End - Removed the attack cleanup timer.";
-                }
-            }
+            this.$stopAttackersTimer();
 
             /* Reset the attackers and index array. Pointless, but done for potential error avoidance. */
             p_attackers.attackersIndex = [];
@@ -717,109 +914,81 @@ strict: true, curly: true */
         }
     };
 
-    /* Setup the ship in the attackers array. (Do nothing if already setup)
+    /* NAME
+     *   $makeHostile
+     *
+     * FUNCTION
+     *   Makes the ship hostile to the victim's group.
      *
      * INPUTS
-     *   attacker - entity of the attacker.
-     *   victim - entity of the attacked ship.
+     *   attacker - entity of the attacker
+     *
+     *   Optional argument
+     *     victim - entity of the victim
      */
-    this.$setupAttacker = function (attacker, victim) {
-        var attackerIndex;
+    this.$makeHostile = function (attacker, victim) {
+        var index,
+        attackerIndex;
 
-        if (!attacker || !attacker.isValid || !victim || !victim.isValid) {
-            /* Attacker and/or victim no longer valid. */
+        if (!attacker || !attacker.isValid) {
+            /* The attacker is no longer valid. */
             return;
         }
 
-        attackerIndex = p_attackers.attackersIndex.indexOf(attacker.entityPersonality);
-
-        if (attackerIndex === -1) {
-            /* Create an entry for the victim and attacker. */
-            this.$addVictimToAttacker(victim, attacker);
-        } else {
-            /* Attacker known. */
-            if (p_attackers.attackers[attackerIndex].victimsIndex.indexOf(victim.entityPersonality) === -1) {
-                /* Create an entry for the victim. */
-                this.$addVictimToAttacker(victim, attacker);
-            }
-        }
-    };
-
-    /* Makes the ship hostile.
-     *
-     * INPUT
-     *   attacker - entity of the attacker.
-     */
-    this.$makeHostile = function (attacker) {
-        var attackerIndex;
-
-        if (this.$isHostile(attacker)) {
+        if (this.$isHostile(attacker, victim)) {
             /* Already hostile. */
             return;
         }
 
         if (p_attackers.logging && p_attackers.logExtra) {
             log(this.name, "$makeHostile::Make hostile: attacker#" + attacker.entityPersonality +
-                " (" + attacker.displayName + ")");
+                " (" + attacker.displayName + ")" +
+                ", bounty: " + attacker.bounty);
         }
 
-        /* Add the attacker (if needed) and get the attacker index. */
-        attackerIndex = this.$addAttacker(attacker);
-        /* Set the hostile property. */
-        p_attackers.attackers[attackerIndex].hostile = true;
+        /* Add the attacker (if needed) and get the attacker and victim index. */
+        index = this.$addAttacker(attacker, victim);
+
+        if (index !== -1) {
+            /* Get the attacker's index. */
+            attackerIndex = index.attacker;
+            /* Set the hostile property. */
+            p_attackers.attackers[attackerIndex].hostile = true;
+        }
     };
 
-    /* Increase the ship's attack counter for the victim.
+    /* NAME
+     *   $isHostile
+     *
+     * FUNCTION
+     *   Check if the ship is hostile.
      *
      * INPUTS
-     *   attacker - entity of the attacker.
-     *   victim - entity of the attacked ship.
-     */
-    this.$increaseAttackCounter = function (attacker, victim) {
-        var attackerIndex,
-        victimIndex;
-
-        attackerIndex = p_attackers.attackersIndex.indexOf(attacker.entityPersonality);
-
-        if (attackerIndex === -1) {
-            /* Setup the attacker and victim. */
-            this.$setupAttacker(attacker, victim);
-            /* Find the index of the attacker. */
-            attackerIndex = p_attackers.attackersIndex.indexOf(attacker.entityPersonality);
-            /* Find the index of the victim. */
-            victimIndex = p_attackers.attackers[attackerIndex].victimsIndex.indexOf(victim.entityPersonality);
-        } else {
-            /* Attacker known. */
-            victimIndex = p_attackers.attackers[attackerIndex].victimsIndex.indexOf(victim.entityPersonality);
-
-            if (victimIndex === -1) {
-                /* Setup the attacker and victim. */
-                this.$setupAttacker(attacker, victim);
-                /* Find the index of the victim. */
-                victimIndex = p_attackers.attackers[attackerIndex].victimsIndex.indexOf(victim.entityPersonality);
-            }
-        }
-
-        /* Increase the attack counter for the victim. */
-        p_attackers.attackers[attackerIndex].victims[victimIndex].attackCounter += 1;
-    };
-
-    /* Check if the ship is hostile.
+     *   attacker - entity of the attacker
      *
-     * INPUT
-     *   attacker - entity of the ship that attacked.
+     *   Optional argument
+     *     victim - entity of the victim
      *
      * RESULT
-     *   return true if ship is hostile, otherwise return false.
+     *   result - return true if ship is hostile, otherwise return false
      */
-    this.$isHostile = function (attacker) {
-        var attackerIndex;
+    this.$isHostile = function (attacker, victim) {
+        var index,
+        attackerIndex;
+
+        if (!attacker || !attacker.isValid) {
+            /* The attacker is no longer valid. */
+            return false;
+        }
 
         if (attacker.isThargoid) {
             /* Add the attacker (if needed) and get the attacker index. */
-            attackerIndex = this.$addAttacker(attacker);
-            /* Set the hostile property. */
-            p_attackers.attackers[attackerIndex].hostile = true;
+            index = this.$addAttacker(attacker);
+
+            if (index !== -1) {
+                /* Set the hostile property. */
+                p_attackers.attackers[index.attacker].hostile = true;
+            }
 
             /* Always true for Thargoids/tharglets. */
             return true;
@@ -842,35 +1011,72 @@ strict: true, curly: true */
         return p_attackers.attackers[attackerIndex].hostile;
     };
 
-    /* Return the attack counter for the victim or 0 if not available.
+    /* NAME
+     *   $increaseAttackCounter
+     *
+     * FUNCTION
+     *   Increase the ship's attack counter for the victim.
      *
      * INPUTS
-     *   attacker - entity of the attacker.
-     *   victim - entity of the attacked ship.
+     *   attacker - entity of the attacker
+     *   victim - entity of the attacked ship
+     */
+    this.$increaseAttackCounter = function (attacker, victim) {
+        var index,
+        attackerIndex,
+        victimIndex;
+
+        if (!attacker || !attacker.isValid || !victim || !victim.isValid) {
+            /* The attacker and/or victim is no longer valid. */
+            return;
+        }
+
+        /* Setup the attacker and victim. */
+        index = this.$addAttacker(attacker, victim);
+
+        if (index !== -1) {
+            /* Get the attacker's index. */
+            attackerIndex = index.attacker;
+            /* Get the victim's index. */
+            victimIndex = index.victim;
+            /* Increase the attack counter for the victim. */
+            p_attackers.attackers[attackerIndex].victims[victimIndex].attackCounter += 1;
+        }
+    };
+
+    /* NAME
+     *   $attackCounter
+     *
+     * FUNCTION
+     *   Return the attack counter for the victim.
+     *
+     * INPUTS
+     *   attacker - entity of the attacker
+     *   victim - entity of the attacked ship
      *
      * RESULT
-     *   return attackCounter if available, otherwise return 0.
+     *   result - return attackCounter if available, otherwise return -1
      */
     this.$attackCounter = function (attacker, victim) {
         var attackerIndex,
         victimIndex;
 
+        if (!attacker || !attacker.isValid || !victim || !victim.isValid) {
+            /* The attacker and/or victim is no longer valid. */
+            return -1;
+        }
+
         if (!p_attackers.attackers.length) {
             /* No attackers. */
-            return 0;
+            return -1;
         }
 
         /* Find the index of the attacker. */
         attackerIndex = p_attackers.attackersIndex.indexOf(attacker.entityPersonality);
 
-        if (attackerIndex === -1) {
-            /* No such attacker. */
-            return 0;
-        }
-
-        if (!p_attackers.attackers[attackerIndex].victims.length) {
-            /* No victims. */
-            return 0;
+        if (attackerIndex === -1 || !p_attackers.attackers[attackerIndex].victims.length) {
+            /* No such attacker or victims. */
+            return -1;
         }
 
         /* Find the index of the victim. */
@@ -878,22 +1084,31 @@ strict: true, curly: true */
 
         if (victimIndex === -1) {
             /* No such victim. */
-            return 0;
+            return -1;
         }
 
         /* Return attack counter. */
         return p_attackers.attackers[attackerIndex].victims[victimIndex].attackCounter;
     };
 
-    /* Reset the attack counter to 1.
+    /* NAME
+     *   $resetAttackCounter
+     *
+     * FUNCTION
+     *   Reset the attack counter to 1.
      *
      * INPUTS
-     *   attacker - entity of the attacker.
-     *   victim - entity of the attacked ship.
+     *   attacker - entity of the attacker
+     *   victim - entity of the attacked ship
      */
     this.$resetAttackCounter = function (attacker, victim) {
         var attackerIndex,
         victimIndex;
+
+        if (!attacker || !attacker.isValid || !victim || !victim.isValid) {
+            /* The attacker and/or victim is no longer valid. */
+            return;
+        }
 
         if (!p_attackers.attackers.length) {
             /* No attackers. */
@@ -903,13 +1118,8 @@ strict: true, curly: true */
         /* Find the index of the attacker. */
         attackerIndex = p_attackers.attackersIndex.indexOf(attacker.entityPersonality);
 
-        if (attackerIndex === -1) {
-            /* No such attacker. */
-            return;
-        }
-
-        if (!p_attackers.attackers[attackerIndex].victims.length) {
-            /* No victims. */
+        if (attackerIndex === -1 || !p_attackers.attackers[attackerIndex].victims.length) {
+            /* No such attacker or victims. */
             return;
         }
 
@@ -925,18 +1135,27 @@ strict: true, curly: true */
         p_attackers.attackers[attackerIndex].victims[victimIndex].attackCounter = 1;
     };
 
-    /* Return the attack time for the victim or 'clock.seconds' if not available.
+    /* NAME
+     *   $attackTime
+     *
+     * FUNCTION
+     *   Return the attack time for the victim or 'clock.seconds' if not available.
      *
      * INPUTS
-     *   attacker - entity of the attacker.
-     *   victim - entity of the attacked ship.
+     *   attacker - entity of the attacker
+     *   victim - entity of the attacked ship
      *
      * RESULT
-     *   return attackTime if available, otherwise return 'clock.seconds'.
+     *   result - return attackTime if available, otherwise return 'clock.seconds'
      */
     this.$attackTime = function (attacker, victim) {
         var attackerIndex,
         victimIndex;
+
+        if (!attacker || !attacker.isValid || !victim || !victim.isValid) {
+            /* The attacker and/or victim is no longer valid. */
+            return clock.seconds;
+        }
 
         if (!p_attackers.attackers.length) {
             /* No attackers. */
@@ -946,13 +1165,8 @@ strict: true, curly: true */
         /* Find the index of the attacker. */
         attackerIndex = p_attackers.attackersIndex.indexOf(attacker.entityPersonality);
 
-        if (attackerIndex === -1) {
-            /* No such attacker. */
-            return clock.seconds;
-        }
-
-        if (!p_attackers.attackers[attackerIndex].victims.length) {
-            /* No victims. */
+        if (attackerIndex === -1 || !p_attackers.attackers[attackerIndex].victims.length) {
+            /* No such attacker or victims. */
             return clock.seconds;
         }
 
@@ -968,33 +1182,37 @@ strict: true, curly: true */
         return p_attackers.attackers[attackerIndex].victims[victimIndex].attackTime;
     };
 
-    /* The AI will automatically send an INCOMING_MISSILE message to this ship.
-     * Since we don't have to do anything fancy that would confuse the AI state system
-     * we don't have to send a special message like the general attack system below.
+    /* New ship script event handler hooks. */
+
+    /* NAME
+     *   $shipIsBeingAttackedWithMissile
      *
-     * No such thing as "friendly fire" with a missile.
+     * FUNCTION
+     *   The AI will automatically send an INCOMING_MISSILE message to this ship.
+     *   Since we don't have to do anything fancy that would confuse the AI state system
+     *   we don't have to send a special message like the general attack system below.
      *
-     * Not to be confused with the world script event function 'shipAttackedWithMissile',
-     * although it should be called from the ship script event function 'shipAttackedWithMissile'.
+     *   No such thing as "friendly fire" with a missile.
+     *
+     *   Not to be confused with the world script event function 'shipAttackedWithMissile',
+     *   although it should be called from the ship script event function 'shipAttackedWithMissile'.
      *
      * INPUTS
-     *   victim - caller ship.
-     *   attacker - entity of the attacker.
+     *   victim - caller ship
+     *   attacker - entity of the attacker
      */
     this.$shipIsBeingAttackedWithMissile = function (victim, attacker) {
         var pilotName;
 
-        if (!attacker || !attacker.isValid || victim.isDerelict) {
-            /* No longer valid. */
+        if (!attacker || !attacker.isValid || !victim || !victim.isValid || victim.isDerelict || !victim.isPiloted) {
+            /* No longer valid or is derelict or is not piloted. */
             return;
         }
 
-        /* Setup the attacker and victim. */
-        this.$setupAttacker(attacker, victim);
-        /* Increase the attack counter. */
+        /* Setup the attacker and victim if needed and increase the attack counter. */
         this.$increaseAttackCounter(attacker, victim);
         /* Make the attacker a hostile for future checking. */
-        this.$makeHostile(attacker);
+        this.$makeHostile(attacker, victim);
 
         if (victim.$pilotName) {
             /* Get the victims's name. */
@@ -1009,40 +1227,44 @@ strict: true, curly: true */
             missionVariables.jaguar_company_attacker = true;
             /* Clear the reputation of the player. */
             delete missionVariables.jaguar_company_reputation;
-
-            if (victim.isPiloted && victim.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
-                /* Player hostile message. */
-                player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
-            }
+            /* Player hostile message. */
+            player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
         } else {
-            if (victim.isPiloted && victim.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
+            if (victim.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
                 /* Other ship hostile message. */
                 player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
             }
         }
     };
 
-    /* Remember who is attacking us. Pay particular attention to players.
+    /* NAME
+     *   $shipIsBeingAttacked
      *
-     * The AI will send an ATTACKED message to this ship.
-     * Since we check for occurences of "friendly fire" we can not use or respond to that message,
-     * so we send out a new message of HOSTILE_FIRE if it really is an attack.
+     * FUNCTION
+     *   Remember who is attacking us. Pay particular attention to players.
      *
-     * Not to be confused with the world script event function 'shipBeingAttacked',
-     * although it should be called from the ship script event function 'shipBeingAttacked'.
+     *   The AI will send an ATTACKED message to this ship.
+     *   Since we check for occurences of "friendly fire" we can not use or respond to that message,
+     *   so we send out a new message of HOSTILE_FIRE if it really is an attack.
+     *
+     *   Not to be confused with the world script event function 'shipBeingAttacked',
+     *   although it should be called from the ship script event function 'shipBeingAttacked'.
      *
      * INPUTS
-     *   victim - caller ship.
-     *   attacker - entity of the attacker.
+     *   victim - caller ship
+     *   attacker - entity of the attacker
      */
     this.$shipIsBeingAttacked = function (victim, attacker) {
         var attackCounter,
-        pilotName;
+        pilotName,
+        psInRange;
 
-        if (!attacker || !attacker.isValid || victim.isDerelict) {
-            /* No longer valid. */
+        if (!attacker || !attacker.isValid || !victim || !victim.isValid || victim.isDerelict || !victim.isPiloted) {
+            /* No longer valid or is derelict or is not piloted. */
             return;
         }
+
+        psInRange = (victim.position.distanceTo(player.ship.position) < player.ship.scannerRange);
 
         if (victim.$pilotName) {
             /* Get the victims's name. */
@@ -1052,39 +1274,33 @@ strict: true, curly: true */
             pilotName = victim.displayName;
         }
 
-        if (this.$friendRoles.indexOf(attacker.entityPersonality) > -1 || attacker.isPolice) {
-            if (victim.isPiloted &&
-                victim.position.distanceTo(player.ship.position) < player.ship.scannerRange &&
-                Math.random() > p_attackers.messageProbability) {
+        if (this.$friendList.indexOf(attacker.entityPersonality) !== -1) {
+            if (Math.random() > p_attackers.messageProbability && psInRange) {
                 /* Broadcast a "friendly fire" message. */
                 player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_friendly_fire]"));
             }
 
             /* Tell the attacker that we are a friend. */
             attacker.reactToAIMessage("FRIENDLY_FIRE");
-            /* Reset bounty. May have hit police by mistake. */
-            victim.bounty = 0;
 
             return;
         }
 
-        /* Setup the attacker and victim. */
-        this.$setupAttacker(attacker, victim);
-        /* Increase the attack counter. */
+        /* Setup the attacker and victim if needed and increase the attack counter. */
         this.$increaseAttackCounter(attacker, victim);
 
-        if (this.$isHostile(attacker)) {
+        if (this.$isHostile(attacker, victim)) {
             /* Already been marked as hostile. */
-            if (victim.isPiloted &&
-                victim.position.distanceTo(player.ship.position) < player.ship.scannerRange &&
-                Math.random() > p_attackers.messageProbability) {
+            if (Math.random() > p_attackers.messageProbability) {
                 /* Show hostile message. */
                 if (attacker.isPlayer) {
                     /* Player hostile message. */
                     player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
                 } else {
-                    /* Other ship hostile message. */
-                    player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
+                    if (psInRange) {
+                        /* Other ship hostile message. */
+                        player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
+                    }
                 }
             }
 
@@ -1103,11 +1319,14 @@ strict: true, curly: true */
 
             attackCounter = this.$attackCounter(attacker, victim);
 
+            if (attackCounter === -1) {
+                /* Not an attacker or there are no victims. */
+                return;
+            }
+
             if (attackCounter < 5) {
                 /* We've only hit this ship less than 5 times. Assume "friendly fire". */
-                if (victim.isPiloted &&
-                    victim.position.distanceTo(player.ship.position) < player.ship.scannerRange &&
-                    attackCounter === 1) {
+                if (attackCounter === 1) {
                     /* Only show "friendly fire" message on the first hit. */
                     if (attacker.isPlayer) {
                         /* Decrease reputation. */
@@ -1116,8 +1335,11 @@ strict: true, curly: true */
                         player.consoleMessage(pilotName + ": " +
                             expandDescription("[jaguar_company_player_friendly_fire]"));
                     } else {
-                        /* Other ship warning. */
-                        player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_friendly_fire]"));
+                        if (psInRange) {
+                            /* Other ship warning. */
+                            player.consoleMessage(pilotName + ": " +
+                                expandDescription("[jaguar_company_friendly_fire]"));
+                        }
                     }
                 }
 
@@ -1130,20 +1352,17 @@ strict: true, curly: true */
          */
 
         /* Make the attacker a hostile for future checking. */
-        this.$makeHostile(attacker);
+        this.$makeHostile(attacker, victim);
 
         if (attacker.isPlayer) {
             /* Remember the player, even if they jump system. */
             missionVariables.jaguar_company_attacker = true;
             /* Clear the reputation of the player. */
             delete missionVariables.jaguar_company_reputation;
-
-            if (victim.isPiloted && victim.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
-                /* Player hostile message. */
-                player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
-            }
+            /* Player hostile message. */
+            player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
         } else {
-            if (victim.isPiloted && victim.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
+            if (psInRange) {
                 /* Other ship hostile message. */
                 player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
             }
@@ -1153,15 +1372,19 @@ strict: true, curly: true */
         victim.reactToAIMessage("HOSTILE_FIRE");
     };
 
-    /* A ship has died.
+    /* NAME
+     *   $shipDied
      *
-     * Not to be confused with the world script event function 'shipDied',
-     * although it should be called from the ship script event function 'shipDied'.
+     * FUNCTION
+     *   A ship has died.
+     *
+     *   Not to be confused with the world script event function 'shipDied',
+     *   although it should be called from the ship script event function 'shipDied'.
      *
      * INPUTS
-     *   victim - entity that died.
-     *   attacker - entity that caused the death.
-     *   why - cause as a string.
+     *   victim - entity that died
+     *   attacker - entity that caused the death
+     *   why - cause as a string
      */
     this.$shipDied = function (victim, attacker, why) {
         var destroyedBy = attacker,
@@ -1174,9 +1397,9 @@ strict: true, curly: true */
                 /* Check for piloted ships that aren't hostile.
                  * Generally this will pick up death by a surprise/instant kill, i.e. cascade weapon.
                  */
-                if (attacker.isPiloted && !this.$isHostile(attacker)) {
+                if (attacker.isPiloted && !this.$isHostile(attacker, victim)) {
                     /* Make the attacker a hostile for future checking. */
-                    this.$makeHostile(attacker);
+                    this.$makeHostile(attacker, victim);
 
                     if (attacker.isPlayer) {
                         /* Remember the player, even if they jump system. */
@@ -1187,9 +1410,7 @@ strict: true, curly: true */
                 }
             }
 
-            if (victim.isPiloted &&
-                victim.position.distanceTo(player.ship.position) < player.ship.scannerRange &&
-                Math.random() > p_attackers.messageProbability) {
+            if (Math.random() > p_attackers.messageProbability && victim.isPiloted) {
                 if (victim.$pilotName) {
                     /* Get the victims's name. */
                     pilotName = victim.$pilotName;
@@ -1198,8 +1419,10 @@ strict: true, curly: true */
                     pilotName = victim.displayName;
                 }
 
-                /* Death message. */
-                player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_death]"));
+                if (victim.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
+                    /* Death message. */
+                    player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_death]"));
+                }
             }
         }
 
@@ -1212,57 +1435,16 @@ strict: true, curly: true */
         }
     };
 
-    /* We killed someone.
+    /* AI sendScriptMessage functions. */
+
+    /* NAME
+     *   $performAttackTarget
      *
-     * INPUTS
-     *   whom - entity of the killer.
-     *   target - entity of the destroyed target.
-     */
-    this.$shipTargetDestroyed = function (whom, target) {
-        if (target.primaryRole === "constrictor" &&
-            missionVariables.conhunt &&
-            missionVariables.conhunt === "STAGE_1") {
-            /* Just in case the ship kills the constrictor, let's not break the mission for the player... */
-            missionVariables.conhunt = "CONSTRICTOR_DESTROYED";
-            player.score += 1;
-            player.credits += target.bounty;
-            player.commsMessage(whom.ship.displayName + " assisted in the death of " + target.name);
-            player.commsMessage(
-                whom.ship.displayName + ": Commander " + player.name +
-                ", you have the kill and bounty of " + target.bounty + "₢.");
-
-            if (p_attackers.logging && p_attackers.logExtra) {
-                log(this.name, "$shipTargetDestroyed::" + this.ship.displayName +
-                    " killed - " + target.name + " : " + target.bounty);
-            }
-        }
-    };
-
-    /* AI functions. */
-
-    /* Checks the current target to make sure it is still valid.
+     * FUNCTION
+     *   This does something similar to a mix between the deployEscorts and groupAttackTarget AI commands.
      *
      * INPUT
-     *   callerShip - caller ship.
-     *
-     * Responds to the caller ship with a 'TARGET_LOST' AI message.
-     */
-    this.$checkTargetIsValid = function (callerShip) {
-        if (!callerShip.target) {
-            /* No target. */
-            return;
-        }
-
-        if (!callerShip.target.isValid) {
-            /* Target is no longer valid. */
-            callerShip.reactToAIMessage("TARGET_LOST");
-        }
-    };
-
-    /* This does something similar to a mix between the deployEscorts and groupAttackTarget AI commands.
-     *
-     * INPUT
-     *   callerShip - caller ship.
+     *   callerShip - entity of the caller ship
      */
     this.$performAttackTarget = function (callerShip) {
         var target = callerShip.target,
@@ -1277,7 +1459,7 @@ strict: true, curly: true */
             return;
         }
 
-        if (this.$friendRoles.indexOf(target.entityPersonality) > -1 || !this.$isHostile(target)) {
+        if (this.$friendList.indexOf(target.entityPersonality) !== -1 || !this.$isHostile(target, callerShip)) {
             /* Clear the target and return for one of the following 2 states...
              * 1. Target is a friend.
              * 2. Target is not a hostile.
@@ -1288,13 +1470,27 @@ strict: true, curly: true */
         }
 
         /* Force attacker to hostile status. */
-        this.$makeHostile(target);
+        this.$makeHostile(target, callerShip);
         /* React to our own attack call. */
         callerShip.reactToAIMessage("JAGUAR_COMPANY_ATTACK_TARGET");
 
-        /* Limit comms range to scanner range. */
+        /* Limit range of check to scanner range. */
         otherShips = system.filteredEntities(this, function (entity) {
-                return (this.$friendRoles.indexOf(entity.entityPersonality) > -1);
+                if (!entity.isValid ||
+                    entity.isCloaked ||
+                    !entity.isPiloted ||
+                    entity.isDerelict) {
+                    /* Ignore all entities that have one of these conditions:
+                     * 1) not valid
+                     * 2) cloaked
+                     * 3) has no pilot
+                     * 4) is a derelict.
+                     */
+                    return false;
+                }
+
+                /* Is a friend of the caller ship. */
+                return (this.$friendList.indexOf(entity.entityPersonality) !== -1);
             }, callerShip, callerShip.scannerRange);
 
         if (!otherShips.length) {
@@ -1323,17 +1519,21 @@ strict: true, curly: true */
         for (counter = 0; counter < length; counter += 1) {
             idleShip = idleShips[counter];
 
-            /* The other ship is not currently in attack mode. Give it a target. */
+            /* The idle ship is not currently in attack mode. Give it a target. */
             idleShip.target = target;
             idleShip.reactToAIMessage("JAGUAR_COMPANY_ATTACK_TARGET");
         }
     };
 
-    /* Scan for current ships or players from the past that have attacked us.
-     * Also scan for potential attackers.
+    /* NAME
+     *   $scanForAttackers
+     *
+     * FUNCTION
+     *   Scan for current ships or players from the past that have attacked us.
+     *   Also scan for potential attackers.
      *
      * INPUT
-     *   callerShip - caller ship.
+     *   callerShip - entity of the caller ship
      */
     this.$scanForAttackers = function (callerShip) {
         var target = null,
@@ -1356,7 +1556,7 @@ strict: true, curly: true */
                 return false;
             }
 
-            if (this.$isHostile(entity)) {
+            if (this.$isHostile(entity, callerShip)) {
                 /* The entity is a previous hostile or a Thargoid/tharglet. */
                 return true;
             }
@@ -1401,15 +1601,13 @@ strict: true, curly: true */
 
             for (counter = 0; counter < length; counter += 1) {
                 /* Force all attackers within range to hostile status. */
-                this.$makeHostile(attackersWithinRange[counter]);
+                this.$makeHostile(attackersWithinRange[counter], callerShip);
             }
 
             /* Set target to the closest attacker. */
             target = attackersWithinRange[0];
 
-            if (callerShip.isPiloted &&
-                callerShip.position.distanceTo(player.ship.position) < player.ship.scannerRange &&
-                Math.random() > p_attackers.messageProbability) {
+            if (Math.random() > p_attackers.messageProbability && callerShip.isPiloted) {
                 if (callerShip.$pilotName) {
                     /* Get the callerShip's name. */
                     pilotName = callerShip.$pilotName;
@@ -1423,47 +1621,16 @@ strict: true, curly: true */
                     /* Player hostile message. */
                     player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
                 } else {
-                    /* Other ship hostile message. */
-                    player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
+                    if (callerShip.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
+                        /* Other ship hostile message. */
+                        player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
+                    }
                 }
             }
 
             /* Set the target. */
             callerShip.target = target;
             callerShip.reactToAIMessage("ATTACKERS_FOUND");
-        }
-    };
-
-    /* Scan for cascade weapons. Won't be needed when v1.78 comes out.
-     * Reacts with a 'CASCADE_WEAPON_FOUND' AI message rather than 'CASCADE_WEAPON_DETECTED'
-     * used by Oolite v1.77 and newer.
-     *
-     * INPUT
-     *   callerShip - caller ship.
-     */
-    this.$scanForCascadeWeapon = function (callerShip) {
-        /* This is modified from some code in Random Hits spacebar ship script. */
-        var cascadeWeaponRoles = [
-            "EQ_QC_MINE",
-            "EQ_CASCADE_MISSILE",
-            "EQ_LAW_MISSILE",
-            "EQ_OVERRIDE_MISSILE",
-            "energy-bomb",
-            "RANDOM_HITS_MINE"
-        ],
-        cascadeWeapons;
-
-        /* Search for any cascade weapons within maximum scanner range of the caller ship. */
-        cascadeWeapons = system.filteredEntities(this, function (entity) {
-                return (cascadeWeaponRoles.indexOf(entity.primaryRole) > -1);
-            }, callerShip, callerShip.scannerRange);
-
-        if (cascadeWeapons.length > 0) {
-            /* Found at least one. First one in the cascadeWeapons array is the closest.
-             * Set the target and send a CASCADE_WEAPON_FOUND message to the AI.
-             */
-            callerShip.target = cascadeWeapons[0];
-            callerShip.reactToAIMessage("CASCADE_WEAPON_FOUND");
         }
     };
 }).call(this);

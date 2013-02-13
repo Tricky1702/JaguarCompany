@@ -352,7 +352,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
      *   whom - entity that was created.
      */
     this.shipSpawned = function (whom) {
-        var friendRoles;
+        var friendList;
 
         if (!worldScripts["Jaguar Company Attackers"]) {
             /* Attackers world script not setup yet. */
@@ -360,9 +360,9 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
 
         /* Get friend roles from the attackers world script. */
-        friendRoles = worldScripts["Jaguar Company Attackers"].$friendRoles;
+        friendList = worldScripts["Jaguar Company Attackers"].$friendList;
 
-        if (!friendRoles || friendRoles.indexOf(whom.entityPersonality) === -1) {
+        if (!friendList || friendList.indexOf(whom.entityPersonality) === -1) {
             /* Ignore non-Jaguar Company ships. */
             return;
         }
