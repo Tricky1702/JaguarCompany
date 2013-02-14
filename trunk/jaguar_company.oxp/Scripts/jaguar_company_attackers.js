@@ -940,8 +940,7 @@ strict: true, curly: true */
      *   victim - entity of the victim
      */
     this.$makeHostile = function (attacker, victim) {
-        var index,
-        attackerIndex;
+        var index;
 
         if (!attacker || !attacker.isValid || !victim || !victim.isValid) {
             /* The attacker and/or victim is no longer valid. */
@@ -964,10 +963,8 @@ strict: true, curly: true */
         index = this.$addAttacker(attacker, victim);
 
         if (index !== -1) {
-            /* Get the attacker's index. */
-            attackerIndex = index.attacker;
             /* Set the hostile property. */
-            p_attackers.attackers[attackerIndex].hostile = true;
+            p_attackers.attackers[index.attacker].hostile = true;
         }
     };
 
@@ -995,27 +992,16 @@ strict: true, curly: true */
         }
 
         if (attacker.isThargoid) {
-            /* Add the attacker (if needed) and get the attacker index. */
-            index = this.$addAttacker(attacker);
+            /* Cache the length. */
+            length = attacker.escortGroup.length;
 
-            if (index !== -1) {
-                /* Set the hostile property. */
-                p_attackers.attackers[index.attacker].hostile = true;
-            }
+            for (counter = 0; counter < length; counter += 1) {
+                /* Add the thargoid and tharglets (if needed) and get the attacker index. */
+                index = this.$addAttacker(attacker.escortGroup[counter]);
 
-            /* Check for tharglets. */
-            if (attacker.escortGroup.length > 1) {
-                /* Cache the length. */
-                length = attacker.escortGroup.length;
-
-                for (counter = 1; counter < length; counter += 1) {
-                    /* Add tharglet (if needed) and get the attacker index. */
-                    index = this.$addAttacker(attacker.escortGroup[counter]);
-
-                    if (index !== -1) {
-                        /* Set the hostile property. */
-                        p_attackers.attackers[index.attacker].hostile = true;
-                    }
+                if (index !== -1) {
+                    /* Set the hostile property. */
+                    p_attackers.attackers[index.attacker].hostile = true;
                 }
             }
 
@@ -1051,9 +1037,7 @@ strict: true, curly: true */
      *   victim - entity of the attacked ship
      */
     this.$increaseAttackCounter = function (attacker, victim) {
-        var index,
-        attackerIndex,
-        victimIndex;
+        var index;
 
         if (!attacker || !attacker.isValid || !victim || !victim.isValid) {
             /* The attacker and/or victim is no longer valid. */
@@ -1064,12 +1048,8 @@ strict: true, curly: true */
         index = this.$addAttacker(attacker, victim);
 
         if (index !== -1) {
-            /* Get the attacker's index. */
-            attackerIndex = index.attacker;
-            /* Get the victim's index. */
-            victimIndex = index.victim;
             /* Increase the attack counter for the victim. */
-            p_attackers.attackers[attackerIndex].victims[victimIndex].attackCounter += 1;
+            p_attackers.attackers[index.attacker].victims[index.victim].attackCounter += 1;
         }
     };
 
@@ -1658,6 +1638,7 @@ strict: true, curly: true */
             return false;
         }
 
+        /* Find past attackers and potential attackers within range of the caller ship. */
         attackersWithinRange = system.filteredEntities(this, $identifyAttacker, callerShip, callerShip.scannerRange);
 
         if (!attackersWithinRange.length) {

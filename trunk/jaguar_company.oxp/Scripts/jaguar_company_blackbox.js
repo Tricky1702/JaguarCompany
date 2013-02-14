@@ -42,14 +42,14 @@ strict: true, curly: true */
         var mainScript = worldScripts["Jaguar Company"],
         activated = jaguar_company_blackbox_activated;
 
-        if (!p_mainScript.$tracker || !p_mainScript.$tracker.isValid) {
+        if (!mainScript.$tracker || !mainScript.$tracker.isValid) {
             activated = false;
         }
 
         if (!activated) {
-            activated = p_mainScript.$activateJaguarCompanyBlackbox();
+            activated = mainScript.$activateJaguarCompanyBlackbox();
         } else {
-            activated = p_mainScript.$deactivateJaguarCompanyBlackbox();
+            activated = mainScript.$deactivateJaguarCompanyBlackbox();
         }
 
         jaguar_company_blackbox_activated = activated;
