@@ -15,6 +15,12 @@ Uninstall
 Oolite v1.77 and newer
 Version History
 Furture Versions
+Credits
+    Griff
+    Thargoid
+    Little Bear
+    Eric Walch
+    Spara
 Copyright
 
 Overview
@@ -27,6 +33,7 @@ Galactic Naval convoy in the system.
 Requirements
 ------------
     Oolite 1.75+
+    Cabal Common Library
 
 Optional OXPs
 -------------
@@ -53,15 +60,50 @@ in the Scripts directory.
 Version History
 ---------------
 v2.5 (2013-??-??)
+    *** This OXP now requires Cabal Common Library. ***
     Proper integration for Oolite v1.77 and newer with the interface screen for base locations.
-    Added check for blackbox + software patch for base locations in the $addInterface function.
+    Added check for blackbox + software patch for base locations in the $addInterface() function.
     Renamed the vertex and fragment shaders.
+    Rewritten $listNames() to use Cabal Common Library for truncating, padding and creating columns.
+        Oolite v1.76.1 and older use the original method of padding rows. (Spaces)
+        Oolite v1.77 and newer use Cabal Common Library v1.7 strAdd2Columns() and strAddIndentedText() to create the
+          rows.
+    Removed some dead/unused code.
+    Fixed ghost messages appearing on the player's console. I forgot player.consoleMessage() isn't distance dependant.
+      It obviously isn't, however these minor bugettes happen from time to time. ;)
+    Multiple rescue news implementation.
+    Clean up of code in guiScreenChanged().
+    Changed key combination to show list of base locations to F7, F5.
+        Oolite v1.77 and newer use the interface API when docked.
+    Lowered max cargo space to 10TC to explain extra speed.
 
 For a full version history see jaguar_company_changelog.txt in the directory you loaded this readme file from.
 
 Future Versions
 ---------------
     Torus drive sync for the boring bits.
+
+Credits
+-------
+Griff
+    Models, textures and shaders for the Cobra MkIII, ECM proof missile and Transporter.
+        Both regular and scuffed versions of the multi-decal Cobra MkIII are used.
+
+Thargoid
+    External missile code found in Griff's example for missile sub-entities on a Cobra MkIII.
+    Code example to stop Jaguar Company from breaking a core mission for the player if they 'accidently' help out.
+        Various OXPs.
+    Inspiration for the invisible tracker from Tracker OXP.
+    AI inspiration from Hired Guns OXP.
+
+Little Bear
+    Examples of messages for 'friendly fire' and 'hostile fire' from Random Hits OXP.
+
+Eric Walch
+    Buoy positioning code examples from Buoy Repair OXP.
+
+Spara
+    Inspiration for multi-column lists from Trophy Collector OXP.
 
 Copyright
 ---------

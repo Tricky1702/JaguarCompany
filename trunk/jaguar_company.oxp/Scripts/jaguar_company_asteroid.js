@@ -29,9 +29,14 @@ strict: true, curly: true */
     this.description = "Ship script for the asteroids cluttering the space around the base.";
     this.version = "1.1";
 
-    /* Ship event callbacks. */
+    /* Ship script event handlers. */
 
-    /* Move the asteroid to a safe distance from the base launch corridor on birth. */
+    /* NAME
+     *   shipSpawned
+     *
+     * FUNCTION
+     *   Move the asteroid to a safe distance from the base launch corridor on birth.
+     */
     this.shipSpawned = function () {
         var mainScript = worldScripts["Jaguar Company"],
         asteroid = this.ship,
@@ -56,8 +61,15 @@ strict: true, curly: true */
             return;
         }
 
-        /* Stop warnings about anonymous local functions within loops.
-         * Used by 'system.filteredEntities'. Returns true for any valid entity.
+        /* NAME
+         *   $validEntity
+         *
+         * FUNCTION
+         *   Stop warnings about anonymous local functions within loops.
+         *   Used by 'system.filteredEntities'. Returns true for any valid entity.
+         *
+         * INPUT
+         *   entity - entity to check
          */
         function $validEntity(entity) {
             return (entity && entity.isValid);

@@ -32,9 +32,14 @@ strict: true, curly: true */
     /* Private variable. */
     var p_base = {};
 
-    /* Ship event callbacks. */
+    /* Ship script event handlers. */
 
-    /* Initialise various variables on ship birth. */
+    /* NAME
+     *   shipSpawned
+     *
+     * FUNCTION
+     *   Initialise various variables on ship birth.
+     */
     this.shipSpawned = function () {
         var num,
         vector,
@@ -125,12 +130,16 @@ strict: true, curly: true */
         this.$baseTimerReference = new Timer(this, this.$baseTimer, 5, 5);
     };
 
-    /* Base was destroyed.
-     * Called after the script installed by $addFriendly in jaguar_company_attackers.js
+    /* NAME
+     *   shipDied
+     *
+     * FUNCTION
+     *   Base was destroyed.
+     *   Called after the script installed by $addFriendly in jaguar_company_attackers.js
      *
      * INPUTS
-     *   attacker - entity that caused the death.
-     *   why - cause as a string.
+     *   attacker - entity that caused the death
+     *   why - cause as a string
      */
     this.shipDied = function (attacker, why) {
         var mainScript,
@@ -144,8 +153,15 @@ strict: true, curly: true */
         salt,
         ok;
 
-        /* Stop warnings about anonymous local functions within loops.
-         * Used by 'system.filteredEntities'. Returns true for any valid entity.
+        /* NAME
+         *   $validEntity
+         *
+         * FUNCTION
+         *   Stop warnings about anonymous local functions within loops.
+         *   Used by 'system.filteredEntities'. Returns true for any valid entity.
+         *
+         * INPUT
+         *   entity - entity to check
          */
         function $validEntity(entity) {
             return (entity && entity.isValid);
@@ -196,7 +212,17 @@ strict: true, curly: true */
         }
     };
 
-    /* Base was removed by script. */
+    /* NAME
+     *   shipRemoved
+     *
+     * FUNCTION
+     *   Base was removed by script.
+     *
+     * INPUT
+     *   suppressDeathEvent - boolean
+     *     true - shipDied() will be called
+     *     false - shipDied() will not be called
+     */
     this.shipRemoved = function (suppressDeathEvent) {
         if (suppressDeathEvent) {
             return;
@@ -206,7 +232,12 @@ strict: true, curly: true */
         worldScripts["Jaguar Company"].$patrolShipsFullyLaunched = true;
     };
 
-    /* The base has just become invalid. */
+    /* NAME
+     *   entityDestroyed
+     *
+     * FUNCTION
+     *   The base has just become invalid.
+     */
     this.entityDestroyed = function () {
         /* Set this as no more ships will be launched. "Obvious cat is obvious!" */
         worldScripts["Jaguar Company"].$patrolShipsFullyLaunched = true;
@@ -221,10 +252,14 @@ strict: true, curly: true */
         }
     };
 
-    /* A ship has docked.
+    /* NAME
+     *   otherShipDocked
+     *
+     * FUNCTION
+     *   A ship has docked.
      *
      * INPUT
-     *   whom - entity of the docked ship.
+     *   whom - entity of the docked ship
      */
     this.otherShipDocked = function (whom) {
         if (whom.hasRole("jaguar_company_patrol")) {
@@ -236,10 +271,14 @@ strict: true, curly: true */
         }
     };
 
-    /* A ship has launched.
+    /* NAME
+     *   stationLaunchedShip
+     *
+     * FUNCTION
+     *   A ship has launched.
      *
      * INPUT
-     *   whom - entity of the launched ship.
+     *   whom - entity of the launched ship
      */
     this.stationLaunchedShip = function (whom) {
         if (whom.hasRole("jaguar_company_patrol")) {
@@ -295,17 +334,21 @@ strict: true, curly: true */
         }
     };
 
-    /* Timer callback. */
+    /* Other global public functions. */
 
-    /* Some OXP's dick around with the scanner colours. This will reset the base's scanner colour
-     * back to the station default of solid green if the player has helped out in combat with Jaguar Company.
+    /* NAME
+     *   $baseTimer
      *
-     * Starts the launch sequence for the patrol ships if needed.
+     * FUNCTION
+     *   Some OXP's dick around with the scanner colours. This will reset the base's scanner colour
+     *   back to the station default of solid green if the player has helped out in combat with Jaguar Company.
      *
-     * Checks the buoy and launches a tug if there isn't one. Resets the scanner colour as per the base.
-     * Swaps the buoy to 'no beacon' or 'beacon' dependent on the reputation mission variable.
+     *   Starts the launch sequence for the patrol ships if needed.
      *
-     * Called every 5 seconds.
+     *   Checks the buoy and launches a tug if there isn't one. Resets the scanner colour as per the base.
+     *   Swaps the buoy to 'no beacon' or 'beacon' dependent on the reputation mission variable.
+     *
+     *   Called every 5 seconds.
      */
     this.$baseTimer = function () {
         var base = this.ship,
@@ -368,7 +411,12 @@ strict: true, curly: true */
         }
     };
 
-    /* Launch a patrol ship. */
+    /* NAME
+     *   $launchJaguarCompanyPatrol
+     *
+     * FUNCTION
+     *   Launch a patrol ship.
+     */
     this.$launchJaguarCompanyPatrol = function () {
         if (p_base.logging && p_base.logExtra) {
             log(this.name, "$launchJaguarCompanyPatrol::Launching patrol ship...");
@@ -378,7 +426,12 @@ strict: true, curly: true */
         this.ship.launchShipWithRole("jaguar_company_patrol");
     };
 
-    /* Launch the tug to drag the buoy into position. */
+    /* NAME
+     *   $launchJaguarCompanyTug
+     *
+     * FUNCTION
+     *   Launch the tug to push the buoy into position.
+     */
     this.$launchJaguarCompanyTug = function () {
         if (p_base.mainScript.$patrolShipsFullyLaunched &&
             !p_base.mainScript.$buoyLaunched &&
@@ -397,7 +450,12 @@ strict: true, curly: true */
 
     /* AI functions. */
 
-    /* Check if we need to launch a miner. Don't launch in interstellar space. */
+    /* NAME
+     *   $launchShip
+     *
+     * FUNCTION
+     *   Check if we need to launch a miner. Don't launch in interstellar space.
+     */
     this.$launchShip = function () {
         if (!system.isInterstellarSpace &&
             Math.random() < 0.05 &&

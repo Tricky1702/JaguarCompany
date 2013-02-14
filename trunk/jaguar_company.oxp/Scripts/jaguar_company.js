@@ -199,10 +199,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
     /* Set to 'true' to use visual effects. Ignored if using Oolite v1.76.1 or older. */
     this.$visualEffects = true;
 
-    /* World event handlers. */
+    /* World script event handlers. */
 
-    /* We only need to do this once.
-     * This will get redefined after a new game or loading of a new Commander.
+    /* NAME
+     *   startUp
+     *
+     * FUNCTION
+     *   We only need to do this once.
+     *   This will get redefined after a new game or loading of a new Commander.
      */
     this.startUp = function () {
         var ccl_version;
@@ -253,16 +257,25 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         this.$addInterface();
     };
 
-    /* Player is about to launch from a station. */
+    /* NAME
+     *   shipWillLaunchFromStation
+     *
+     * FUNCTION
+     *   Player is about to launch from a station.
+     */
     this.shipWillLaunchFromStation = function () {
         /* Remove the interface system if Oolite v1.77 or newer is used. */
         this.$removeInterface();
     };
 
-    /* Player launched from a station.
+    /* NAME
+     *   shipLaunchedFromStation
+     *
+     * FUNCTION
+     *   Player launched from a station.
      *
      * INPUT
-     *   station - entity of the station.
+     *   station - entity of the station
      */
     this.shipLaunchedFromStation = function (station) {
         if (station.entityPersonality === this.$jaguarCompanyBase.entityPersonality) {
@@ -277,7 +290,12 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Player docked with a station. */
+    /* NAME
+     *   shipDockedWithStation
+     *
+     * FUNCTION
+     *   Player docked with a station.
+     */
     this.shipDockedWithStation = function () {
         var rescuedNames,
         lastName;
@@ -303,16 +321,24 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         this.$addInterface();
     };
 
-    /* Player entered Witchspace. */
+    /* NAME
+     *   shipEnteredWitchspace
+     *
+     * FUNCTION
+     *   Player entered Witchspace.
+     */
     this.shipEnteredWitchspace = function () {
         delete this.$joinNavy;
         /* Remove the closest naval ship variable. */
         delete this.$closestNavyShip;
     };
 
-    /* Player is about to exit from Witchspace.
+    /* NAME
+     *   shipWillExitWitchspace
      *
-     * Reset everything just before exiting Witchspace.
+     * FUNCTION
+     *   Player is about to exit from Witchspace.
+     *   Reset everything just before exiting Witchspace.
      */
     this.shipWillExitWitchspace = function () {
         /* Stop and remove the timers. */
@@ -331,13 +357,23 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Player exited Witchspace. */
+    /* NAME
+     *   shipExitedWitchspace
+     *
+     * FUNCTION
+     *   Player exited Witchspace.
+     */
     this.shipExitedWitchspace = function () {
         /* Check if we need to create Jaguar Company in this system. */
         this.$setUpCompany();
     };
 
-    /* Remove all mission variables if the player jumps galaxies. */
+    /* NAME
+     *   playerEnteredNewGalaxy
+     *
+     * FUNCTION
+     *   Remove all mission variables if the player jumps galaxies.
+     */
     this.playerEnteredNewGalaxy = function () {
         delete missionVariables.jaguar_company_attacker;
         delete missionVariables.jaguar_company_reputation;
@@ -346,10 +382,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         delete missionVariables.jaguar_company_reputation_post_launch;
     };
 
-    /* A ship has been born.
+    /* NAME
+     *   shipSpawned
+     *
+     * FUNCTION
+     *   A ship has been born.
      *
      * INPUT
-     *   whom - entity that was created.
+     *   whom - entity that was created
      */
     this.shipSpawned = function (whom) {
         var friendList;
@@ -373,13 +413,23 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Stop and remove the timers if the player dies. */
+    /* NAME
+     *   shipDied
+     *
+     * FUNCTION
+     *   Stop and remove the timers if the player dies.
+     */
     this.shipDied = function () {
         /* Stop and remove the timers. */
         this.$removeTimers();
     };
 
-    /* Show a welcome message on docking as a mission screen. */
+    /* NAME
+     *   missionScreenOpportunity
+     *
+     * FUNCTION
+     *   Show a welcome message on docking as a mission screen.
+     */
     this.missionScreenOpportunity = function () {
         var base = this.$jaguarCompanyBase;
 
@@ -395,22 +445,30 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Equipment has become damaged.
+    /* NAME
+     *   equipmentDamaged
+     *
+     * FUNCTION
+     *   Equipment has become damaged.
      *
      * INPUT
-     *   equipment - identifier.
+     *   equipment - entity of the equipment
      */
     this.equipmentDamaged = function (equipment) {
         if (equipment === "EQ_JAGUAR_COMPANY_BLACK_BOX") {
             player.commsMessage("Black Box Damaged!");
-            player.commsMessage("Return to the nearest Jaguar Company base for repairs.");
+            player.commsMessage("Return to the nearest Jaguar Company Base for repairs.");
         }
     };
 
-    /* Player has scooped something.
+    /* NAME
+     *   shipScoopedOther
+     *
+     * FUNCTION
+     *   Player has scooped something.
      *
      * INPUT
-     *   whom - entity of the scooped object.
+     *   whom - entity of the scooped object
      */
     this.shipScoopedOther = function (whom) {
         if (!whom.$jaguarCompany) {
@@ -427,6 +485,16 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         this.$rescued2.push(whom.$pilotName);
     };
 
+    /* NAME
+     *   guiScreenChanged
+     *
+     * FUNCTION
+     *   Show Jaguar Company Base locations on certain GUI screens.
+     *
+     * INPUTS
+     *   to - GUI screen the player has gone to
+     *   from - GUI screen the player has come from
+     */
     this.guiScreenChanged = function (to, from) {
         var counter,
         length;
@@ -485,20 +553,29 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Reset page count. */
+    /* NAME
+     *   viewDirectionChanged
+     *
+     * FUNCTION
+     *   Reset page count when the player view changes.
+     */
     this.viewDirectionChanged = function () {
         this.$printIndex = 0;
     };
 
     /* Other global functions. */
 
-    /* This function is called by OXPConfig when settings are changed.
+    /* NAME
+     *   oxpcNotifyOnChange
+     *
+     * FUNCTION
+     *   This function is called by OXPConfig when settings are changed.
      *
      * INPUT
-     *   n - Number.
-     *       1 - boolean settings changed.
-     *       2 - short unsigned integers changed.
-     *       4 - unsigned 24Bit integer changed.
+     *   n - number
+     *     1 - boolean settings changed
+     *     2 - short unsigned integers changed
+     *     4 - unsigned 24Bit integer changed
      */
     this.oxpcNotifyOnChange = function (n) {
         if (n & 1 && this.$alwaysSpawn && !this.$jaguarCompanyBase) {
@@ -509,7 +586,12 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Setup the private main variable + some public variables. */
+    /* NAME
+     *   $setUp
+     *
+     * FUNCTION
+     *   Setup the private main variable + some public variables.
+     */
     this.$setUp = function () {
         if (!worldScripts["Jaguar Company Attackers"]) {
             /* Attackers script not loaded yet. */
@@ -569,7 +651,11 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         };
 
         if (!this.$rescued1) {
-            /* Array of Jaguar Company pilot names that have been rescued. */
+            /* Array of Jaguar Company pilot names that have been rescued.
+             *
+             *   $rescued1 - used when unloading pilots from their escape pods at a station
+             *   $rescued2 - used when docked to send a report to Snoopers news services (if installed)
+             */
             this.$rescued1 = [];
             this.$rescued2 = [];
         }
@@ -590,10 +676,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         this.$cacheJaguarCompanySystems();
     };
 
-    /* Removes all functions and variables.
+    /* NAME
+     *   $killSelf
+     *
+     * FUNCTION
+     *   Removes all functions and variables.
      *
      * INPUT
-     *   desc - optional description for the removal.
+     *   desc - optional description for the removal
      */
     this.$killSelf = function (desc) {
         var prop,
@@ -623,7 +713,12 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         return;
     };
 
-    /* For debugging only. */
+    /* NAME
+     *   $showProps
+     *
+     * FUNCTION
+     *   For debugging only.
+     */
     this.$showProps = function () {
         var result = "",
         prop,
@@ -644,7 +739,12 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         return result;
     };
 
-    /* Stop and remove the timers. */
+    /* NAME
+     *   $removeTimers
+     *
+     * FUNCTION
+     *   Stop and remove the timers.
+     */
     this.$removeTimers = function () {
         /* Stop and remove the script sanity timer. */
         if (this.$scriptSanityTimerReference) {
@@ -674,8 +774,12 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Add the interface system if Oolite v1.77 or newer is used and
-     * docked and the software patch is uploaded to the black box (which has to be present).
+    /* NAME
+     *   $addInterface
+     *
+     * FUNCTION
+     *   Add the interface system if Oolite v1.77 or newer is used and
+     *   docked and the software patch is uploaded to the black box (which has to be present).
      */
     this.$addInterface = function () {
         if (0 >= oolite.compareVersion("1.77") && player.ship.docked &&
@@ -690,7 +794,12 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Remove the interface system if Oolite v1.77 or newer is used. */
+    /* NAME
+     *   $removeInterface
+     *
+     * FUNCTION
+     *   Remove the interface system if Oolite v1.77 or newer is used.
+     */
     this.$removeInterface = function () {
         if (0 >= oolite.compareVersion("1.77") && player.ship.docked) {
             /* Oolite v1.77 or newer and docked. */
@@ -698,7 +807,12 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Show the base locations as a 2 column list. */
+    /* NAME
+     *   $showBaseLocations
+     *
+     * FUNCTION
+     *   Show the base locations as a 2 column list.
+     */
     this.$showBaseLocations = function () {
         var choicesKey,
         locations;
@@ -719,16 +833,19 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }, this.$locationChoices, this);
     };
 
-    /* Figure out the first choices key for the pager.
+    /* NAME
+     *   $firstChoicesKey
      *
-     * Modifies the maximum amount of lines that can be used for displaying the list.
+     * FUNCTION
+     *   Figure out the first choices key for the pager.
+     *   Modifies the maximum amount of lines that can be used for displaying the list.
      *
      * INPUTS
-     *   list - array of strings to be displayed.
-     *   columns - number of columns displayed.
+     *   list - array of strings to be displayed
+     *   columns - number of columns displayed
      *
      * RESULT
-     *   return the first choices key.
+     *   result - choices key
      */
     this.$firstChoicesKey = function (list, columns) {
         var choicesKey;
@@ -753,15 +870,19 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         return choicesKey;
     };
 
-    /* Figure out the next choices key for the pager.
+    /* NAME
+     *   $nextChoicesKey
+     *
+     * FUNCTION
+     *   Figure out the next choices key for the pager.
      *
      * INPUTS
-     *   choice - choice selected.
-     *   list - array of strings to be displayed.
-     *   columns - number of columns displayed.
+     *   choice - choice selected
+     *   list - array of strings to be displayed
+     *   columns - number of columns displayed
      *
      * RESULT
-     *   return the next choices key.
+     *   result - choices key
      */
     this.$nextChoicesKey = function (choice, list, columns) {
         var choicesKey;
@@ -809,10 +930,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         return choicesKey;
     };
 
-    /* Callback for base location lister.
+    /* NAME
+     *   $locationChoices
+     *
+     * FUNCTION
+     *   Callback for base location lister.
      *
      * INPUT
-     *   choice - key of the choice selected.
+     *   choice - key of the choice selected
      */
     this.$locationChoices = function (choice) {
         var choicesKey = this.$nextChoicesKey(choice, this.$jaguarCompanySystemNames, 2),
@@ -833,16 +958,20 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }, this.$locationChoices, this);
     };
 
-    /* Build a 2 column list of Jaguar Company Base locations.
-     * Original idea from Spara's Trophy Collector OXP.
-     * Highly modified and simplified.
-     * Modified using Cabal Common Library for Oolite v1.77 or newer.
+    /* NAME
+     *   $listNames
+     *
+     * FUNCTION
+     *   Build a 2 column list of Jaguar Company Base locations.
+     *   Original idea from Spara's Trophy Collector OXP.
+     *   Highly modified and simplified.
+     *   Modified using Cabal Common Library for Oolite v1.77 or newer.
      *
      * INPUT
-     *   list - array of strings to be displayed.
+     *   list - array of strings to be displayed
      *
      * RESULT
-     *   return a columnized list of names.
+     *   result - columnized list of names as a string
      */
     this.$listNames = function (list) {
         var columnized = "",
@@ -903,7 +1032,12 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         return columnized;
     };
 
-    /* Keep a record of system IDs and names for the current galaxy. */
+    /* NAME
+     *   $cacheJaguarCompanySystems
+     *
+     * FUNCTION
+     *   Keep a record of system IDs and names for the current galaxy.
+     */
     this.$cacheJaguarCompanySystems = function () {
         var a,
         b,
@@ -1015,13 +1149,17 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Rotate 8-bit number leftwards.
+    /* NAME
+     *   $rng_rotatel
+     *
+     * FUNCTION
+     *   Rotate 8-bit number leftwards.
      *
      * INPUT
-     *   x - 8-bit number to rotate leftwards.
+     *   x - 8-bit number to rotate leftwards
      *
      * RESULT
-     *   return rotated 8-bit number.
+     *   result - rotated 8-bit number
      */
     this.$rng_rotatel = function (x) {
         x = (x & 0xff) * 2;
@@ -1029,23 +1167,31 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         return (x & 0xff) | (x > 0xff);
     };
 
-    /* Twist 16-bit number.
+    /* NAME
+     *   $rng_twist
+     *
+     * FUNCTION
+     *   Twist 16-bit number.
      *
      * INPUT
-     *   x - 16-bit number to twist.
+     *   x - 16-bit number to twist
      *
      * RESULT
-     *   return twisted 16-bit number.
+     *   result - twisted 16-bit number
      */
     this.$rng_twist = function (x) {
         return (this.$rotatel(x >> 8) << 8) + this.$rotatel(x & 0xff);
     };
 
-    /* Next galaxy.
+    /* NAME
+     *   $rng_nextgalaxy
      *
-     * Apply to main seed; once for galaxy 2
-     * twice for galaxy 3, etc.
-     * Eighth application gives galaxy 1 again.
+     * FUNCTION
+     *   Next galaxy.
+     *
+     *   Apply to main seed; once for galaxy 2
+     *   twice for galaxy 3, etc.
+     *   Eighth application gives galaxy 1 again.
      */
     this.$rng_nextgalaxy = function () {
         p_main.seed.w0 = this.$rng_twist(p_main.seed.w0);
@@ -1053,7 +1199,12 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         p_main.seed.w2 = this.$rng_twist(p_main.seed.w2);
     };
 
-    /* Main seed tweaker. */
+    /* NAME
+     *   $rng_tweakseed
+     *
+     * FUNCTION
+     *   Main seed tweaker.
+     */
     this.$rng_tweakseed = function () {
         var tmp;
 
@@ -1065,10 +1216,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         p_main.seed.w2 = tmp;
     };
 
-    /* Random number generator.
+    /* NAME
+     *   $gen_rnd_number
+     *
+     * FUNCTION
+     *   Random number generator.
      *
      * RESULT
-     *   return a random number.
+     *   result - random number
      */
     this.$gen_rnd_number = function () {
         var x = (p_main.rnd_seed.a * 2) & 0xFF,
@@ -1091,12 +1246,16 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         return a;
     };
 
-    /* Periodic function to check if Jaguar Company has spawned correctly.
+    /* NAME
+     *   $scriptSanityTimer
      *
-     * Checks the base, asteroids, buoy, black box and tracker.
-     * Patrol ships, tug and miner are checked within the base ship script.
+     * FUNCTION
+     *   Periodic function to check if Jaguar Company has spawned correctly.
      *
-     * The order that this is done in is important.
+     *   Checks the base, asteroids, buoy, black box and tracker.
+     *   Patrol ships, tug and miner are checked within the base ship script.
+     *
+     *   The order that this is done in is important.
      */
     this.$scriptSanityTimer = function () {
         var base = this.$jaguarCompanyBase,
@@ -1233,12 +1392,16 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* If the player has received the black box and then attacks Jaguar Company,
-     * this will remove it and the tracker and this timer.
+    /* NAME
+     *   $blackBoxTimer
      *
-     * Also checks if we are within 10km of the patrol ships, if so we remove the tracker.
+     * FUNCTION
+     *   If the player has received the black box and then attacks Jaguar Company,
+     *   this will remove it and the tracker and this timer.
      *
-     * Called every 5 seconds.
+     *   Also checks if we are within 10km of the patrol ships, if so we remove the tracker.
+     *
+     *   Called every 5 seconds.
      */
     this.$blackBoxTimer = function () {
         var blackBoxStatus,
@@ -1284,9 +1447,13 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Swap the base role dependent on the reputation mission variable.
+    /* NAME
+     *   $baseSwapTimer
      *
-     * Called every 5 seconds.
+     * FUNCTION
+     *   Swap the base role dependent on the reputation mission variable.
+     *
+     *   Called every 5 seconds.
      */
     this.$baseSwapTimer = function () {
         var base = this.$jaguarCompanyBase,
@@ -1364,10 +1531,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         this.$jaguarCompanyBase = newBase;
     };
 
-    /* Activate the black box.
+    /* NAME
+     *   $activateJaguarCompanyBlackbox
+     *
+     * FUNCTION
+     *   Activate the black box.
      *
      * RESULT
-     *   return activation - true if activated, false if not.
+     *   result - true if activated, false if not
      */
     this.$activateJaguarCompanyBlackbox = function () {
         var patrolShips = system.shipsWithPrimaryRole("jaguar_company_patrol", player.ship),
@@ -1401,16 +1572,20 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             }
         } else if (player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_DAMAGED") {
             player.commsMessage("Black Box Damaged!");
-            player.commsMessage("Return to the nearest Jaguar Company base for repairs.");
+            player.commsMessage("Return to the nearest Jaguar Company Base for repairs.");
         }
 
         return ok;
     };
 
-    /* Deactivate the black box.
+    /* NAME
+     *   $deactivateJaguarCompanyBlackbox
+     *
+     * FUNCTION
+     *   Deactivate the black box.
      *
      * RESULT
-     *   return deactivation - true if deactivated, false if not.
+     *   result - true if deactivated, false if not
      */
     this.$deactivateJaguarCompanyBlackbox = function () {
         var ok = false;
@@ -1427,13 +1602,18 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             ok = true;
         } else if (player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_DAMAGED") {
             player.commsMessage("Black Box Damaged!");
-            player.commsMessage("Return to the nearest Jaguar Company base for repairs.");
+            player.commsMessage("Return to the nearest Jaguar Company Base for repairs.");
         }
 
         return ok;
     };
 
-    /* Show a welcome message. */
+    /* NAME
+     *   $welcomeMessage
+     *
+     * FUNCTION
+     *   Show a welcome message.
+     */
     this.$welcomeMessage = function () {
         var reputation = missionVariables.jaguar_company_reputation,
         helperLevel = this.$reputationHelper,
@@ -1567,10 +1747,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         });
     };
 
-    /* Scan for a witchpoint buoy.
+    /* NAME
+     *   $scanForWitchpointBuoy
+     *
+     * FUNCTION
+     *   Scan for a witchpoint buoy.
      *
      * RESULT
-     *   return witchpoint buoy entity. A fake entity is returned if it can't be found.
+     *   result - witchpoint buoy entity or a fake entity if it can't be found
      */
     this.$scanForWitchpointBuoy = function () {
         var buoy,
@@ -1606,15 +1790,19 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         return buoy;
     };
 
-    /* Checks for various Galactic Navy ships.
+    /* NAME
+     *   $isNavyShip
      *
-     * This only checks for medical ships, frigates and carriers.
+     * FUNCTION
+     *   Checks for various Galactic Navy ships.
+     *
+     *   This only checks for medical ships, frigates and carriers.
      *
      * INPUT
-     *   entity - entity of the ship to check.
+     *   entity - entity of the ship to check
      *
      * RESULT
-     *   return true if entity is a Galactic Navy ship, false if not.
+     *   result - true if entity is a Galactic Navy ship, false if not
      */
     this.$isNavyShip = function (entity) {
         if (!entity.isValid ||
@@ -1640,13 +1828,17 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
             entity.hasRole("behemoth"));
     };
 
-    /* Find any major Galactic Navy ships.
+    /* NAME
+     *   $scanForNavyShips
+     *
+     * FUNCTION
+     *   Find any major Galactic Navy ships.
      *
      * INPUT
-     *   near - entity of the search origin. (Optional - will use the witchpoint if not specified)
+     *   near - entity of the search origin, will use the witchpoint if not specified
      *
      * RESULT
-     *   return an array of ships.
+     *   result - array of ship entities
      */
     this.$scanForNavyShips = function (near) {
         var ships;
@@ -1661,12 +1853,17 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         return ships;
     };
 
-    /* Spawn Jaguar Company
+    /* NAME
+     *   $spawnJaguarCompany
+     *
+     * FUNCTION
+     *   Spawn Jaguar Company
      *
      * INPUT
-     *   state - 1. Add always.
-     *           2. Add because of Galactic Navy presence.
-     *           3. General add.
+     *   state - number
+     *     1 - general add
+     *     2 - add because of Galactic Navy presence
+     *     4 - add always
      */
     this.$spawnJaguarCompany = function (state) {
         var sysname,
@@ -1756,7 +1953,12 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Create the patrol for navy work. */
+    /* NAME
+     *   $spawnJaguarCompanyNavyPatrol
+     *
+     * FUNCTION
+     *   Create the patrol for navy work.
+     */
     this.$spawnJaguarCompanyNavyPatrol = function () {
         var navyShips;
 
@@ -1777,7 +1979,12 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Create the base. */
+    /* NAME
+     *   $spawnJaguarCompanyBase
+     *
+     * FUNCTION
+     *   Create the base.
+     */
     this.$spawnJaguarCompanyBase = function () {
         var ratio,
         basePosition,
@@ -1872,10 +2079,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Check to see if we need to spawn Jaguar Company.
+    /* NAME
+     *   $setUpCompany
+     *
+     * FUNCTION
+     *   Check to see if we need to spawn Jaguar Company.
      *
      * RESULT
-     *   return true if Jaguar Company will be spawned, false if not.
+     *   result - true if Jaguar Company will be spawned, false if not
      */
     this.$setUpCompany = function () {
         var scrambledPRN,
@@ -1959,14 +2170,18 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         return false;
     };
 
-    /* Create a unique ship name.
+    /* NAME
+     *   $uniqueShipName
+     *
+     * FUNCTION
+     *   Create a unique ship name.
      *
      * INPUT
-     *   prefix - Add a prefix to the name. (optional)
-     *   maxNameLength - maximum length (not including prefix) of the name.
+     *   prefix - Add a prefix to the name (optional)
+     *   maxNameLength - maximum length (not including prefix) of the name (optional)
      *
      * RESULT
-     *   return a unique name.
+     *   result - unique name
      */
     this.$uniqueShipName = function (prefix, maxNameLength) {
         var index,
@@ -2051,15 +2266,19 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         return prefix + name;
     };
 
-    /* Alters the route list.
+    /* NAME
+     *   $initRoute
+     *
+     * FUNCTION
+     *   Alters the route list.
      *
      * INPUT
-     *   route - route code (optional).
-     *     WPWB - Full route. Base -> Witchpoint -> Planet -> Witchpoint -> Base (dock).
-     *     I - Interstellar space. Base -> (Fake) Witchpoint -> Base (dock).
-     *     NAVY - Patrol with the Galactic Navy.
-     *     WP - Witchpoint <-> Planet.
-     *     BP - Base -> Planet -> Base (dock).
+     *   route - route code (optional)
+     *     WPWB - full route (base -> witchpoint -> planet -> witchpoint -> base (dock)) (default)
+     *     I - interstellar space (base -> (fake) witchpoint -> base (dock))
+     *     NAVY - patrol with the Galactic Navy
+     *     WP - witchpoint <-> planet
+     *     BP - base -> planet -> base (dock)
      */
     this.$initRoute = function (route) {
         if (system.isInterstellarSpace) {
@@ -2128,7 +2347,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         case "BP":
             /* Alters the route list for Base->Planet and Planet->Base. */
             p_main.routes = [{
-                    /* Jaguar Company base. */
+                    /* Jaguar Company Base. */
                     entity : this.$jaguarCompanyBase,
                     /* Range used in AI. */
                     range : 8000,
@@ -2185,7 +2404,12 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         p_main.routeIndex = 0;
     };
 
-    /* Change the current route. */
+    /* NAME
+     *   $changeRoute
+     *
+     * FUNCTION
+     *   Change the current route.
+     */
     this.$changeRoute = function (routeNum) {
         if (typeof routeNum !== "number") {
             p_main.routeIndex += 1;
@@ -2203,10 +2427,14 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Check the current route and return a message for the ship's AI.
+    /* NAME
+     *   $checkRoute
+     *
+     * FUNCTION
+     *   Check the current route and send a message to the caller ship's AI.
      *
      * INPUT
-     *   callerShip - caller ship.
+     *   callerShip - caller ship
      */
     this.$checkRoute = function (callerShip) {
         var entity,
@@ -2246,12 +2474,16 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         callerShip.reactToAIMessage(p_main.routes[p_main.routeIndex].aiMessage);
     };
 
-    /* Finished the current route, change to the next one.
+    /* NAME
+     *   $finishedRoute
+     *
+     * FUNCTION
+     *   Finished the current route, change to the next one.
      *
      * INPUT
-     *   callerShip - caller ship.
-     *   groupRole - role of our group.
-     *   aiResponse - AI response.
+     *   callerShip - caller ship
+     *   groupRole - role of our group
+     *   aiResponse - AI response to send to all ships in groupRole
      */
     this.$finishedRoute = function (callerShip, groupRole, aiResponse) {
         var entity,
@@ -2302,11 +2534,15 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* Send news to Snoopers.
+    /* NAME
+     *   $sendNewsToSnoopers
+     *
+     * FUNCTION
+     *   Send news to Snoopers (if available).
      *
      * INPUTS
-     *   message - news to show.
-     *   agency - agency to use. (Optional)
+     *   message - news to show
+     *   agency - agency to use (optional)
      */
     this.$sendNewsToSnoopers = function (message, agency) {
         var news = {},
@@ -2359,7 +2595,13 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
         }
     };
 
-    /* News has been displayed through Snoopers. Check for more. */
+    /* NAME
+     *   newsDisplayed
+     *
+     * FUNCTION
+     *   Called by Snoopers when the news item has been displayed.
+     *   Check for any more news available and send it.
+     */
     this.newsDisplayed = function () {
         var news = p_newsForSnoopers.shift();
 

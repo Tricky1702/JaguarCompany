@@ -27,17 +27,23 @@ strict: true, curly: true */
     this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the Jaguar Company Tracker.";
-    this.version = "1.1";
+    this.version = "1.2";
 
     /* Private variable. */
     var p_tracker = {};
 
-    /* Ship event callbacks. */
+    /* Ship script event handlers. */
 
-    /* Initialise various variables on ship birth. Oolite v1.76.1 and older. */
+    /* NAME
+     *   shipSpawned
+     *
+     * FUNCTION
+     *   Initialise various variables on ship birth. Oolite v1.76.1 and older.
+     */
     this.shipSpawned = function () {
         /* No longer needed after setting up. */
         delete this.shipSpawned;
+        delete this.effectSpawned;
 
         /* Common setup. */
         this.$setUp();
@@ -45,10 +51,16 @@ strict: true, curly: true */
         this.$trackerFCBReference = addFrameCallback(this.$invisibleTrackerFCB.bind(this));
     };
 
-    /* Initialise various variables on effect birth. Oolite v1.77 and newer. */
+    /* NAME
+     *   effectSpawned
+     *
+     * FUNCTION
+     *   Initialise various variables on effect birth. Oolite v1.77 and newer.
+     */
     this.effectSpawned = function () {
         /* No longer needed after setting up. */
         delete this.shipSpawned;
+        delete this.effectSpawned;
 
         /* Common setup. */
         this.$setUp();
@@ -58,13 +70,17 @@ strict: true, curly: true */
         this.$trackerFCBReference = addFrameCallback(this.$trackerFCB.bind(this));
     };
 
-    /* Patrol tracker was destroyed.
+    /* NAME
+     *   shipDied
+     *
+     * FUNCTION
+     *   Patrol tracker was destroyed.
+     *
+     *   Not triggered for Oolite v1.77 and newer visual effects.
      *
      * INPUTS
-     *   whom - entity that caused the death.
-     *   why - cause as a string.
-     *
-     * Not triggered for Oolite v1.77 and newer visual effects.
+     *   whom - entity that caused the death
+     *   why - cause as a string
      */
     this.shipDied = function (whom, why) {
         var mainScript = worldScripts["Jaguar Company"],
@@ -88,7 +104,12 @@ strict: true, curly: true */
         }
     };
 
-    /* The patrol tracker has just become invalid or was removed. */
+    /* NAME
+     *   shipRemoved, effectRemoved, entityDestroyed and $removeTrackerRefs
+     *
+     * FUNCTION
+     *   The patrol tracker has just become invalid or was removed.
+     */
     this.shipRemoved = this.effectRemoved = this.entityDestroyed = this.$removeTrackerRefs = function () {
         /* Stop and remove the timer. */
         if (this.$trackerTimerReference) {
@@ -111,7 +132,12 @@ strict: true, curly: true */
 
     /* Other global functions. */
 
-    /* Setup the private main variable + some public variables. */
+    /* NAME
+     *   $setUp
+     *
+     * FUNCTION
+     *   Setup the private main variable + some public variables.
+     */
     this.$setUp = function () {
         /* Initialise the p_tracker variable object.
          * Encapsulates all private global data.
@@ -128,7 +154,14 @@ strict: true, curly: true */
         this.$trackerTimerReference = new Timer(this, this.$trackerTimer, 0.25, 0.25);
     };
 
-    /* Tracker timer. Updates the closest patrol ship position. */
+    /* NAME
+     *   $trackerTimer
+     *
+     * FUNCTION
+     *   Tracker timer. Updates the closest patrol ship position.
+     *
+     *   Called every 0.25 seconds.
+     */
     this.$trackerTimer = function () {
         var tracker = this.ship || this.visualEffect,
         patrolShips;
@@ -162,12 +195,16 @@ strict: true, curly: true */
         p_tracker.closestPatrolShip = patrolShips[0];
     };
 
-    /* Tracker frame callback.
+    /* NAME
+     *   $invisibleTrackerFCB
      *
-     * Used by Oolite v1.76.1 or older.
+     * FUNCTION
+     *   Tracker frame callback.
+     *
+     *   Used by Oolite v1.76.1 or older.
      *
      * INPUT
-     *   delta - amount of game clock time past since the last frame.
+     *   delta - amount of game clock time past since the last frame
      */
     this.$invisibleTrackerFCB = function (delta) {
         var tracker = this.ship,
@@ -192,12 +229,16 @@ strict: true, curly: true */
         tracker.position = cps.position.add(cps.orientation.vectorUp().multiply(distance));
     };
 
-    /* Tracker frame callback.
+    /* NAME
+     *   $trackerFCB
      *
-     * Used for visual effects.
+     * FUNCTION
+     *   Tracker frame callback.
+     *
+     *   Used for visual effects.
      *
      * INPUT
-     *   delta - amount of game clock time past since the last frame.
+     *   delta - amount of game clock time past since the last frame
      */
     this.$trackerFCB = function (delta) {
         var tracker = this.visualEffect,

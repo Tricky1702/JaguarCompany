@@ -29,6 +29,13 @@ strict: true, curly: true */
     this.description = "Jaguar Company Pilot script for delivering escape-pods to a station.";
     this.version = "1.1";
 
+    /* NAME
+     *   unloadCharacter
+     *
+     * FUNCTION
+     *   Shows a rescue message for Jaguar Company pilots you deliver back to a station.
+     *   Also increases reputation.
+     */
     this.unloadCharacter = function() {
         var mainScript = worldScripts["Jaguar Company"],
         insurance,

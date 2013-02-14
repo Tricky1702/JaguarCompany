@@ -32,9 +32,14 @@ strict: true, curly: true */
     /* Private variable. */
     var p_buoy = {};
 
-    /* Ship event callbacks. */
+    /* Ship script event handlers. */
 
-    /* Initialise various variables on ship birth. */
+    /* NAME
+     *   shipSpawned
+     *
+     * FUNCTION
+     *   Initialise various variables on ship birth.
+     */
     this.shipSpawned = function () {
         /* No longer needed after setting up. */
         delete this.shipSpawned;
@@ -58,7 +63,17 @@ strict: true, curly: true */
         this.$buoyTimerReference = new Timer(this, this.$buoyTimer, 5);
     };
 
-    /* Base buoy was removed by script. */
+    /* NAME
+     *   shipRemoved
+     *
+     * FUNCTION
+     *   Base buoy was removed by script.
+     *
+     * INPUT
+     *   suppressDeathEvent - boolean
+     *     true - shipDied() will be called
+     *     false - shipDied() will not be called
+     */
     this.shipRemoved = function (suppressDeathEvent) {
         if (suppressDeathEvent) {
             return;
@@ -70,7 +85,12 @@ strict: true, curly: true */
         worldScripts["Jaguar Company"].$buoyLaunched = false;
     };
 
-    /* The base buoy has just become invalid. */
+    /* NAME
+     *   entityDestroyed
+     *
+     * FUNCTION
+     *   The base buoy has just become invalid.
+     */
     this.entityDestroyed = function () {
         /* Reset the script check. */
         worldScripts["Jaguar Company"].$buoyOK = false;
@@ -81,7 +101,14 @@ strict: true, curly: true */
         this.$removeBuoyFCB();
     };
 
-    /* Stop and remove the timer. */
+    /* Other global public functions. */
+
+    /* NAME
+     *   $removeBuoyTimer
+     *
+     * FUNCTION
+     *   Stop and remove the timer.
+     */
     this.$removeBuoyTimer = function () {
         if (this.$buoyTimerReference) {
             if (this.$buoyTimerReference.isRunning) {
@@ -92,7 +119,12 @@ strict: true, curly: true */
         }
     };
 
-    /* Stop and remove the frame callback. */
+    /* NAME
+     *   $removeBuoyFCB
+     *
+     * FUNCTION
+     *   Stop and remove the frame callback.
+     */
     this.$removeBuoyFCB = function () {
         /* Turn the flashers on. */
         this.ship.lightsActive = true;
@@ -106,7 +138,12 @@ strict: true, curly: true */
         }
     };
 
-    /* Point the dish at Jaguar Company Patrol. */
+    /* NAME
+     *   $findJaguarCompanyPatrol
+     *
+     * FUNCTION
+     *   Point the dish at Jaguar Company Patrol.
+     */
     this.$findJaguarCompanyPatrol = function () {
         var patrolShips,
         patrolShipsLength,
@@ -138,6 +175,13 @@ strict: true, curly: true */
         return midpointPosition;
     };
 
+    /* NAME
+     *   $buoyTimer
+     *
+     * FUNCTION
+     *   Start off with a 'calibration routine' by finding the witchpoint then the planet.
+     *   Once 'calibrated', track Jaguar Company patrol ships every minute.
+     */
     this.$buoyTimer = function () {
         var buoy = this.ship,
         position,
@@ -197,10 +241,14 @@ strict: true, curly: true */
         this.$buoyFCBReference = addFrameCallback(this.$buoyFCB.bind(this));
     };
 
-    /* Frame callback to slowly rotate the buoy towards Jaguar Company Patrol.
+    /* NAME
+     *   $buoyFCB
+     *
+     * FUNCTION
+     *   Frame callback to slowly rotate the buoy towards Jaguar Company Patrol.
      *
      * INPUT
-     *   delta - amount of game clock time past since the last frame.
+     *   delta - amount of game clock time past since the last frame
      */
     this.$buoyFCB = function (delta) {
         var buoy = this.ship;
@@ -225,7 +273,7 @@ strict: true, curly: true */
             return;
         }
 
-        /* Rotate in delta angle steps. */
+        /* Rotate by delta angle. */
         buoy.orientation = buoy.orientation.rotate(p_buoy.cross, -p_buoy.deltaAngle);
         /* Update the current angle. */
         p_buoy.angle += p_buoy.deltaAngle;

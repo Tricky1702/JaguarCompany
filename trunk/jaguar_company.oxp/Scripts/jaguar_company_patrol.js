@@ -28,14 +28,19 @@ strict: true, curly: true */
     this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the Jaguar Company Patrol ships.";
-    this.version = "1.9";
+    this.version = "1.10";
 
     /* Private variable. */
     var p_patrol = {};
 
-    /* Ship event callbacks. */
+    /* Ship script event handlers. */
 
-    /* Initialise various variables on ship birth. */
+    /* NAME
+     *   shipSpawned
+     *
+     * FUNCTION
+     *   Initialise various variables on ship birth.
+     */
     this.shipSpawned = function () {
         var counter;
 
@@ -84,8 +89,10 @@ strict: true, curly: true */
         /* Timer reference. */
         this.$addFuelTimerReference = new Timer(this, this.$addFuelTimer, 1, 1);
 
-        /* Thargoid's missile code. */
-        /* Just to ensure ship is fully loaded with selected missile type and nothing else. */
+        /* Thargoid's missile code.
+         *
+         * Just to ensure ship is fully loaded with selected missile type and nothing else.
+         */
         if (this.ship.scriptInfo.missileRole) {
             /* missileRole should be defined in shipdata.plist */
             p_patrol.missileRole = this.ship.scriptInfo.missileRole;
@@ -106,23 +113,31 @@ strict: true, curly: true */
         }
     };
 
-    /* The shipLaunchedEscapePod handler is called when the pilot bails out.
+    /* NAME
+     *   shipLaunchedEscapePod
+     *
+     * FUNCTION
+     *   The shipLaunchedEscapePod handler is called when the pilot bails out.
      *
      * INPUT
-     *   escapepod - contains the main pod with the pilot.
+     *   escapepod - contains the main pod with the pilot
      */
     this.shipLaunchedEscapePod = function(escapepod)
     {
-        /* Identify this pod as containg a member of Jaguar Company. */
+        /* Identify this pod as containing a member of Jaguar Company. */
         escapepod.$jaguarCompany = true;
         /* Transfer pilot name to the escape pod. */
         escapepod.$pilotName = this.ship.$pilotName;
     };
 
-    /* Thargoid's missile code. (Simplified - taken out the local function.)
+    /* NAME
+     *   shipFiredMissile
+     *
+     * FUNCTION
+     *   Thargoid's missile code. (Simplified - taken out the local function.)
      *
      * INPUT
-     *   missile - missile entity.
+     *   missile - missile entity
      */
     this.shipFiredMissile = function (missile) {
         var counter,
@@ -157,7 +172,17 @@ strict: true, curly: true */
         }
     };
 
-    /* Patrol ship was removed by script. */
+    /* NAME
+     *   shipRemoved
+     *
+     * FUNCTION
+     *   Patrol ship was removed by script.
+     *
+     * INPUT
+     *   suppressDeathEvent - boolean
+     *     true - shipDied() will be called
+     *     false - shipDied() will not be called
+     */
     this.shipRemoved = function (suppressDeathEvent) {
         if (suppressDeathEvent) {
             return;
@@ -167,7 +192,12 @@ strict: true, curly: true */
         worldScripts["Jaguar Company"].$numPatrolShips -= 1;
     };
 
-    /* The patrol ship has just become invalid. */
+    /* NAME
+     *   entityDestroyed
+     *
+     * FUNCTION
+     *   The patrol ship has just become invalid.
+     */
     this.entityDestroyed = function () {
         /* Decrease the number of patrol ships in the system. */
         worldScripts["Jaguar Company"].$numPatrolShips -= 1;
@@ -175,12 +205,16 @@ strict: true, curly: true */
         this.$removeAddFuelTimer();
     };
 
-    /* Taking damage. Check attacker and what type.
+    /* NAME
+     *   shipTakingDamage
+     *
+     * FUNCTION
+     *   Taking damage. Check attacker and what type.
      *
      * INPUTS
-     *   amount - amount of damage.
-     *   attacker - entity that caused the damage.
-     *   type - type of damage as a string.
+     *   amount - amount of damage
+     *   attacker - entity that caused the damage
+     *   type - type of damage as a string
      */
     this.shipTakingDamage = function (amount, attacker, type) {
         if (!attacker || !attacker.isValid || !attacker.isShip) {
@@ -206,7 +240,14 @@ strict: true, curly: true */
         }
     };
 
-    /* Stop and remove the timer. */
+    /* Other global public functions. */
+
+    /* NAME
+     *   $removeAddFuelTimer
+     *
+     * FUNCTION
+     *   Stop and remove the timer.
+     */
     this.$removeAddFuelTimer = function () {
         if (this.$addFuelTimerReference) {
             if (this.$addFuelTimerReference.isRunning) {
@@ -217,10 +258,14 @@ strict: true, curly: true */
         }
     };
 
-    /* addFuel in the AI doesn't allow small increases.
+    /* NAME
+     *   $addFuelTimer
      *
-     * This function allow us to increment the amount of fuel in tinier amounts.
-     * Called every second.
+     * FUNCTION
+     *   addFuel in the AI doesn't allow small increases.
+     *
+     *   This function allow us to increment the amount of fuel in tinier amounts.
+     *   Called every second.
      */
     this.$addFuelTimer = function () {
         var actualFuel,
@@ -266,49 +311,58 @@ strict: true, curly: true */
         }
     };
 
-    /* Find the average distance to all the other ships.
+    /* NAME
+     *   $queryAverageDistance
+     *
+     * FUNCTION
+     *   Find the average distance to a set of ships from the patrol ship.
      *
      * INPUT
-     *   otherShips - array of ships.
+     *   ships - array of ships
      *
      * RESULT
-     *   return average distance to all the other ships.
+     *   result - average distance to the set of ships
      */
-    this.$queryAverageDistance = function (otherShips) {
+    this.$queryAverageDistance = function (ships) {
         var averageDistance = 0,
-        otherShipsLength,
-        otherShipsCounter,
-        otherShip,
+        shipsLength,
+        shipsCounter,
+        ship,
         distance;
 
-        if (!otherShips.length) {
+        if (!ships || !ships.length) {
+            /* The array is empty. */
             return 0;
         }
 
         /* Cache the length. */
-        otherShipsLength = otherShips.length;
+        shipsLength = ships.length;
 
-        for (otherShipsCounter = 0; otherShipsCounter < otherShipsLength; otherShipsCounter += 1) {
-            otherShip = otherShips[otherShipsCounter];
+        for (shipsCounter = 0; shipsCounter < shipsLength; shipsCounter += 1) {
+            ship = ships[shipsCounter];
             /* Centre to centre distance. */
-            distance = this.ship.position.distanceTo(otherShip.position);
+            distance = this.ship.position.distanceTo(ship.position);
             /* Take off the collision radius of this ship. */
             distance -= this.ship.collisionRadius;
             /* Take off the collision radius of the other ship. */
-            distance -= otherShip.collisionRadius;
+            distance -= ship.collisionRadius;
             /* Add this distance to all the other distances. */
             averageDistance += distance;
         }
 
         /* Average all the distances and return it. */
-        return (averageDistance / otherShipsLength);
+        return (averageDistance / shipsLength);
     };
 
-    /* Set the co-ordinates to the surface of the entity.
-     * This borrows some code from 'src/Core/Entities/ShipEntityAI.m - setCourseToPlanet'
+    /* NAME
+     *   $setCoordsToEntity
+     *
+     * FUNCTION
+     *   Set the co-ordinates to the surface of the entity.
+     *   This borrows some code from 'src/Core/Entities/ShipEntityAI.m - setCourseToPlanet'
      *
      * INPUT
-     *   entity - entity to set co-ordinates to.
+     *   entity - entity to set co-ordinates to
      */
     this.$setCoordsToEntity = function (entity) {
         var position = entity.position,
@@ -335,22 +389,42 @@ strict: true, curly: true */
 
     /* AI functions. */
 
-    /* Save the current AI state. */
+    /* NAME
+     *   $saveAIState
+     *
+     * FUNCTION
+     *   Save the current AI state.
+     */
     this.$saveAIState = function () {
         p_patrol.saveAIState = this.ship.AIState;
     };
 
-    /* Recall the saved AI state. */
+    /* NAME
+     *   $recallAIState
+     *
+     * FUNCTION
+     *   Recall the saved AI state.
+     */
     this.$recallAIState = function () {
         this.ship.AIState = p_patrol.saveAIState;
     };
 
-    /* Set the co-ordinates to the surface of the main planet. */
+    /* NAME
+     *   $setCoordsToMainPlanet
+     *
+     * FUNCTION
+     *   Set the co-ordinates to the surface of the main planet.
+     */
     this.$setCoordsToMainPlanet = function () {
         this.$setCoordsToEntity(system.mainPlanet);
     };
 
-    /* Set the co-ordinates to the nearest navy ship. */
+    /* NAME
+     *   $setCoordsToNavyShips
+     *
+     * FUNCTION
+     *   Set the co-ordinates to the nearest navy ship.
+     */
     this.$setCoordsToNavyShips = function () {
         var navyShips = p_patrol.mainScript.$scanForNavyShips(this.ship);
 
@@ -369,12 +443,22 @@ strict: true, curly: true */
         }
     };
 
-    /* Set the co-ordinates to the fake interstellar witchpoint buoy. */
+    /* NAME
+     *   $setCoordsToInterstellarWitchpoint
+     *
+     * FUNCTION
+     *   Set the co-ordinates to the fake interstellar witchpoint buoy.
+     */
     this.$setCoordsToInterstellarWitchpoint = function () {
         this.$setCoordsToEntity(p_patrol.mainScript.$witchpointBuoy);
     };
 
-    /* Set the co-ordinates to the surface of the witchpoint buoy. */
+    /* NAME
+     *   $setCoordsToWitchpoint
+     *
+     * FUNCTION
+     *   Set the co-ordinates to the surface of the witchpoint buoy.
+     */
     this.$setCoordsToWitchpoint = function () {
         var witchpointBuoy = p_patrol.mainScript.$witchpointBuoy;
 
@@ -388,7 +472,12 @@ strict: true, curly: true */
         }
     };
 
-    /* Set the co-ordinates to the surface of the base. */
+    /* NAME
+     *   $setCoordsToJaguarCompanyBase
+     *
+     * FUNCTION
+     *   Set the co-ordinates to the surface of the base.
+     */
     this.$setCoordsToJaguarCompanyBase = function () {
         var base = p_patrol.mainScript.$jaguarCompanyBase;
 
@@ -414,8 +503,12 @@ strict: true, curly: true */
         }
     };
 
-    /* Jaguar Company were forced out of interstellar space as there was no base.
-     * Create a new base in the new system.
+    /* NAME
+     *   $addPatrolToNewSystem
+     *
+     * FUNCTION
+     *   Jaguar Company were forced out of interstellar space as there was no base.
+     *   Create a new base in the new system.
      */
     this.$addPatrolToNewSystem = function () {
         if (system.shipsWithPrimaryRole("jaguar_company_patrol").length === p_patrol.mainScript.$numPatrolShips) {
@@ -430,7 +523,12 @@ strict: true, curly: true */
         }
     };
 
-    /* Check to see if the patrol ship is the initiator of the wormhole or is following. */
+    /* NAME
+     *   $checkHyperspaceFollow
+     *
+     * FUNCTION
+     *   Check to see if the patrol ship is the initiator of the wormhole or is following.
+     */
     this.$checkHyperspaceFollow = function () {
         if (p_patrol.mainScript.$hyperspaceFollow) {
             /* This ship is following. */
@@ -445,19 +543,34 @@ strict: true, curly: true */
         this.ship.reactToAIMessage("JAGUAR_COMPANY_HYPERSPACE");
     };
 
-    /* Check current patrol route. */
+    /* NAME
+     *   $checkRoute
+     *
+     * FUNCTION
+     *   Check current patrol route.
+     */
     this.$checkRoute = function () {
         /* Call common code used by all of Jaguar Company. */
         p_patrol.mainScript.$checkRoute(this.ship);
     };
 
-    /* Finished the current patrol route, change to the next one. */
+    /* NAME
+     *   $finishedRoute
+     *
+     * FUNCTION
+     *   Finished the current patrol route, change to the next one.
+     */
     this.$finishedRoute = function () {
         /* Call common code used by all of Jaguar Company. */
         p_patrol.mainScript.$finishedRoute(this.ship, "jaguar_company_patrol", "JAGUAR_COMPANY_REGROUP");
     };
 
-    /* Scan for the other ships to see if the full group is present. */
+    /* NAME
+     *   $scanForAllJaguarCompany
+     *
+     * FUNCTION
+     *   Scan for the other ships to see if the full group is present.
+     */
     this.$scanForAllJaguarCompany = function () {
         var base,
         patrolShips,
@@ -482,7 +595,7 @@ strict: true, curly: true */
         } else {
             base = system.shipsWithRole("jaguar_company_base");
 
-            if (base.length > 0) {
+            if (base.length) {
                 /* There can only really be 1 base. */
                 lurkPosition = base[0].position;
             } else {
@@ -526,7 +639,12 @@ strict: true, curly: true */
         }
     };
 
-    /* Scan for the other ships and find the midpoint position of the group. */
+    /* NAME
+     *   $scanForJaguarCompany
+     *
+     * FUNCTION
+     *   Scan for the other ships and find the midpoint position of the group.
+     */
     this.$scanForJaguarCompany = function () {
         var otherShips,
         otherShipsLength,
@@ -571,10 +689,14 @@ strict: true, curly: true */
         this.ship.reactToAIMessage("JAGUAR_COMPANY_FOUND");
     };
 
-    /* Check how close we are to other ships.
+    /* NAME
+     *   $checkJaguarCompanyClosestDistance
+     *
+     * FUNCTION
+     *   Check how close we are to other ships.
      *
      * INPUT
-     *   minimumDistance - closest distance allowed.
+     *   minimumDistance - closest distance allowed
      */
     this.$checkJaguarCompanyClosestDistance = function (minimumDistance) {
         var actualDistance,
@@ -598,7 +720,12 @@ strict: true, curly: true */
         return;
     };
 
-    /* Check our average distance to all other ships. */
+    /* NAME
+     *   $checkJaguarCompanyAverageDistance
+     *
+     * FUNCTION
+     *   Check our average distance to all other ships.
+     */
     this.$checkJaguarCompanyAverageDistance = function () {
         var otherShips,
         averageDistance,
@@ -636,10 +763,14 @@ strict: true, curly: true */
         }
     };
 
-    /* Tell everyone to regroup if the average distance to all the other ships is too great.
+    /* NAME
+     *   $checkJaguarCompanyRegroup
+     *
+     * FUNCTION
+     *   Tell everyone to regroup if the average distance to all the other ships is too great.
      *
      * INPUT
-     *   maxDistance - furthest distance allowed before a regroup message is sent out.
+     *   maxDistance - furthest distance allowed before a regroup message is sent out
      */
     this.$checkJaguarCompanyRegroup = function (maxDistance) {
         var otherShips,

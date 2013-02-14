@@ -27,19 +27,31 @@ strict: true, curly: true */
     this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Jaguar Company Black Box equipment activation script.";
-    this.version = "1.0";
+    this.version = "1.1";
 
+    /* Private variable. */
+    var jaguar_company_blackbox_activated = false;
+
+    /* NAME
+     *   activated
+     *
+     * FUNCTION
+     *   Equipment script for the Black Box.
+     */
     this.activated = function() {
-        var p_mainScript = worldScripts["Jaguar Company"];
+        var mainScript = worldScripts["Jaguar Company"],
+        activated = jaguar_company_blackbox_activated;
 
         if (!p_mainScript.$tracker || !p_mainScript.$tracker.isValid) {
-            this.$jaguar_company_blackbox_activated = false;
+            activated = false;
         }
 
-        if (!this.$jaguar_company_blackbox_activated) {
-            this.$jaguar_company_blackbox_activated = p_mainScript.$activateJaguarCompanyBlackbox();
+        if (!activated) {
+            activated = p_mainScript.$activateJaguarCompanyBlackbox();
         } else {
-            this.$jaguar_company_blackbox_activated = p_mainScript.$deactivateJaguarCompanyBlackbox();
+            activated = p_mainScript.$deactivateJaguarCompanyBlackbox();
         }
+
+        jaguar_company_blackbox_activated = activated;
     };
 }).call(this);

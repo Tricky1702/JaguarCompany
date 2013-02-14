@@ -29,7 +29,7 @@
 
         accuracy = 7.5;
         aft_eject_position = "0.0 -17.0 -40.0";
-        /* Was 4. Now 3 * 2.6 */
+        /* Was 4. Now 3 * 2.6 = 7.8 */
         energy_recharge_rate = 7.8;
         exhaust =
         (
@@ -43,8 +43,8 @@
         has_scoop = yes;
         is_template = yes;
         laser_color = "redColor";
-        /* 5 tons used up for the extra speed over the standard Cobra MkIII. */
-        max_cargo = 30;
+        /* 10TC used up for the extra speed over the standard Cobra MkIII. */
+        max_cargo = 10;
         max_energy = 256;
         max_flight_speed = 350;
         max_missiles = 4;

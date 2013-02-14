@@ -27,7 +27,7 @@ strict: true, curly: true */
     this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Script to initialise the Jaguar Company attackers.";
-    this.version = "1.4";
+    this.version = "1.5";
 
     /* Private variable. */
     var p_attackers = {};
@@ -88,7 +88,9 @@ strict: true, curly: true */
 
         /* Search for any members of Jaguar Company within maximum scanner range of the player ship. */
         jaguarCompany = system.filteredEntities(this, function (entity) {
-                return (this.$friendList.indexOf(entity.entityPersonality) > -1);
+                /* Only interested in entities that aren't the victim. */
+                return (victim.entityPersonality !== entity.entityPersonality &&
+                    this.$friendList.indexOf(entity.entityPersonality) !== -1);
             }, player.ship, player.ship.scannerRange);
 
         /* Skip the next bit if the victim is a thargoid/tharglet. */
@@ -104,7 +106,7 @@ strict: true, curly: true */
              * are victims of the ship the player is attacking.
              */
             jaguarCompany = jaguarCompany.filter(function (ship) {
-                    return (p_attackers.attackers[attackerIndex].victimsIndex.indexOf(ship.entityPersonality) > -1);
+                    return (p_attackers.attackers[attackerIndex].victimsIndex.indexOf(ship.entityPersonality) !== -1);
                 });
         }
 
@@ -165,7 +167,9 @@ strict: true, curly: true */
 
         /* Search for any members of Jaguar Company within maximum scanner range of the player ship. */
         jaguarCompany = system.filteredEntities(this, function (entity) {
-                return (this.$friendList.indexOf(entity.entityPersonality) > -1);
+                /* Only interested in entities that aren't the victim. */
+                return (victim.entityPersonality !== entity.entityPersonality &&
+                    this.$friendList.indexOf(entity.entityPersonality) !== -1);
             }, player.ship, player.ship.scannerRange);
 
         /* Skip the next bit if the victim is a thargoid/tharglet. */
@@ -181,7 +185,7 @@ strict: true, curly: true */
              * are victims of the ship the player has killed.
              */
             jaguarCompany = jaguarCompany.filter(function (ship) {
-                    return (p_attackers.attackers[attackerIndex].victimsIndex.indexOf(ship.entityPersonality) > -1);
+                    return (p_attackers.attackers[attackerIndex].victimsIndex.indexOf(ship.entityPersonality) !== -1);
                 });
         }
 
@@ -263,11 +267,34 @@ strict: true, curly: true */
             /* Initialise the attackers and index array. */
             attackersIndex : [],
             attackers : [],
-            /* 95% probability of a message being transmitted. */
+            /* 5% probability of a message being transmitted. */
             messageProbability : 0.95
         };
         /* A list of all ship entities that are considered friendly to each other. */
         this.$friendList = [];
+    };
+
+    /* NAME
+     *   $startAttackersTimer
+     *
+     * FUNCTION
+     *   Start the attacker's timer.
+     */
+    this.$startAttackersTimer = function () {
+        if (!this.$attackersCleanupTimerReference || !this.$attackersCleanupTimerReference.isRunning) {
+            /* Start the attack cleanup timer. */
+            if (!this.$attackersCleanupTimerReference) {
+                /* New timer. */
+                this.$attackersCleanupTimerReference = new Timer(this, this.$attackersCleanupTimer, 30, 30);
+            } else {
+                /* Restart current timer. */
+                this.$attackersCleanupTimerReference.start();
+            }
+
+            if (p_attackers.logging && p_attackers.logExtra) {
+                log(this.name, "$startAttackersTimer::Started the attack cleanup timer.");
+            }
+        }
     };
 
     /* NAME
@@ -295,24 +322,25 @@ strict: true, curly: true */
      *
      * FUNCTION
      *   Add the unique key (entityPersonality) of a ship to the friend list array.
-     *   Chains some new ship event hooks to the originals.
+     *   Chains some new ship script event handler hooks to the originals.
      *
      * INPUT
-     *   ship - entity of the friend
+     *   ship - entity of the ship
      */
-    this.$addFriendly = function (friend) {
-        if (this.$friendList.indexOf(friend.entityPersonality) !== -1) {
+    this.$addFriendly = function (ship) {
+        if (this.$friendList.indexOf(ship.entityPersonality) !== -1) {
             /* Already setup. */
             return;
         }
 
-        this.$friendList.push(friend.entityPersonality);
+        /* Add the ship to the friend list. */
+        this.$friendList.push(ship.entityPersonality);
 
         /* Save the original ship script event handler hooks. */
-        friend.script.$attackers_shipAttackedWithMissile = friend.script.shipAttackedWithMissile;
-        friend.script.$attackers_shipBeingAttacked = friend.script.shipBeingAttacked;
-        friend.script.$attackers_shipDied = friend.script.shipDied;
-        friend.script.$attackers_shipTargetDestroyed = friend.script.shipTargetDestroyed;
+        ship.script.$attackers_shipAttackedWithMissile = ship.script.shipAttackedWithMissile;
+        ship.script.$attackers_shipBeingAttacked = ship.script.shipBeingAttacked;
+        ship.script.$attackers_shipDied = ship.script.shipDied;
+        ship.script.$attackers_shipTargetDestroyed = ship.script.shipTargetDestroyed;
 
         /* New ship script event handler hooks. */
 
@@ -326,7 +354,7 @@ strict: true, curly: true */
          *   missile - entity of the missile
          *   attacker - entity of the attacker
          */
-        friend.script.shipAttackedWithMissile = function (missile, attacker) {
+        ship.script.shipAttackedWithMissile = function (missile, attacker) {
             worldScripts["Jaguar Company Attackers"].$shipIsBeingAttackedWithMissile(this.ship, attacker);
 
             if (this.$attackers_shipAttackedWithMissile) {
@@ -344,7 +372,7 @@ strict: true, curly: true */
          * INPUT
          *   attacker - entity of the attacker
          */
-        friend.script.shipBeingAttacked = function (attacker) {
+        ship.script.shipBeingAttacked = function (attacker) {
             worldScripts["Jaguar Company Attackers"].$shipIsBeingAttacked(this.ship, attacker);
 
             if (this.$attackers_shipBeingAttacked) {
@@ -363,7 +391,7 @@ strict: true, curly: true */
          *   attacker - entity of the attacker
          *   why - cause as a string
          */
-        friend.script.shipDied = function (attacker, why) {
+        ship.script.shipDied = function (attacker, why) {
             worldScripts["Jaguar Company Attackers"].$shipDied(this.ship, attacker, why);
 
             if (this.$attackers_shipDied) {
@@ -433,7 +461,7 @@ strict: true, curly: true */
          * FUNCTION
          *   This does something similar to a mix between the deployEscorts and groupAttackTarget AI commands.
          */
-        friend.script.$performJaguarCompanyAttackTarget = function () {
+        ship.script.$performJaguarCompanyAttackTarget = function () {
             worldScripts["Jaguar Company Attackers"].$performAttackTarget(this.ship);
         };
 
@@ -447,7 +475,7 @@ strict: true, curly: true */
          * INPUT
          *   callerShip - entity of the caller ship
          */
-        friend.script.$scanForAttackers = function () {
+        ship.script.$scanForAttackers = function () {
             worldScripts["Jaguar Company Attackers"].$scanForAttackers(this.ship);
         };
 
@@ -462,7 +490,7 @@ strict: true, curly: true */
              *
              *   Inlined this function because it doesn't call functions within the OXP.
              */
-            friend.script.$scanForCascadeWeapon = function () {
+            ship.script.$scanForCascadeWeapon = function () {
                 /* This is modified from some code in Random Hits spacebar ship script. */
                 var cascadeWeaponRoles = [
                     "EQ_QC_MINE",
@@ -476,7 +504,7 @@ strict: true, curly: true */
 
                 /* Search for any cascade weapons within maximum scanner range of the caller ship. */
                 cascadeWeapons = system.filteredEntities(this, function (entity) {
-                        return (cascadeWeaponRoles.indexOf(entity.primaryRole) > -1);
+                        return (cascadeWeaponRoles.indexOf(entity.primaryRole) !== -1);
                     }, this.ship, this.ship.scannerRange);
 
                 if (cascadeWeapons.length > 0) {
@@ -489,13 +517,13 @@ strict: true, curly: true */
             };
         } else {
             /* Oolite v1.77 and newer. */
-            friend.script.$scanForCascadeWeapon = function () {
+            ship.script.$scanForCascadeWeapon = function () {
                 /* Do nothing. The real magic is done in the next ship event function. */
                 return;
             };
 
             /* Save the original ship event hook. */
-            friend.script.$attackers_cascadeWeaponDetected = friend.script.cascadeWeaponDetected;
+            ship.script.$attackers_cascadeWeaponDetected = ship.script.cascadeWeaponDetected;
 
             /* NAME
              *   cascadeWeaponDetected
@@ -513,7 +541,7 @@ strict: true, curly: true */
              * INPUT
              *   weapon - entity of the cascade weapon
              */
-            friend.script.cascadeWeaponDetected = function (weapon) {
+            ship.script.cascadeWeaponDetected = function (weapon) {
                 /* Set the target and send a CASCADE_WEAPON_FOUND message to the AI. */
                 this.ship.target = weapon;
                 this.ship.reactToAIMessage("CASCADE_WEAPON_FOUND");
@@ -552,21 +580,8 @@ strict: true, curly: true */
             return -1;
         }
 
-        if (!this.$attackersCleanupTimerReference || !this.$attackersCleanupTimerReference.isRunning) {
-            /* Start the attack cleanup timer. */
-            if (!this.$attackersCleanupTimerReference) {
-                /* New timer. */
-                this.$attackersCleanupTimerReference = new Timer(this, this.$attackersCleanupTimer, 30, 30);
-            } else {
-                /* Restart current timer. */
-                this.$attackersCleanupTimerReference.start();
-            }
-
-            if (p_attackers.logging && p_attackers.logExtra) {
-                log(this.name, "$addAttacker::Started the attack cleanup timer.");
-            }
-        }
-
+        /* Start the attackers timer if not started already. */
+        this.$startAttackersTimer();
         /* Get the attacker's key. */
         attackerKey = attacker.entityPersonality;
         /* Get the attacker's index. */
@@ -922,28 +937,27 @@ strict: true, curly: true */
      *
      * INPUTS
      *   attacker - entity of the attacker
-     *
-     *   Optional argument
-     *     victim - entity of the victim
+     *   victim - entity of the victim
      */
     this.$makeHostile = function (attacker, victim) {
         var index,
         attackerIndex;
 
-        if (!attacker || !attacker.isValid) {
-            /* The attacker is no longer valid. */
+        if (!attacker || !attacker.isValid || !victim || !victim.isValid) {
+            /* The attacker and/or victim is no longer valid. */
             return;
         }
 
-        if (this.$isHostile(attacker, victim)) {
+        if (this.$isHostile(attacker)) {
             /* Already hostile. */
             return;
         }
 
         if (p_attackers.logging && p_attackers.logExtra) {
-            log(this.name, "$makeHostile::Make hostile: attacker#" + attacker.entityPersonality +
-                " (" + attacker.displayName + ")" +
-                ", bounty: " + attacker.bounty);
+            log(this.name, "$makeHostile::Make hostile:" +
+                " attacker#" + attacker.entityPersonality + " (" + attacker.displayName + ")" +
+                ", bounty: " + attacker.bounty +
+                ", victim#" + victim.entityPersonality + " (" + victim.displayName + ")");
         }
 
         /* Add the attacker (if needed) and get the attacker and victim index. */
@@ -963,18 +977,17 @@ strict: true, curly: true */
      * FUNCTION
      *   Check if the ship is hostile.
      *
-     * INPUTS
+     * INPUT
      *   attacker - entity of the attacker
-     *
-     *   Optional argument
-     *     victim - entity of the victim
      *
      * RESULT
      *   result - return true if ship is hostile, otherwise return false
      */
-    this.$isHostile = function (attacker, victim) {
+    this.$isHostile = function (attacker) {
         var index,
-        attackerIndex;
+        attackerIndex,
+        counter,
+        length;
 
         if (!attacker || !attacker.isValid) {
             /* The attacker is no longer valid. */
@@ -988,6 +1001,22 @@ strict: true, curly: true */
             if (index !== -1) {
                 /* Set the hostile property. */
                 p_attackers.attackers[index.attacker].hostile = true;
+            }
+
+            /* Check for tharglets. */
+            if (attacker.escortGroup.length > 1) {
+                /* Cache the length. */
+                length = attacker.escortGroup.length;
+
+                for (counter = 1; counter < length; counter += 1) {
+                    /* Add tharglet (if needed) and get the attacker index. */
+                    index = this.$addAttacker(attacker.escortGroup[counter]);
+
+                    if (index !== -1) {
+                        /* Set the hostile property. */
+                        p_attackers.attackers[index.attacker].hostile = true;
+                    }
+                }
             }
 
             /* Always true for Thargoids/tharglets. */
@@ -1205,7 +1234,10 @@ strict: true, curly: true */
         var pilotName;
 
         if (!attacker || !attacker.isValid || !victim || !victim.isValid || victim.isDerelict || !victim.isPiloted) {
-            /* No longer valid or is derelict or is not piloted. */
+            /* The attacker and/or victim is no longer valid
+             * or the victim is a derelict
+             * or the victim is not piloted.
+             */
             return;
         }
 
@@ -1230,7 +1262,7 @@ strict: true, curly: true */
             /* Player hostile message. */
             player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
         } else {
-            if (victim.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
+            if (victim.position.distanceTo(player.ship.position) < victim.scannerRange) {
                 /* Other ship hostile message. */
                 player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
             }
@@ -1260,11 +1292,14 @@ strict: true, curly: true */
         psInRange;
 
         if (!attacker || !attacker.isValid || !victim || !victim.isValid || victim.isDerelict || !victim.isPiloted) {
-            /* No longer valid or is derelict or is not piloted. */
+            /* The attacker and/or victim is no longer valid
+             * or the victim is a derelict
+             * or the victim is not piloted.
+             */
             return;
         }
 
-        psInRange = (victim.position.distanceTo(player.ship.position) < player.ship.scannerRange);
+        psInRange = (victim.position.distanceTo(player.ship.position) < victim.scannerRange);
 
         if (victim.$pilotName) {
             /* Get the victims's name. */
@@ -1274,6 +1309,7 @@ strict: true, curly: true */
             pilotName = victim.displayName;
         }
 
+        /* Check if the attacker is a friend of the victim. */
         if (this.$friendList.indexOf(attacker.entityPersonality) !== -1) {
             if (Math.random() > p_attackers.messageProbability && psInRange) {
                 /* Broadcast a "friendly fire" message. */
@@ -1289,7 +1325,7 @@ strict: true, curly: true */
         /* Setup the attacker and victim if needed and increase the attack counter. */
         this.$increaseAttackCounter(attacker, victim);
 
-        if (this.$isHostile(attacker, victim)) {
+        if (this.$isHostile(attacker)) {
             /* Already been marked as hostile. */
             if (Math.random() > p_attackers.messageProbability) {
                 /* Show hostile message. */
@@ -1397,7 +1433,7 @@ strict: true, curly: true */
                 /* Check for piloted ships that aren't hostile.
                  * Generally this will pick up death by a surprise/instant kill, i.e. cascade weapon.
                  */
-                if (attacker.isPiloted && !this.$isHostile(attacker, victim)) {
+                if (attacker.isPiloted && !this.$isHostile(attacker)) {
                     /* Make the attacker a hostile for future checking. */
                     this.$makeHostile(attacker, victim);
 
@@ -1419,7 +1455,7 @@ strict: true, curly: true */
                     pilotName = victim.displayName;
                 }
 
-                if (victim.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
+                if (victim.position.distanceTo(player.ship.position) < victim.scannerRange) {
                     /* Death message. */
                     player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_death]"));
                 }
@@ -1451,15 +1487,20 @@ strict: true, curly: true */
         otherShips,
         idleShips = [],
         idleShip,
-        length,
-        counter;
+        counter,
+        length;
+
+        if (this.$friendList.indexOf(callerShip.entityPersonality) === -1) {
+            /* Caller ship is not a friend of Jaguar Company. */
+            return;
+        }
 
         if (target === null) {
             /* Return immediately if we have no target. */
             return;
         }
 
-        if (this.$friendList.indexOf(target.entityPersonality) !== -1 || !this.$isHostile(target, callerShip)) {
+        if (this.$friendList.indexOf(target.entityPersonality) !== -1 || !this.$isHostile(target)) {
             /* Clear the target and return for one of the following 2 states...
              * 1. Target is a friend.
              * 2. Target is not a hostile.
@@ -1474,24 +1515,36 @@ strict: true, curly: true */
         /* React to our own attack call. */
         callerShip.reactToAIMessage("JAGUAR_COMPANY_ATTACK_TARGET");
 
-        /* Limit range of check to scanner range. */
-        otherShips = system.filteredEntities(this, function (entity) {
-                if (!entity.isValid ||
-                    entity.isCloaked ||
-                    !entity.isPiloted ||
-                    entity.isDerelict) {
-                    /* Ignore all entities that have one of these conditions:
-                     * 1) not valid
-                     * 2) cloaked
-                     * 3) has no pilot
-                     * 4) is a derelict.
-                     */
-                    return false;
-                }
+        /* NAME
+         *   $identifyFriends
+         *
+         * FUNCTION
+         *   Stop warnings about anonymous local functions within loops.
+         *   Used by 'system.filteredEntities'. Returns true for any friend of the caller ship.
+         *
+         * INPUT
+         *   entity - entity to check
+         */
+        function $identifyFriends(entity) {
+            if (!entity.isValid ||
+                entity.isCloaked ||
+                !entity.isPiloted ||
+                entity.isDerelict) {
+                /* Ignore all entities that have one of these conditions:
+                 * 1) not valid
+                 * 2) cloaked
+                 * 3) has no pilot
+                 * 4) is a derelict.
+                 */
+                return false;
+            }
 
-                /* Is a friend of the caller ship. */
-                return (this.$friendList.indexOf(entity.entityPersonality) !== -1);
-            }, callerShip, callerShip.scannerRange);
+            /* Is a friend of the caller ship. */
+            return (this.$friendList.indexOf(entity.entityPersonality) !== -1);
+        }
+
+        /* Limit range of check to scanner range of caller ship. */
+        otherShips = system.filteredEntities(this, $identifyFriends, callerShip, callerShip.scannerRange);
 
         if (!otherShips.length) {
             /* Return immediately if we are on our own. */
@@ -1529,7 +1582,7 @@ strict: true, curly: true */
      *   $scanForAttackers
      *
      * FUNCTION
-     *   Scan for current ships or players from the past that have attacked us.
+     *   Scan for ships from the past that have attacked the caller ship.
      *   Also scan for potential attackers.
      *
      * INPUT
@@ -1537,11 +1590,26 @@ strict: true, curly: true */
      */
     this.$scanForAttackers = function (callerShip) {
         var target = null,
-        counter,
-        length,
         attackersWithinRange,
-        pilotName;
+        pilotName,
+        counter,
+        length;
 
+        if (this.$friendList.indexOf(callerShip.entityPersonality) === -1) {
+            /* Caller ship is not a friend of Jaguar Company. */
+            return;
+        }
+
+        /* NAME
+         *   $identifyAttacker
+         *
+         * FUNCTION
+         *   Stop warnings about anonymous local functions within loops.
+         *   Used by 'system.filteredEntities'. Returns true for attackers or potential attackers.
+         *
+         * INPUT
+         *   entity - entity to check
+         */
         function $identifyAttacker(entity) {
             if (!entity.isValid ||
                 entity.isCloaked ||
@@ -1556,8 +1624,8 @@ strict: true, curly: true */
                 return false;
             }
 
-            if (this.$isHostile(entity, callerShip)) {
-                /* The entity is a previous hostile or a Thargoid/tharglet. */
+            if (this.$isHostile(entity)) {
+                /* The entity is a previous hostile for the caller ship. */
                 return true;
             }
 
@@ -1621,7 +1689,7 @@ strict: true, curly: true */
                     /* Player hostile message. */
                     player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_player_hostile_fire]"));
                 } else {
-                    if (callerShip.position.distanceTo(player.ship.position) < player.ship.scannerRange) {
+                    if (callerShip.position.distanceTo(player.ship.position) < callerShip.scannerRange) {
                         /* Other ship hostile message. */
                         player.consoleMessage(pilotName + ": " + expandDescription("[jaguar_company_hostile_fire]"));
                     }

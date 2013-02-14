@@ -27,14 +27,19 @@ strict: true, curly: true */
     this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the Jaguar Company Tug.";
-    this.version = "1.1";
+    this.version = "1.2";
 
     /* Private variable. */
     var p_tug = {};
 
-    /* Ship event callbacks. */
+    /* Ship script event handlers. */
 
-    /* Initialise various variables on ship birth. */
+    /* NAME
+     *   shipSpawned
+     *
+     * FUNCTION
+     *   Initialise various variables on ship birth.
+     */
     this.shipSpawned = function () {
         /* No longer needed after setting up. */
         delete this.shipSpawned;
@@ -61,10 +66,14 @@ strict: true, curly: true */
         this.ship.displayName = p_tug.mainScript.$uniqueShipName(this.ship.name);
     };
 
-    /* The shipLaunchedEscapePod handler is called when the pilot bails out.
+    /* NAME
+     *   shipLaunchedEscapePod
+     *
+     * FUNCTION
+     *   The shipLaunchedEscapePod handler is called when the pilot bails out.
      *
      * INPUT
-     *   escapepod - contains the main pod with the pilot.
+     *   escapepod - contains the main pod with the pilot
      */
     this.shipLaunchedEscapePod = function(escapepod)
     {
@@ -74,7 +83,17 @@ strict: true, curly: true */
         escapepod.$pilotName = this.ship.$pilotName;
     };
 
-    /* Tug was removed by script. */
+    /* NAME
+     *   shipRemoved
+     *
+     * FUNCTION
+     *   Tug was removed by script.
+     *
+     * INPUT
+     *   suppressDeathEvent - boolean
+     *     true - shipDied() will be called
+     *     false - shipDied() will not be called
+     */
     this.shipRemoved = function (suppressDeathEvent) {
         if (suppressDeathEvent) {
             return;
@@ -86,7 +105,12 @@ strict: true, curly: true */
         }
     };
 
-    /* The tug has just become invalid. */
+    /* NAME
+     *   entityDestroyed
+     *
+     * FUNCTION
+     *   The tug has just become invalid.
+     */
     this.entityDestroyed = function () {
         if (!p_tug.mainScript.$buoy || !p_tug.mainScript.$buoy.isValid) {
             /* Not released the buoy yet, reset the launch status of the buoy. */
@@ -94,12 +118,16 @@ strict: true, curly: true */
         }
     };
 
-    /* Taking damage. Check attacker and what type.
+    /* NAME
+     *   shipTakingDamage
+     *
+     * FUNCTION
+     *   Taking damage. Check attacker and what type.
      *
      * INPUTS
-     *   amount - amount of damage.
-     *   attacker - entity that caused the damage.
-     *   type - type of damage as a string.
+     *   amount - amount of damage
+     *   attacker - entity that caused the damage
+     *   type - type of damage as a string
      */
     this.shipTakingDamage = function (amount, attacker, type) {
         if (!attacker || !attacker.isValid || !attacker.isShip) {
@@ -113,11 +141,17 @@ strict: true, curly: true */
         }
     };
 
-    /* Set the co-ordinates to the surface of the entity.
-     * This borrows some code from 'src/Core/Entities/ShipEntityAI.m - setCourseToPlanet'
+    /* Other global public functions. */
+
+    /* NAME
+     *   $setCoordsToEntity
+     *
+     * FUNCTION
+     *   Set the co-ordinates to the surface of the entity.
+     *   This borrows some code from 'src/Core/Entities/ShipEntityAI.m - setCourseToPlanet'
      *
      * INPUT
-     *   entity - entity to set co-ordinates to.
+     *   entity - entity to set co-ordinates to
      */
     this.$setCoordsToEntity = function (entity) {
         var position = entity.position,
@@ -144,17 +178,32 @@ strict: true, curly: true */
 
     /* AI functions. */
 
-    /* Save the current AI state. */
+    /* NAME
+     *   $saveAIState
+     *
+     * FUNCTION
+     *   Save the current AI state.
+     */
     this.$saveAIState = function () {
         p_tug.saveAIState = this.ship.AIState;
     };
 
-    /* Recall the saved AI state. */
+    /* NAME
+     *   $recallAIState
+     *
+     * FUNCTION
+     *   Recall the saved AI state.
+     */
     this.$recallAIState = function () {
         this.ship.AIState = p_tug.saveAIState;
     };
 
-    /* Set the co-ordinates to the surface of the base. */
+    /* NAME
+     *   $setCoordsToJaguarCompanyBase
+     *
+     * FUNCTION
+     *   Set the co-ordinates to the surface of the base.
+     */
     this.$setCoordsToJaguarCompanyBase = function () {
         var base = p_tug.mainScript.$jaguarCompanyBase;
 
@@ -168,11 +217,17 @@ strict: true, curly: true */
         }
     };
 
+    /* NAME
+     *   $setCoordsForBuoyDropOff
+     *
+     * FUNCTION
+     *   Set the co-ordinates for the buoy drop-off position.
+     */
     this.$setCoordsForBuoyDropOff = function () {
         var base = p_tug.mainScript.$jaguarCompanyBase,
         distance = 10000;
 
-        if (!base.isValid) {
+        if (!base || !base.isValid) {
             /* If it has gone, just go to the nearest station. */
             this.ship.reactToAIMessage("JAGUAR_COMPANY_BUOY_DROP_OFF_NOT_FOUND");
 
@@ -189,7 +244,12 @@ strict: true, curly: true */
         this.ship.reactToAIMessage("JAGUAR_COMPANY_BUOY_DROP_OFF_FOUND");
     };
 
-    /* Release the buoy by removing the sub-entity and replacing with a real buoy. */
+    /* NAME
+     *   $releaseBuoy
+     *
+     * FUNCTION
+     *   Release the buoy by removing the sub-entity and replacing with a real buoy.
+     */
     this.$releaseBuoy = function () {
         var tug = this.ship,
         subEntities = tug.subEntities,

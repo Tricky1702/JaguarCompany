@@ -32,9 +32,14 @@ strict: true, curly: true */
     /* Private variable. */
     var p_miner = {};
 
-    /* Ship event callbacks. */
+    /* Ship script event handlers. */
 
-    /* Initialise various variables on ship birth. */
+    /* NAME
+     *   shipSpawned
+     *
+     * FUNCTION
+     *   Initialise various variables on ship birth.
+     */
     this.shipSpawned = function () {
         /* No longer needed after setting up. */
         delete this.shipSpawned;
@@ -61,10 +66,14 @@ strict: true, curly: true */
         this.ship.displayName = p_miner.mainScript.$uniqueShipName(this.ship.name);
     };
 
-    /* The shipLaunchedEscapePod handler is called when the pilot bails out.
+    /* NAME
+     *   shipLaunchedEscapePod
+     *
+     * FUNCTION
+     *   The shipLaunchedEscapePod handler is called when the pilot bails out.
      *
      * INPUT
-     *   escapepod - contains the main pod with the pilot.
+     *   escapepod - contains the main pod with the pilot
      */
     this.shipLaunchedEscapePod = function(escapepod)
     {
@@ -74,12 +83,16 @@ strict: true, curly: true */
         escapepod.$pilotName = this.ship.$pilotName;
     };
 
-    /* Taking damage. Check attacker and what type.
+    /* NAME
+     *   shipTakingDamage
+     *
+     * FUNCTION
+     *   Taking damage. Check attacker and what type.
      *
      * INPUTS
-     *   amount - amount of damage.
-     *   attacker - entity that caused the damage.
-     *   type - type of damage as a string.
+     *   amount - amount of damage
+     *   attacker - entity that caused the damage
+     *   type - type of damage as a string
      */
     this.shipTakingDamage = function (amount, attacker, type) {
         if (!attacker || !attacker.isValid || !attacker.isShip) {
@@ -93,11 +106,17 @@ strict: true, curly: true */
         }
     };
 
-    /* Set the co-ordinates to the surface of the entity.
-     * This borrows some code from 'src/Core/Entities/ShipEntityAI.m - setCourseToPlanet'
+    /* Other global public functions. */
+
+    /* NAME
+     *   $setCoordsToEntity
+     *
+     * FUNCTION
+     *   Set the co-ordinates to the surface of the entity.
+     *   This borrows some code from 'src/Core/Entities/ShipEntityAI.m - setCourseToPlanet'
      *
      * INPUT
-     *   entity - entity to set co-ordinates to.
+     *   entity - entity to set co-ordinates to
      */
     this.$setCoordsToEntity = function (entity) {
         var position = entity.position,
@@ -124,7 +143,15 @@ strict: true, curly: true */
 
     /* AI functions. */
 
-    /* Save the current AI state. */
+    /* NAME
+     *   $saveAIState
+     *
+     * FUNCTION
+     *   Save the current AI state.
+     *
+     * INPUT
+     *   state - alternative AI state (optional)
+     */
     this.$saveAIState = function (state) {
         if (typeof state !== "string" || state === "") {
             state = this.ship.AIState;
@@ -133,12 +160,22 @@ strict: true, curly: true */
         p_miner.saveAIState = state;
     };
 
-    /* Recall the saved AI state. */
+    /* NAME
+     *   $recallAIState
+     *
+     * FUNCTION
+     *   Recall the saved AI state.
+     */
     this.$recallAIState = function () {
         this.ship.AIState = p_miner.saveAIState;
     };
 
-    /* Set the co-ordinates to the surface of the base. */
+    /* NAME
+     *   $setCoordsToJaguarCompanyBase
+     *
+     * FUNCTION
+     *   Set the co-ordinates to the surface of the base.
+     */
     this.$setCoordsToJaguarCompanyBase = function () {
         var base = p_miner.mainScript.$jaguarCompanyBase;
 

@@ -1,9 +1,22 @@
 ChangeLog
 ---------
 v2.5 (2013-??-??)
+    *** This OXP now requires Cabal Common Library. ***
     Proper integration for Oolite v1.77 and newer with the interface screen for base locations.
-    Added check for blackbox + software patch for base locations in the $addInterface function.
+    Added check for blackbox + software patch for base locations in the $addInterface() function.
     Renamed the vertex and fragment shaders.
+    Rewritten $listNames() to use Cabal Common Library for truncating, padding and creating columns.
+        Oolite v1.76.1 and older use the original method of padding rows. (Spaces)
+        Oolite v1.77 and newer use Cabal Common Library v1.7 strAdd2Columns() and strAddIndentedText() to create the
+          rows.
+    Removed some dead/unused code.
+    Fixed ghost messages appearing on the player's console. I forgot player.consoleMessage() isn't distance dependant.
+      It obviously isn't, however these minor bugettes happen from time to time. ;)
+    Multiple rescue news implementation.
+    Clean up of code in guiScreenChanged().
+    Changed key combination to show list of base locations to F7, F5.
+        Oolite v1.77 and newer use the interface API when docked.
+    Lowered max cargo space to 10TC to explain extra speed.
 v2.4 (2012-12-27)
     Bug fix for spawning Jaguar Company. Potential to spawn the base at all times if the Galactic Navy wasn't present.
     Bug fix for checking the safe zone around the base. Wasn't checking to see if it actually existed.
