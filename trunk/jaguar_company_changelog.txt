@@ -17,6 +17,7 @@ v2.5 (2013-??-??)
     Changed key combination to show list of base locations to F7, F5.
         Oolite v1.77 and newer use the interface API when docked.
     Lowered max cargo space to 10TC to explain extra speed.
+    Small modifications to the docking AI.
 v2.4 (2012-12-27)
     Bug fix for spawning Jaguar Company. Potential to spawn the base at all times if the Galactic Navy wasn't present.
     Bug fix for checking the safe zone around the base. Wasn't checking to see if it actually existed.

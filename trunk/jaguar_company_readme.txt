@@ -76,6 +76,7 @@ v2.5 (2013-??-??)
     Changed key combination to show list of base locations to F7, F5.
         Oolite v1.77 and newer use the interface API when docked.
     Lowered max cargo space to 10TC to explain extra speed.
+    Small modifications to the docking AI.
 
 For a full version history see jaguar_company_changelog.txt in the directory you loaded this readme file from.
 
