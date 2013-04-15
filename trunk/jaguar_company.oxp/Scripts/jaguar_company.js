@@ -1180,7 +1180,7 @@ expandDescription, mission, galaxyNumber, defaultFont, guiScreen */
      *   result - twisted 16-bit number
      */
     this.$rng_twist = function (x) {
-        return (this.$rotatel(x >> 8) << 8) + this.$rotatel(x & 0xff);
+        return (this.$rng_rotatel(x >> 8) << 8) + this.$rng_rotatel(x & 0xff);
     };
 
     /* NAME
