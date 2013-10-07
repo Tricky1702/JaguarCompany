@@ -25,7 +25,7 @@
         /* Go back into an idle state and switch the lights off. */
         ENTER = (performIdle, switchLightsOff);
         /* Let everyone know that someone is shooting at us.
-         * See $shipIsBeingAttacked in jaguar_company_attackers.js
+         * See $shipIsBeingAttacked in jaguar_company_ships.js
          * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
          */
         "HOSTILE_FIRE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $performJaguarCompanyAttackTarget");
@@ -44,22 +44,22 @@
          * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
          */
         "ATTACKERS_FOUND" = ("sendScriptMessage: $performJaguarCompanyAttackTarget");
+        /* No attackers found. Check if we need to launch a miner. */
+        "ATTACKERS_NOT_FOUND" = ("sendScriptMessage: $launchShip miner");
         /* A ship was launched. Pause a while to allow the ship to clear the lane. */
         "STATION_LAUNCHED_SHIP" = ("pauseAI: 5.0");
         /* Someone wants to dock with us. */
         "DOCKING_REQUESTED" = ("setStateTo: RECEIVE_DOCKING");
-        /* Check if we need to launch a patrol ship or miner and scan for attackers. */
-        UPDATE =
-        (
-            "pauseAI: 5.0",
-            "sendScriptMessage: $launchShip",
-            "sendScriptMessage: $scanForAttackers"
-        );
+        /* Scan for attackers. */
+        UPDATE = ("sendScriptMessage: $scanForAttackers", "pauseAI: 10.0");
     };
 
     "DEFEND_BASE" =
     {
-        /* Switch all lights on, send an abort to all docking ships and start attacking. */
+        /* Switch all lights on, send an abort to all docking ships and start attacking.
+         *
+         * In DEFEND_BASE we drop a few AI messages that we can ignore and go into attack mode.
+         */
         ENTER =
         (
             "dropMessages: FRIENDLY_FIRE, TARGET_DESTROYED, TARGET_LOST",
@@ -68,14 +68,14 @@
             performAttack
         );
         /* Let everyone know that someone is shooting at us.
-         * See $shipIsBeingAttacked in jaguar_company_attackers.js
+         * See $shipIsBeingAttacked in jaguar_company_ships.js
          * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
          */
         "HOSTILE_FIRE" =
         (
+            "dropMessages: FRIENDLY_FIRE, TARGET_DESTROYED, TARGET_LOST",
             setTargetToPrimaryAggressor,
             "sendScriptMessage: $performJaguarCompanyAttackTarget",
-            "dropMessages: FRIENDLY_FIRE, TARGET_DESTROYED, TARGET_LOST",
             performAttack
         );
         /* Fire the ECM (if available) and let everyone know that someone is shooting a missile at us.
@@ -85,33 +85,46 @@
         (
             fireECM,
             setTargetToPrimaryAggressor,
-            "sendScriptMessage: $performJaguarCompanyAttackTarget",
-            "dropMessages: FRIENDLY_FIRE, TARGET_DESTROYED, TARGET_LOST",
-            performAttack
+            "sendScriptMessage: $performJaguarCompanyAttackTarget"
         );
         /* Attackers found by '$scanForAttackers'. Let everyone else know.
          * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
-         *
-         * In DEFEND_BASE we drop a few AI messages that we can ignore and go into attack mode.
          */
-        "ATTACKERS_FOUND" =
-        (
-            "sendScriptMessage: $performJaguarCompanyAttackTarget",
-            "dropMessages: FRIENDLY_FIRE, TARGET_DESTROYED, TARGET_LOST",
-            performAttack
-        );
+        "ATTACKERS_FOUND" = ("sendScriptMessage: $performJaguarCompanyAttackTarget", performAttack);
         /* No more attackers. Go idle. */
         "ATTACKERS_NOT_FOUND" = ("setStateTo: IDLE");
         /* We're hitting a friend. Re-scan for attackers. */
-        "FRIENDLY_FIRE" = ("sendScriptMessage: $scanForAttackers");
+        "FRIENDLY_FIRE" = ("dropMessages: TARGET_DESTROYED, TARGET_LOST", "sendScriptMessage: $scanForAttackers");
         /* Current target was either destroyed or disappeared off the scanner. Look for new attackers. */
-        "TARGET_DESTROYED" = ("sendScriptMessage: $scanForAttackers");
-        "TARGET_LOST" = ("sendScriptMessage: $scanForAttackers");
+        "TARGET_DESTROYED" = ("dropMessages: FRIENDLY_FIRE, TARGET_LOST", "sendScriptMessage: $scanForAttackers");
+        "TARGET_LOST" = ("dropMessages: FRIENDLY_FIRE, TARGET_DESTROYED", "sendScriptMessage: $scanForAttackers");
+        /* Check every 5 seconds for target validity. */
+        UPDATE = ("sendScriptMessage: $checkTargetIsValid", "pauseAI: 5.0");
     };
 
     /* Someone wants to dock. */
     "RECEIVE_DOCKING" =
     {
+        /* Let everyone know that someone is shooting at us.
+         * See $shipIsBeingAttacked in jaguar_company_ships.js
+         * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
+         */
+        "HOSTILE_FIRE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $performJaguarCompanyAttackTarget");
+        /* Fire the ECM (if available) and let everyone know that someone is shooting a missile at us.
+         * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
+         */
+        "INCOMING_MISSILE" =
+        (
+            fireECM,
+            setTargetToPrimaryAggressor,
+            "sendScriptMessage: $performJaguarCompanyAttackTarget"
+        );
+        /* Respond to an attack call. */
+        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: DEFEND_BASE");
+        /* Attackers found by '$scanForAttackers'. Let everyone else know.
+         * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
+         */
+        "ATTACKERS_FOUND" = ("sendScriptMessage: $performJaguarCompanyAttackTarget");
         /* Wait a moment after docking has completed. */
         "DOCKING_COMPLETE" = ("setStateTo: WAIT_A_MOMENT");
         /* A new docking request came in. Drop any completed messages so we can deal with it. */
@@ -120,28 +133,8 @@
         "DOCKING_ABORTED" = ("setStateTo: IDLE");
         /* Pause to allow the launched ship to get out of the way. */
         "STATION_LAUNCHED_SHIP" = ("pauseAI: 5.0");
-        /* Let everyone know that someone is shooting at us.
-         * See $shipIsBeingAttacked in jaguar_company_attackers.js
-         * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
-         */
-        "HOSTILE_FIRE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $performJaguarCompanyAttackTarget");
-        /* Fire the ECM (if available) and let everyone know that someone is shooting a missile at us.
-         * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
-         */
-        "INCOMING_MISSILE" =
-        (
-            fireECM,
-            setTargetToPrimaryAggressor,
-            "sendScriptMessage: $performJaguarCompanyAttackTarget"
-        );
-        /* Respond to an attack call. */
-        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setStateTo: DEFEND_BASE");
-        /* Attackers found by '$scanForAttackers'. Let everyone else know.
-         * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
-         */
-        "ATTACKERS_FOUND" = ("sendScriptMessage: $performJaguarCompanyAttackTarget");
         /* Check for previous attackers. */
-        UPDATE = ("pauseAI: 5.0", "sendScriptMessage: $scanForAttackers");
+        UPDATE = ("sendScriptMessage: $scanForAttackers", "pauseAI: 10.0");
     };
 
     /* Allow things to clear before going idle. There could be other ships waiting. */
@@ -149,12 +142,8 @@
     {
         /* Check for previous attackers. */
         ENTER = ("pauseAI: 10.0", "sendScriptMessage: $scanForAttackers");
-        /* Someone wants to dock with us. */
-        "DOCKING_REQUESTED" = ("setStateTo: RECEIVE_DOCKING");
-        /* Pause to allow the launched ship to get out of the way. */
-        "STATION_LAUNCHED_SHIP" = ("pauseAI: 10.0");
         /* Let everyone know that someone is shooting at us.
-         * See $shipIsBeingAttacked in jaguar_company_attackers.js
+         * See $shipIsBeingAttacked in jaguar_company_ships.js
          * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
          */
         "HOSTILE_FIRE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $performJaguarCompanyAttackTarget");
@@ -173,6 +162,10 @@
          * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
          */
         "ATTACKERS_FOUND" = ("sendScriptMessage: $performJaguarCompanyAttackTarget");
+        /* Someone wants to dock with us. */
+        "DOCKING_REQUESTED" = ("setStateTo: RECEIVE_DOCKING");
+        /* Pause to allow the launched ship to get out of the way. */
+        "STATION_LAUNCHED_SHIP" = ("pauseAI: 10.0");
         /* Go idle. */
         UPDATE = ("setStateTo: IDLE");
     };

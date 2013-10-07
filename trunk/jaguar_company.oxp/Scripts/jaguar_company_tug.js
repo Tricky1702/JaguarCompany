@@ -1,7 +1,8 @@
-/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
-/*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
-strict: true, curly: true */
-/*global worldScripts, Vector3D */
+/*jslint bitwise: true, es5: true, newcap: true, nomen: true, regexp: true, unparam: true, todo: true, white: true,
+indent: 4, maxerr: 50, maxlen: 120 */
+/*jshint boss: true, curly: true, eqeqeq: true, eqnull: true, es5: true, evil: true, forin: true, laxbreak: true,
+loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: true */
+/*global Vector3D, expandDescription, galaxyNumber, worldScripts */
 
 /* Jaguar Company Tug
  *
@@ -41,8 +42,7 @@ strict: true, curly: true */
      *   Initialise various variables on ship birth.
      */
     this.shipSpawned = function () {
-        /* No longer needed after setting up. */
-        delete this.shipSpawned;
+        var base;
 
         /* Initialise the p_tug variable object.
          * Encapsulates all private global data.
@@ -50,37 +50,33 @@ strict: true, curly: true */
         p_tug = {
             /* Cache the world scripts. */
             mainScript : worldScripts["Jaguar Company"],
-            attackersScript : worldScripts["Jaguar Company Attackers"],
+            shipsScript : worldScripts["Jaguar Company Ships"],
             /* Local copies of the logging variables. */
             logging : worldScripts["Jaguar Company"].$logging,
             logExtra : worldScripts["Jaguar Company"].$logExtra,
             /* Local copy of the friendList array. */
-            friendList : worldScripts["Jaguar Company Attackers"].$friendList
+            friendList : worldScripts["Jaguar Company Ships"].$friendList
         };
 
-        /* Register this tug as a friendly. */
-        p_tug.attackersScript.$addFriendly(this.ship);
-        /* Random name for the pilot. Used when talking about attacks and sending a report to Snoopers. */
-        this.ship.$pilotName = expandDescription("%N [nom1]");
-        /* Get a unique name for the tug. */
-        this.ship.displayName = p_tug.mainScript.$uniqueShipName(this.ship.name);
-    };
+        /* Register this ship as a friendly. */
+        p_tug.shipsScript.$addFriendly({
+            ship : this.ship,
+            /* Random name for the pilot. Used when talking about attacks and sending a report to Snoopers. */
+            pilotName : expandDescription("%N [nom1]"),
+            /* Get a unique name for the patrol ship. */
+            shipName : p_tug.mainScript.$uniqueShipName()
+        });
 
-    /* NAME
-     *   shipLaunchedEscapePod
-     *
-     * FUNCTION
-     *   The shipLaunchedEscapePod handler is called when the pilot bails out.
-     *
-     * INPUT
-     *   escapepod - contains the main pod with the pilot
-     */
-    this.shipLaunchedEscapePod = function(escapepod)
-    {
-        /* Identify this pod as containg a member of Jaguar Company. */
-        escapepod.$jaguarCompany = true;
-        /* Transfer pilot name to the escape pod. */
-        escapepod.$pilotName = this.ship.$pilotName;
+        base = p_tug.mainScript.$jaguarCompanyBase;
+
+        if (base && base.isValid) {
+            /* Update the base script tug references. */
+            base.script.$tugOK = false;
+            base.script.$tug = this.ship;
+        }
+
+        /* No longer needed after setting up. */
+        delete this.shipSpawned;
     };
 
     /* NAME
@@ -91,17 +87,26 @@ strict: true, curly: true */
      *
      * INPUT
      *   suppressDeathEvent - boolean
-     *     true - shipDied() will be called
-     *     false - shipDied() will not be called
+     *     true - shipDied() will not be called
+     *     false - shipDied() will be called
      */
     this.shipRemoved = function (suppressDeathEvent) {
+        var base;
+
         if (suppressDeathEvent) {
             return;
         }
 
-        if (!p_tug.mainScript.$buoy || !p_tug.mainScript.$buoy.isValid) {
-            /* Not released the buoy yet, reset the launch status of the buoy. */
-            worldScripts["Jaguar Company"].$buoyLaunched = false;
+        base = worldScripts["Jaguar Company"].$jaguarCompanyBase;
+
+        if (base && base.isValid) {
+            /* Reset the script check. */
+            base.script.$buoyOK = false;
+
+            if (!base.script.$buoy || !base.script.$buoy.isValid) {
+                /* Not released the buoy yet, reset the launch status of the buoy. */
+                base.script.$buoyLaunched = false;
+            }
         }
     };
 
@@ -112,108 +117,45 @@ strict: true, curly: true */
      *   The tug has just become invalid.
      */
     this.entityDestroyed = function () {
-        if (!p_tug.mainScript.$buoy || !p_tug.mainScript.$buoy.isValid) {
-            /* Not released the buoy yet, reset the launch status of the buoy. */
-            worldScripts["Jaguar Company"].$buoyLaunched = false;
-        }
-    };
+        var base = worldScripts["Jaguar Company"].$jaguarCompanyBase;
 
-    /* NAME
-     *   shipTakingDamage
-     *
-     * FUNCTION
-     *   Taking damage. Check attacker and what type.
-     *
-     * INPUTS
-     *   amount - amount of damage
-     *   attacker - entity that caused the damage
-     *   type - type of damage as a string
-     */
-    this.shipTakingDamage = function (amount, attacker, type) {
-        if (!attacker || !attacker.isValid || !attacker.isShip) {
-            /* If it isn't a ship dealing damage then carry on with the damage. */
-            return;
-        }
+        if (base && base.isValid) {
+            /* Reset the script check. */
+            base.script.$buoyOK = false;
 
-        if (p_tug.friendList.indexOf(attacker.entityPersonality) !== -1 && type === "scrape damage") {
-            /* Cancel damage from collision with Jaguar Company ships. */
-            this.ship.energy += amount;
+            if (!base.script.$buoy || !base.script.$buoy.isValid) {
+                /* Not released the buoy yet, reset the launch status of the buoy. */
+                base.script.$buoyLaunched = false;
+            }
         }
     };
 
     /* Other global public functions. */
 
-    /* NAME
-     *   $setCoordsToEntity
-     *
-     * FUNCTION
-     *   Set the co-ordinates to the surface of the entity.
-     *   This borrows some code from 'src/Core/Entities/ShipEntityAI.m - setCourseToPlanet'
-     *
-     * INPUT
-     *   entity - entity to set co-ordinates to
-     */
-    this.$setCoordsToEntity = function (entity) {
-        var position = entity.position,
-        distance,
-        ratio,
-        variation;
-
-        /* Calculate a vector position between the entity's surface and the ship. */
-        distance = this.ship.position.distanceTo(position);
-        ratio = (entity.collisionRadius + this.ship.collisionRadius + 100) / distance;
-        position = Vector3D.interpolate(position, this.ship.position, ratio);
-
-        /* Higher variation if further away. */
-        variation = (distance > 51200 ? 0.5 : 0.2);
-
-        /* Move the vector a random amount. */
-        position.x += variation * (Math.random() - variation);
-        position.y += variation * (Math.random() - variation);
-        position.z += variation * (Math.random() - variation);
-
-        /* Save this position for 'setDestinationFromCoordinates' in the AI. */
-        this.ship.savedCoordinates = position;
-    };
-
     /* AI functions. */
 
     /* NAME
-     *   $saveAIState
+     *   $setCoordsToJaguarCompanyBuoy
      *
      * FUNCTION
-     *   Save the current AI state.
+     *   Set the co-ordinates to the surface of the buoy or the base.
      */
-    this.$saveAIState = function () {
-        p_tug.saveAIState = this.ship.AIState;
-    };
-
-    /* NAME
-     *   $recallAIState
-     *
-     * FUNCTION
-     *   Recall the saved AI state.
-     */
-    this.$recallAIState = function () {
-        this.ship.AIState = p_tug.saveAIState;
-    };
-
-    /* NAME
-     *   $setCoordsToJaguarCompanyBase
-     *
-     * FUNCTION
-     *   Set the co-ordinates to the surface of the base.
-     */
-    this.$setCoordsToJaguarCompanyBase = function () {
+    this.$setCoordsToJaguarCompanyBuoy = function () {
         var base = p_tug.mainScript.$jaguarCompanyBase;
 
         if (!base || !base.isValid) {
-            /* If it has gone, just go to the nearest station. */
+            /* If the base has gone, just go to the nearest station. */
             this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE_NOT_FOUND");
         } else {
-            /* Set the coords to the buoy or the base. */
-            this.$setCoordsToEntity(base);
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE_FOUND");
+            if (base.script.$buoy && base.script.$buoy.isValid) {
+                /* Set the coords to the buoy. */
+                this.$setCoordsToEntity(base.script.$buoy);
+                this.ship.reactToAIMessage("JAGUAR_COMPANY_BUOY_FOUND");
+            } else {
+                /* Set the coords to the base. */
+                this.$setCoordsToEntity(base);
+                this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE_FOUND");
+            }
         }
     };
 
@@ -253,6 +195,7 @@ strict: true, curly: true */
     this.$releaseBuoy = function () {
         var tug = this.ship,
         subEntities = tug.subEntities,
+        base = p_tug.mainScript.$jaguarCompanyBase,
         buoyPosition,
         buoyRole,
         buoy;
@@ -268,7 +211,7 @@ strict: true, curly: true */
         /* Remove the buoy sub-entity quietly: don't trigger 'shipDied' in the ship script. */
         subEntities[0].remove(true);
 
-        if (missionVariables.jaguar_company_reputation < p_tug.mainScript.$reputationHelper) {
+        if (p_tug.mainScript.$playerVar.reputation[galaxyNumber] < p_tug.mainScript.$reputationHelper) {
             /* No beacon. Scanner colour is solid white. */
             buoyRole = "jaguar_company_base_buoy_no_beacon";
         } else {
@@ -281,11 +224,15 @@ strict: true, curly: true */
         buoy.position = buoyPosition;
         /* Keep the original orientation. */
         buoy.orientation = tug.orientation;
-        /* Update the main script public variable. */
-        p_tug.mainScript.$buoy = buoy;
+
+        if (base && base.isValid) {
+            /* Update the base script buoy reference. */
+            base.script.$buoy = buoy;
+        }
+
         /* Stop the kick in velocity from spawning the buoy and it colliding with the tug.
          * In effect this will put the tug into reverse.
          */
         tug.velocity = new Vector3D(0, 0, 0).subtract(tug.vectorForward.multiply(tug.maxSpeed));
     };
-}).call(this);
+}.bind(this)());

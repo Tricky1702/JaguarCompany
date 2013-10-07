@@ -1,6 +1,7 @@
-/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
-/*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
-strict: true, curly: true */
+/*jslint bitwise: true, es5: true, newcap: true, nomen: true, regexp: true, unparam: true, todo: true, white: true,
+indent: 4, maxerr: 50, maxlen: 120 */
+/*jshint boss: true, curly: true, eqeqeq: true, eqnull: true, es5: true, evil: true, forin: true, laxbreak: true,
+loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: true */
 /*global worldScripts */
 
 /* jaguar_company_blackbox.js
@@ -29,29 +30,41 @@ strict: true, curly: true */
     this.description = "Jaguar Company Black Box equipment activation script.";
     this.version = "1.1";
 
-    /* Private variable. */
-    var jaguar_company_blackbox_activated = false;
-
     /* NAME
      *   activated
      *
      * FUNCTION
-     *   Equipment script for the Black Box.
+     *   Equipment activated with the 'n' key.
      */
-    this.activated = function() {
-        var mainScript = worldScripts["Jaguar Company"],
-        activated = jaguar_company_blackbox_activated;
-
-        if (!mainScript.$tracker || !mainScript.$tracker.isValid) {
-            activated = false;
-        }
-
-        if (!activated) {
-            activated = mainScript.$activateJaguarCompanyBlackbox();
-        } else {
-            activated = mainScript.$deactivateJaguarCompanyBlackbox();
-        }
-
-        jaguar_company_blackbox_activated = activated;
+    this.activated = function () {
+        worldScripts["Jaguar Company"].$blackboxToggle();
     };
-}).call(this);
+
+    /* NAME
+     *   mode
+     *
+     * FUNCTION
+     *   Equipment activated with the 'b' key.
+     */
+    this.mode = function () {
+        worldScripts["Jaguar Company"].$blackboxMode();
+    };
+
+    /* NAME
+     *   equipmentDamaged
+     *
+     * FUNCTION
+     *   Equipment has become damaged.
+     *
+     * INPUT
+     *   equipment - entity of the equipment
+     */
+    this.equipmentDamaged = function (equipment) {
+        if (equipment === "EQ_JAGUAR_COMPANY_BLACK_BOX") {
+            worldScripts["Jaguar Company"].$blackboxASCReset(true);
+            worldScripts["Jaguar Company"].$blackboxHoloReset(true);
+            player.commsMessage("Black Box Damaged!");
+            player.commsMessage("Return to the nearest Jaguar Company Base for repairs.");
+        }
+    };
+}.bind(this)());

@@ -49,21 +49,25 @@
     /* Attack the ship. */
     "ATTACK_SHIP" =
     {
-        /* Start attacking. */
+        /* Start attacking.
+         *
+         * In ATTACK_SHIP we drop a few AI messages that we can ignore and go into attack mode.
+         */
         ENTER = ("dropMessages: FRIENDLY_FIRE, TARGET_DESTROYED, TARGET_LOST", performAttack);
         /* This will be caught by $scanForCascadeWeapon which should work for Oolite v1.74+
          * Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed.
          */
         "CASCADE_WEAPON_FOUND" = ("setStateTo: EXIT_AI_FOR_CASCADE_WEAPON");
         /* Let everyone know that someone is shooting at us and re-enter ATTACK_SHIP.
-         * See $shipIsBeingAttacked in jaguar_company_attackers.js
+         * See $shipIsBeingAttacked in jaguar_company_ships.js
          * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
          */
         "HOSTILE_FIRE" =
         (
+            "dropMessages: FRIENDLY_FIRE, TARGET_DESTROYED, TARGET_LOST",
             setTargetToPrimaryAggressor,
             "sendScriptMessage: $performJaguarCompanyAttackTarget",
-            "setStateTo: ATTACK_SHIP"
+            performAttack
         );
         /* Break off attack to deal with incoming missile. */
         "INCOMING_MISSILE" = ("setStateTo: MISSILE_DETECTED", "randomPauseAI: 0.25 0.75");
@@ -75,20 +79,24 @@
             "setStateTo: FLEE"
         );
         /* Attackers found. Target has been set. */
-        "ATTACKERS_FOUND" = ("sendScriptMessage: $performJaguarCompanyAttackTarget", "setStateTo: ATTACK_SHIP");
+        "ATTACKERS_FOUND" = ("sendScriptMessage: $performJaguarCompanyAttackTarget", performAttack);
         /* No more attackers. Go idle and exit the AI. */
         "ATTACKERS_NOT_FOUND" = (performIdle, "setStateTo: EXIT_AI");
         /* We're hitting a friend. Re-scan for attackers. */
-        "FRIENDLY_FIRE" = ("sendScriptMessage: $scanForAttackers");
+        "FRIENDLY_FIRE" = ("dropMessages: TARGET_DESTROYED, TARGET_LOST", "sendScriptMessage: $scanForAttackers");
         /* Current target was either destroyed or disappeared off the scanner. Look for new attackers. */
-        "TARGET_DESTROYED" = ("sendScriptMessage: $scanForAttackers");
-        "TARGET_LOST" = ("sendScriptMessage: $scanForAttackers");
+        "TARGET_DESTROYED" = ("dropMessages: FRIENDLY_FIRE, TARGET_LOST", "sendScriptMessage: $scanForAttackers");
+        "TARGET_LOST" = ("dropMessages: FRIENDLY_FIRE, TARGET_DESTROYED", "sendScriptMessage: $scanForAttackers");
         /* Getting frustrated. Look for new attackers. */
-        "FRUSTRATED" = ("sendScriptMessage: $scanForAttackers");
+        "FRUSTRATED" =
+        (
+            "dropMessages: FRIENDLY_FIRE, TARGET_DESTROYED, TARGET_LOST",
+            "sendScriptMessage: $scanForAttackers"
+        );
         /* Regroup. */
         "JAGUAR_COMPANY_REGROUP" = ("setStateTo: EXIT_AI");
         /* Check every 5 seconds for cascade weapons. */
-        UPDATE = ("pauseAI: 5.0", "sendScriptMessage: $checkTargetIsValid", "sendScriptMessage: $scanForCascadeWeapon");
+        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", "sendScriptMessage: $checkTargetIsValid", "pauseAI: 5.0");
     };
 
     /* General purpose fight or flee state. */
@@ -101,7 +109,7 @@
          */
         "CASCADE_WEAPON_FOUND" = ("setStateTo: EXIT_AI_FOR_CASCADE_WEAPON");
         /* Let everyone know that someone is shooting at us and re-enter GLOBAL.
-         * See $shipIsBeingAttacked in jaguar_company_attackers.js
+         * See $shipIsBeingAttacked in jaguar_company_ships.js
          * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
          */
         "HOSTILE_FIRE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $performJaguarCompanyAttackTarget");
@@ -118,7 +126,7 @@
         /* Regroup. */
         "JAGUAR_COMPANY_REGROUP" = ("setStateTo: EXIT_AI");
         /* Check every 5 seconds for cascade weapons. */
-        UPDATE = ("pauseAI: 5.0", "sendScriptMessage: $scanForCascadeWeapon");
+        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
     };
 
     /* Either fight or flee from the missile. */
@@ -131,7 +139,7 @@
          */
         "CASCADE_WEAPON_FOUND" = ("setStateTo: EXIT_AI_FOR_CASCADE_WEAPON");
         /* Let everyone know that someone is shooting at us and re-enter GLOBAL.
-         * See $shipIsBeingAttacked in jaguar_company_attackers.js
+         * See $shipIsBeingAttacked in jaguar_company_ships.js
          * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
          */
         "HOSTILE_FIRE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $performJaguarCompanyAttackTarget");
@@ -147,7 +155,7 @@
         /* Regroup. */
         "JAGUAR_COMPANY_REGROUP" = ("setStateTo: EXIT_AI");
         /* Fire the ECM every 10 seconds and check for cascade weapons. */
-        UPDATE = ("pauseAI: 10.0", fightOrFleeMissile, "sendScriptMessage: $scanForCascadeWeapon");
+        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", fightOrFleeMissile, "pauseAI: 10.0");
     };
 
     /* Deal with incoming missile. */

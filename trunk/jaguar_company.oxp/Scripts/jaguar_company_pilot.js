@@ -1,7 +1,8 @@
-/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
-/*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
-strict: true, curly: true */
-/*global randomInhabitantsDescription, missionVariables, player, expandDescription */
+/*jslint bitwise: true, es5: true, newcap: true, nomen: true, regexp: true, unparam: true, todo: true, white: true,
+indent: 4, maxerr: 50, maxlen: 120 */
+/*jshint boss: true, curly: true, eqeqeq: true, eqnull: true, es5: true, evil: true, forin: true, laxbreak: true,
+loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: true */
+/*global Math, expandDescription, galaxyNumber, player, randomInhabitantsDescription, worldScripts */
 
 /* jaguar_company_pilot.js
  *
@@ -27,7 +28,7 @@ strict: true, curly: true */
     this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Jaguar Company Pilot script for delivering escape-pods to a station.";
-    this.version = "1.1";
+    this.version = "1.2";
 
     /* NAME
      *   unloadCharacter
@@ -36,18 +37,16 @@ strict: true, curly: true */
      *   Shows a rescue message for Jaguar Company pilots you deliver back to a station.
      *   Also increases reputation.
      */
-    this.unloadCharacter = function() {
+    this.unloadCharacter = function () {
         var mainScript = worldScripts["Jaguar Company"],
         insurance,
         bonus = 0,
         message,
-        dockedPersonality = player.ship.dockedStation.entityPersonality,
-        basePersonality = mainScript.$jaguarCompanyBase.entityPersonality,
         pilotName;
 
-        if (mainScript.$rescued1.length) {
+        if (mainScript.$pilotsRescued.length) {
             /* Get the name of one of the rescued pilots. */
-            pilotName = mainScript.$rescued1.shift();
+            pilotName = mainScript.$pilotsRescued.shift();
         } else {
             /* Random name. Shouldn't be executed. */
             pilotName = expandDescription("%N [nom1]");
@@ -59,23 +58,27 @@ strict: true, curly: true */
         message = "For rescuing " + pilotName + ", a " + randomInhabitantsDescription(false) +
             " and member of Jaguar Company, their insurance pays " + insurance + " ₢.";
 
-        if (dockedPersonality === basePersonality) {
+        if (player.ship.dockedStation.hasRole("jaguar_company_base")) {
             /* Give a bonus for bringing the pilot back to one of their base's. Multiple of 5 Cr. */
             bonus = 100 + (Math.floor(Math.random() * 20) * 5);
-            message += " Jaguar Company has also added a bonus of " + bonus + " ₢ for bringing back the pilot.";
+            message += " Jaguar Company has also added a bonus of " + bonus +
+            " ₢ for bringing the pilot back to their base.";
+            /* Increase the reputation of the player with Jaguar Company *after* launching.
+             * You don't want to be in the base when it swaps roles.
+             */
+            if (mainScript.$playerVar.delayedAward !== "number") {
+                mainScript.$playerVar.delayedAward = 0;
+            }
+
+            mainScript.$playerVar.delayedAward += 6;
+        } else {
+            /* Increase the reputation of the player with Jaguar Company. */
+            mainScript.$playerVar.reputation[galaxyNumber] += 4;
         }
 
         /* Add on the insurance and bonus to the player's credits. */
         player.credits += (insurance + bonus);
-        /* Increase the reputation of the player with Jaguar Company *after* launching.
-         * You don't want to be in the base when it swaps roles.
-         */
-        missionVariables.jaguar_company_reputation_post_launch += 5;
         /* Show message on arrival. */
         player.addMessageToArrivalReport(expandDescription(message));
-        /* Send news to Snoopers. */
-//        mainScript.$sendNewsToSnoopers(expandDescription("[jaguar_company_rescue_news]", {
-//                jaguar_company_pilot_name : pilotName
-//            }));
-     };
-}).call(this);
+    };
+}.bind(this)());

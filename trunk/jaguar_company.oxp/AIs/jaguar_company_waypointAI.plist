@@ -47,10 +47,10 @@
         "CLOSE_TO_PLANET" = ("exitAIWithMessage: CLOSE_TO_PLANET");
         UPDATE =
         (
+            "sendScriptMessage: $scanForCascadeWeapon",
             performFlyToRangeFromDestination,
             checkCourseToDestination,
-            "sendScriptMessage: $scanForCascadeWeapon",
-            "pauseAI: 2.0"
+            "pauseAI: 5.0"
         );
     };
 

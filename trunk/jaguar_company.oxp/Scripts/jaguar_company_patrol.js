@@ -1,7 +1,8 @@
-/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
-/*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
-strict: true, curly: true */
-/*global system, log, worldScripts, Timer */
+/*jslint bitwise: true, es5: true, newcap: true, nomen: true, regexp: true, unparam: true, todo: true, white: true,
+indent: 4, maxerr: 50, maxlen: 120 */
+/*jshint boss: true, curly: true, eqeqeq: true, eqnull: true, es5: true, evil: true, forin: true, laxbreak: true,
+loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: true */
+/*global Array, Math, Timer, Vector3D, expandDescription, parseInt, system, worldScripts */
 
 /* Jaguar Company Patrol
  *
@@ -44,21 +45,18 @@ strict: true, curly: true */
     this.shipSpawned = function () {
         var counter;
 
-        /* No longer needed after setting up. */
-        delete this.shipSpawned;
-
         /* Initialise the p_patrol variable object.
          * Encapsulates all private global data.
          */
         p_patrol = {
             /* Cache the world scripts. */
             mainScript : worldScripts["Jaguar Company"],
-            attackersScript : worldScripts["Jaguar Company Attackers"],
+            shipsScript : worldScripts["Jaguar Company Ships"],
             /* Local copies of the logging variables. */
             logging : worldScripts["Jaguar Company"].$logging,
             logExtra : worldScripts["Jaguar Company"].$logExtra,
             /* Local copy of the friendList array. */
-            friendList : worldScripts["Jaguar Company Attackers"].$friendList,
+            friendList : worldScripts["Jaguar Company Ships"].$friendList,
             /* Standard distances. */
             distance : {
                 close : 10000,
@@ -74,18 +72,13 @@ strict: true, curly: true */
         };
 
         /* Register this ship as a friendly. */
-        p_patrol.attackersScript.$addFriendly(this.ship);
-        /* Random name for the pilot. Used when talking about attacks and sending a report to Snoopers. */
-        this.ship.$pilotName = expandDescription("%N [nom1]");
-        /* Get a unique name for the patrol ship. */
-        this.ship.displayName = p_patrol.mainScript.$uniqueShipName(this.ship.name);
-
-        if (!p_patrol.mainScript.$numPatrolShips) {
-            p_patrol.mainScript.$numPatrolShips = 0;
-        }
-
-        /* Increase the number of patrol ships in the system. */
-        p_patrol.mainScript.$numPatrolShips += 1;
+        p_patrol.shipsScript.$addFriendly({
+            ship : this.ship,
+            /* Random name for the pilot. Used when talking about attacks and sending a report to Snoopers. */
+            pilotName : expandDescription("%N [nom1]"),
+            /* Get a unique name for the patrol ship. */
+            shipName : p_patrol.mainScript.$uniqueShipName()
+        });
         /* Timer reference. */
         this.$addFuelTimerReference = new Timer(this, this.$addFuelTimer, 1, 1);
 
@@ -111,23 +104,9 @@ strict: true, curly: true */
         for (counter = 0; counter < p_patrol.initialMissiles; counter += 1) {
             this.ship.awardEquipment(p_patrol.missileRole);
         }
-    };
 
-    /* NAME
-     *   shipLaunchedEscapePod
-     *
-     * FUNCTION
-     *   The shipLaunchedEscapePod handler is called when the pilot bails out.
-     *
-     * INPUT
-     *   escapepod - contains the main pod with the pilot
-     */
-    this.shipLaunchedEscapePod = function(escapepod)
-    {
-        /* Identify this pod as containing a member of Jaguar Company. */
-        escapepod.$jaguarCompany = true;
-        /* Transfer pilot name to the escape pod. */
-        escapepod.$pilotName = this.ship.$pilotName;
+        /* No longer needed after setting up. */
+        delete this.shipSpawned;
     };
 
     /* NAME
@@ -180,8 +159,8 @@ strict: true, curly: true */
      *
      * INPUT
      *   suppressDeathEvent - boolean
-     *     true - shipDied() will be called
-     *     false - shipDied() will not be called
+     *     true - shipDied() will not be called
+     *     false - shipDied() will be called
      */
     this.shipRemoved = function (suppressDeathEvent) {
         if (suppressDeathEvent) {
@@ -205,41 +184,6 @@ strict: true, curly: true */
         this.$removeAddFuelTimer();
     };
 
-    /* NAME
-     *   shipTakingDamage
-     *
-     * FUNCTION
-     *   Taking damage. Check attacker and what type.
-     *
-     * INPUTS
-     *   amount - amount of damage
-     *   attacker - entity that caused the damage
-     *   type - type of damage as a string
-     */
-    this.shipTakingDamage = function (amount, attacker, type) {
-        if (!attacker || !attacker.isValid || !attacker.isShip) {
-            /* If it isn't a ship dealing damage then carry on with the damage. */
-            return;
-        }
-
-        if (p_patrol.friendList.indexOf(attacker.entityPersonality) !== -1 && type === "scrape damage") {
-            /* Cancel damage from collision with Jaguar Company ships. */
-            this.ship.energy += amount;
-
-            /* Target the ship we are colliding with. */
-            this.ship.target = attacker;
-
-            if (this.ship.AI === "jaguar_company_interceptAI.plist") {
-                /* Force an exit of the intercept AI. */
-                this.ship.lightsActive = false;
-                this.ship.exitAI();
-            }
-
-            /* Move away from the ship we are colliding with. */
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_TOO_CLOSE");
-        }
-    };
-
     /* Other global public functions. */
 
     /* NAME
@@ -254,7 +198,7 @@ strict: true, curly: true */
                 this.$addFuelTimerReference.stop();
             }
 
-            delete this.$addFuelTimerReference;
+            this.$addFuelTimerReference = null;
         }
     };
 
@@ -354,60 +298,7 @@ strict: true, curly: true */
         return (averageDistance / shipsLength);
     };
 
-    /* NAME
-     *   $setCoordsToEntity
-     *
-     * FUNCTION
-     *   Set the co-ordinates to the surface of the entity.
-     *   This borrows some code from 'src/Core/Entities/ShipEntityAI.m - setCourseToPlanet'
-     *
-     * INPUT
-     *   entity - entity to set co-ordinates to
-     */
-    this.$setCoordsToEntity = function (entity) {
-        var position = entity.position,
-        distance,
-        ratio,
-        variation;
-
-        /* Calculate a vector position between the entity's surface and the ship. */
-        distance = this.ship.position.distanceTo(position);
-        ratio = (entity.collisionRadius + this.ship.collisionRadius + 100) / distance;
-        position = Vector3D.interpolate(position, this.ship.position, ratio);
-
-        /* Higher variation if further away. */
-        variation = (distance > 51200 ? 0.5 : 0.2);
-
-        /* Move the vector a random amount. */
-        position.x += variation * (Math.random() - variation);
-        position.y += variation * (Math.random() - variation);
-        position.z += variation * (Math.random() - variation);
-
-        /* Save this position for 'setDestinationFromCoordinates' in the AI. */
-        this.ship.savedCoordinates = position;
-    };
-
     /* AI functions. */
-
-    /* NAME
-     *   $saveAIState
-     *
-     * FUNCTION
-     *   Save the current AI state.
-     */
-    this.$saveAIState = function () {
-        p_patrol.saveAIState = this.ship.AIState;
-    };
-
-    /* NAME
-     *   $recallAIState
-     *
-     * FUNCTION
-     *   Recall the saved AI state.
-     */
-    this.$recallAIState = function () {
-        this.ship.AIState = p_patrol.saveAIState;
-    };
 
     /* NAME
      *   $setCoordsToMainPlanet
@@ -417,6 +308,7 @@ strict: true, curly: true */
      */
     this.$setCoordsToMainPlanet = function () {
         this.$setCoordsToEntity(system.mainPlanet);
+        this.ship.reactToAIMessage("JAGUAR_COMPANY_MAINPLANET_SET");
     };
 
     /* NAME
@@ -429,7 +321,7 @@ strict: true, curly: true */
         var navyShips = p_patrol.mainScript.$scanForNavyShips(this.ship);
 
         if (navyShips.length) {
-            /* Update the main script public variable. */
+            /* Update the main script closest navy ship reference. */
             p_patrol.mainScript.$closestNavyShip = navyShips[0];
             p_patrol.mainScript.$initRoute("NAVY");
             /* Set the coords to the nearest navy ship. */
@@ -444,41 +336,23 @@ strict: true, curly: true */
     };
 
     /* NAME
-     *   $setCoordsToInterstellarWitchpoint
-     *
-     * FUNCTION
-     *   Set the co-ordinates to the fake interstellar witchpoint buoy.
-     */
-    this.$setCoordsToInterstellarWitchpoint = function () {
-        this.$setCoordsToEntity(p_patrol.mainScript.$witchpointBuoy);
-    };
-
-    /* NAME
      *   $setCoordsToWitchpoint
      *
      * FUNCTION
      *   Set the co-ordinates to the surface of the witchpoint buoy.
      */
     this.$setCoordsToWitchpoint = function () {
-        var witchpointBuoy = p_patrol.mainScript.$witchpointBuoy;
-
-        if (!witchpointBuoy || !witchpointBuoy.isValid) {
-            /* No witchpoint buoy. Patrol the base to the planet lane. */
-            p_patrol.mainScript.$initRoute("BP");
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_WITCHPOINT_NOT_FOUND");
-        } else {
-            this.$setCoordsToEntity(p_patrol.mainScript.$witchpointBuoy);
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_WITCHPOINT_FOUND");
-        }
+        this.$setCoordsToEntity(p_patrol.mainScript.$witchpointBuoy);
+        this.ship.reactToAIMessage("JAGUAR_COMPANY_WITCHPOINT_SET");
     };
 
     /* NAME
-     *   $setCoordsToJaguarCompanyBase
+     *   $setCoordsToJaguarCompanyBuoy
      *
      * FUNCTION
-     *   Set the co-ordinates to the surface of the base.
+     *   Set the co-ordinates to the surface of the buoy.
      */
-    this.$setCoordsToJaguarCompanyBase = function () {
+    this.$setCoordsToJaguarCompanyBuoy = function () {
         var base = p_patrol.mainScript.$jaguarCompanyBase;
 
         if (!base || !base.isValid) {
@@ -491,15 +365,15 @@ strict: true, curly: true */
                 this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE_NOT_FOUND");
             }
         } else {
-            if (p_patrol.mainScript.$buoy && p_patrol.mainScript.$buoy.isValid) {
+            if (base.script.$buoy && base.script.$buoy.isValid) {
                 /* Set the coords to the buoy. */
-                this.$setCoordsToEntity(p_patrol.mainScript.$buoy);
+                this.$setCoordsToEntity(base.script.$buoy);
+                this.ship.reactToAIMessage("JAGUAR_COMPANY_BUOY_FOUND");
             } else {
                 /* Set the coords to the base. */
                 this.$setCoordsToEntity(base);
+                this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE_FOUND");
             }
-
-            this.ship.reactToAIMessage("JAGUAR_COMPANY_BASE_FOUND");
         }
     };
 
@@ -593,11 +467,11 @@ strict: true, curly: true */
             /* Announce that we have found all of Jaguar Company to the AI. */
             this.ship.reactToAIMessage("JAGUAR_COMPANY_ALL_PRESENT");
         } else {
-            base = system.shipsWithRole("jaguar_company_base");
+            base = p_patrol.mainScript.$jaguarCompanyBase;
 
-            if (base.length) {
-                /* There can only really be 1 base. */
-                lurkPosition = base[0].position;
+            if (base && base.isValid) {
+                /* Set the starting lurk position to the base position. */
+                lurkPosition = base.position;
             } else {
                 /* START OF CODE THAT SHOULD NEVER BE REACHED.
                  * This is here purely for error checking sake.
@@ -696,11 +570,19 @@ strict: true, curly: true */
      *   Check how close we are to other ships.
      *
      * INPUT
-     *   minimumDistance - closest distance allowed
+     *   arr - closest distance allowed (as an array) (just uses the first element in the array)
      */
-    this.$checkJaguarCompanyClosestDistance = function (minimumDistance) {
-        var actualDistance,
+    this.$checkJaguarCompanyClosestDistance = function (arr) {
+        var minimumDistance,
+        actualDistance,
         otherShips;
+
+        if (!Array.isArray(arr)) {
+            /* Default. */
+            minimumDistance = 250.0;
+        } else {
+            minimumDistance = arr[0];
+        }
 
         /* More ships will increase the minimum distance. */
         actualDistance = minimumDistance * Math.ceil(p_patrol.mainScript.$numPatrolShips / 8);
@@ -770,10 +652,12 @@ strict: true, curly: true */
      *   Tell everyone to regroup if the average distance to all the other ships is too great.
      *
      * INPUT
-     *   maxDistance - furthest distance allowed before a regroup message is sent out
+     *   arr - furthest distance allowed before a regroup message is sent out (as an array)
+     *         (just uses the first element in the array)
      */
-    this.$checkJaguarCompanyRegroup = function (maxDistance) {
-        var otherShips,
+    this.$checkJaguarCompanyRegroup = function (arr) {
+        var maxDistance,
+        otherShips,
         otherShipsLength,
         otherShipsCounter;
 
@@ -784,7 +668,16 @@ strict: true, curly: true */
             return;
         }
 
-        /* Find the average distance to all the other ships. */
+        if (!Array.isArray(arr)) {
+            /* Default. */
+            maxDistance = 15000.0;
+        } else {
+            maxDistance = arr[0];
+        }
+
+        /* Find the average distance to all the other ships
+         * and check if this is more than the furthest distance allowed (+/- 1km).
+         */
         if (this.$queryAverageDistance(otherShips) >= maxDistance + ((Math.random() * 2000.0) - 1000.0)) {
             /* Tell all ships, including ourself, to regroup. */
             this.ship.reactToAIMessage("JAGUAR_COMPANY_REGROUP");
@@ -797,4 +690,4 @@ strict: true, curly: true */
             }
         }
     };
-}).call(this);
+}.bind(this)());

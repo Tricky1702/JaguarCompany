@@ -1,7 +1,8 @@
-/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
-/*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
-strict: true, curly: true */
-/*global system, log, worldScripts */
+/*jslint bitwise: true, es5: true, newcap: true, nomen: true, regexp: true, unparam: true, todo: true, white: true,
+indent: 4, maxerr: 50, maxlen: 120 */
+/*jshint boss: true, curly: true, eqeqeq: true, eqnull: true, es5: true, evil: true, forin: true, laxbreak: true,
+loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: true */
+/*global Math, Vector3D, log, system, worldScripts */
 
 /* Jaguar Company Asteroid
  *
@@ -27,7 +28,7 @@ strict: true, curly: true */
     this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the asteroids cluttering the space around the base.";
-    this.version = "1.1";
+    this.version = "1.2";
 
     /* Ship script event handlers. */
 
@@ -52,9 +53,6 @@ strict: true, curly: true */
         entities,
         ok = false;
 
-        /* No longer needed after setting up. */
-        delete this.shipSpawned;
-
         if (!base || !base.isValid ||
             (!asteroid.hasRole("jaguar_company_asteroid") && !asteroid.hasRole("jaguar_company_boulder"))) {
             /* Not an asteroid spawned by the base. */
@@ -72,7 +70,7 @@ strict: true, curly: true */
          *   entity - entity to check
          */
         function $validEntity(entity) {
-            return (entity && entity.isValid);
+            return (entity.isValid);
         }
 
         /* Don't drift. Just leave it rotating. */
@@ -117,5 +115,8 @@ strict: true, curly: true */
                 }
             }
         }
+
+        /* No longer needed after setting up. */
+        delete this.shipSpawned;
     };
-}).call(this);
+}.bind(this)());

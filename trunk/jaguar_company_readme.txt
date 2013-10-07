@@ -14,7 +14,6 @@ Install
 Uninstall
 Oolite v1.77 and newer
 Version History
-Furture Versions
 Credits
     Griff
     Thargoid
@@ -61,6 +60,8 @@ Version History
 ---------------
 v2.5 (2013-??-??)
     *** This OXP now requires Cabal Common Library. ***
+    Bug fix for a typo in the main script.
+    Bug fix for a typo in the black box script.
     Proper integration for Oolite v1.77 and newer with the interface screen for base locations.
     Added check for blackbox + software patch for base locations in the $addInterface() function.
     Renamed the vertex and fragment shaders.
@@ -76,16 +77,25 @@ v2.5 (2013-??-??)
     Changed key combination to show list of base locations to F7, F5.
         Oolite v1.77 and newer use the interface API when docked.
     Lowered max cargo space to 10TC to explain extra speed.
-    Small modifications to the docking AI.
+    AI tweaks.
+    New ship to patrol the area around the base.
+    Allow auto dock with the base once you have the black box.
+    Only use one mission variable. Old mission variables will be converted.
+    Changed the operation of the black box tracker.
+        'n' toggles the ASC tracker on or off.
+        'b' toggles the holo tracker on or off.
+    'jaguar_company_attackers.js' now called jaguar_company_ships.js
+        Common code moved here and is hooked in to the ship script when a ship is spawned.
+    Check the Patrol ships, tug, buoy and miner within the code for the base.
 
 For a full version history see jaguar_company_changelog.txt in the directory you loaded this readme file from.
 
-Future Versions
----------------
-    Torus drive sync for the boring bits.
-
 Credits
 -------
+An addon for Oolite by Giles Williams, Jens Ayton & contributors.
+
+Based on Elite by Ian Bell and David Braben.
+
 Griff
     Models, textures and shaders for the Cobra MkIII, ECM proof missile and Transporter.
         Both regular and scuffed versions of the multi-decal Cobra MkIII are used.

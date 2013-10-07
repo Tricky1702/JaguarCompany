@@ -1,7 +1,8 @@
-/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
-/*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
-strict: true, curly: true */
-/*global Timer, addFrameCallback, removeFrameCallback, isValidFrameCallback */
+/*jslint bitwise: true, es5: true, newcap: true, nomen: true, regexp: true, unparam: true, todo: true, white: true,
+indent: 4, maxerr: 50, maxlen: 120 */
+/*jshint boss: true, curly: true, eqeqeq: true, eqnull: true, es5: true, evil: true, forin: true, laxbreak: true,
+loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: true */
+/*global Timer, addFrameCallback, isValidFrameCallback, log, player, removeFrameCallback, system, worldScripts */
 
 /* Jaguar Company Tracker
  *
@@ -41,14 +42,15 @@ strict: true, curly: true */
      *   Initialise various variables on ship birth. Oolite v1.76.1 and older.
      */
     this.shipSpawned = function () {
-        /* No longer needed after setting up. */
-        delete this.shipSpawned;
-        delete this.effectSpawned;
-
         /* Common setup. */
         this.$setUp();
         /* Use a frame callback to keep the position constant. */
         this.$trackerFCBReference = addFrameCallback(this.$invisibleTrackerFCB.bind(this));
+
+        /* No longer needed after setting up. */
+        delete this.shipSpawned;
+        delete this.effectSpawned;
+        delete this.$visualTrackerFCB;
     };
 
     /* NAME
@@ -58,16 +60,15 @@ strict: true, curly: true */
      *   Initialise various variables on effect birth. Oolite v1.77 and newer.
      */
     this.effectSpawned = function () {
+        /* Common setup. */
+        this.$setUp();
+        /* Use a frame callback to keep the position constant. */
+        this.$trackerFCBReference = addFrameCallback(this.$visualTrackerFCB.bind(this));
+
         /* No longer needed after setting up. */
         delete this.shipSpawned;
         delete this.effectSpawned;
-
-        /* Common setup. */
-        this.$setUp();
-        /* Updated by the visual effect frame callback. */
-        p_tracker.material = 0;
-        /* Use a frame callback to keep the position constant. */
-        this.$trackerFCBReference = addFrameCallback(this.$trackerFCB.bind(this));
+        delete this.$invisibleTrackerFCB;
     };
 
     /* NAME
@@ -83,16 +84,17 @@ strict: true, curly: true */
      *   why - cause as a string
      */
     this.shipDied = function (whom, why) {
-        var mainScript = worldScripts["Jaguar Company"],
-        destroyedBy = whom,
-        tracker = this.ship;
+        var destroyedBy = whom,
+        tracker = this.ship,
+        patrolShips;
 
         if (whom && whom.isValid) {
             destroyedBy = "ship#" + whom.entityPersonality + " (" + whom.displayName + ")";
+            patrolShips = system.shipsWithPrimaryRole("jaguar_company_patrol");
 
-            if (system.shipsWithPrimaryRole("jaguar_company_patrol").length > 0) {
+            if (patrolShips.length > 0) {
                 /* Patrol still around. Re-spawn. */
-                mainScript.$tracker = mainScript.$jaguarCompanyBase.spawnOne("jaguar_company_tracker");
+                worldScripts["Jaguar Company"].$tracker = patrolShips[0].spawnOne("jaguar_company_tracker");
             }
         }
 
@@ -117,7 +119,7 @@ strict: true, curly: true */
                 this.$trackerTimerReference.stop();
             }
 
-            delete this.$trackerTimerReference;
+            this.$trackerTimerReference = null;
         }
 
         /* Stop and remove the frame callback. */
@@ -126,7 +128,7 @@ strict: true, curly: true */
                 removeFrameCallback(this.$trackerFCBReference);
             }
 
-            delete this.$trackerFCBReference;
+            this.$trackerFCBReference = null;
         }
     };
 
@@ -143,11 +145,15 @@ strict: true, curly: true */
          * Encapsulates all private global data.
          */
         p_tracker = {
+            /* Cache the main world script. */
+            mainScript : worldScripts["Jaguar Company"],
             /* Local copies of the logging variables. */
             logging : worldScripts["Jaguar Company"].$logging,
             logExtra : worldScripts["Jaguar Company"].$logExtra,
             /* Updated by the timer. */
-            closestPatrolShip : null
+            closestPatrolShip : null,
+            /* Material used by the visual effect. */
+            material : "none"
         };
 
         /* Track the patrol ships every 0.25 seconds. */
@@ -164,6 +170,7 @@ strict: true, curly: true */
      */
     this.$trackerTimer = function () {
         var tracker = this.ship || this.visualEffect,
+        playerShip,
         patrolShips;
 
         if (!tracker || !tracker.isValid) {
@@ -177,12 +184,24 @@ strict: true, curly: true */
             return;
         }
 
-        /* Search for the patrol ships. */
-        patrolShips = system.shipsWithPrimaryRole("jaguar_company_patrol", player.ship);
+        /* Player ship object. */
+        playerShip = player.ship;
+
+        if (!playerShip || !playerShip.isValid) {
+            /* If the player has died, reset the tracker. */
+            p_tracker.mainScript.$blackboxASCReset(false);
+            p_tracker.mainScript.$blackboxHoloReset(false);
+
+            return;
+        }
+
+        /* Search for the patrol ships. Sort by distance from the player. */
+        patrolShips = system.shipsWithPrimaryRole("jaguar_company_patrol", playerShip);
 
         if (!patrolShips.length) {
             /* We are on our own. Deactivate the black box. */
-            worldScripts["Jaguar Company"].$deactivateJaguarCompanyBlackbox();
+            p_tracker.mainScript.$blackboxASCReset(true);
+            p_tracker.mainScript.$blackboxHoloReset(true);
 
             if (p_tracker.logging && p_tracker.logExtra) {
                 log(this.name, "$trackerTimer::Tracker removed - no patrol ships");
@@ -191,7 +210,7 @@ strict: true, curly: true */
             return;
         }
 
-        /* Update the closest patrol ship. */
+        /* Update the closest patrol ship reference. */
         p_tracker.closestPatrolShip = patrolShips[0];
     };
 
@@ -201,14 +220,15 @@ strict: true, curly: true */
      * FUNCTION
      *   Tracker frame callback.
      *
-     *   Used by Oolite v1.76.1 or older.
+     *   Used by Oolite v1.76.1 and older.
      *
      * INPUT
      *   delta - amount of game clock time past since the last frame
      */
     this.$invisibleTrackerFCB = function (delta) {
         var tracker = this.ship,
-        cps = p_tracker.closestPatrolShip,
+        closestPatrolShip = p_tracker.closestPatrolShip,
+        playerShip,
         distance;
 
         if (!tracker || !tracker.isValid) {
@@ -218,32 +238,42 @@ strict: true, curly: true */
             return;
         }
 
-        if (delta === 0.0 || !cps || !cps.isValid) {
+        if (delta === 0.0 || !closestPatrolShip || !closestPatrolShip.isValid) {
             /* Do nothing if paused or the position of the closest patrol ship has not been setup. */
             return;
         }
 
+        /* Player ship object. */
+        playerShip = player.ship;
+
+        if (!playerShip || !playerShip.isValid) {
+            /* If the player has died, reset the tracker. */
+            p_tracker.mainScript.$blackboxASCReset(false);
+
+            return;
+        }
+
         /* Distance above the closest patrol ship. */
-        distance = 5 + cps.collisionRadius;
+        distance = 5 + closestPatrolShip.collisionRadius;
         /* Keep the tracker above the closest patrol ship. */
-        tracker.position = cps.position.add(cps.orientation.vectorUp().multiply(distance));
+        tracker.position = closestPatrolShip.position.add(closestPatrolShip.orientation.vectorUp().multiply(distance));
     };
 
     /* NAME
-     *   $trackerFCB
+     *   $visualTrackerFCB
      *
      * FUNCTION
      *   Tracker frame callback.
      *
-     *   Used for visual effects.
+     *   Used by Oolite v1.77 and newer for visual effects.
      *
      * INPUT
      *   delta - amount of game clock time past since the last frame
      */
-    this.$trackerFCB = function (delta) {
+    this.$visualTrackerFCB = function (delta) {
         var tracker = this.visualEffect,
-        cps = p_tracker.closestPatrolShip,
-        PS,
+        closestPatrolShip = p_tracker.closestPatrolShip,
+        playerShip,
         distance,
         vector,
         angle,
@@ -256,55 +286,69 @@ strict: true, curly: true */
             return;
         }
 
-        if (delta === 0.0 || !cps || !cps.isValid) {
+        if (delta === 0.0 || !closestPatrolShip || !closestPatrolShip.isValid) {
             /* Do nothing if paused or the closest patrol ship has not been setup. */
             return;
         }
 
         /* Player ship object. */
-        PS = player.ship;
-        /* Vector pointing towards the target. */
-        vector = cps.position.subtract(PS.position).direction();
+        playerShip = player.ship;
 
-        if (vector.dot(PS.heading) >= 0) {
-            p_tracker.material = 0;
-        } else {
-            p_tracker.material = 1;
+        if (!playerShip || !playerShip.isValid) {
+            /* If the player has died, reset the tracker. */
+            p_tracker.mainScript.$blackboxHoloReset(false);
+
+            return;
         }
 
-        if (!p_tracker.material) {
-            /* Change the tracker colour to be green. */
-            tracker.setMaterials({
-                jaguar_company_tracker : {
-                    diffuse_color : ["0", "0.667", "0", "1"],
-                    diffuse_map : "jaguar_company_tracker_diffuse.png",
-                    emission_color : ["0", "0.05", "0", "1"],
-                    shininess : "5",
-                    specular_color : ["0", "0.2", "0", "1"]
-                }
-            });
-        } else if (p_tracker.material) {
-            /* Change the tracker colour to be red. */
-            tracker.setMaterials({
-                jaguar_company_tracker : {
-                    diffuse_color : ["0.667", "0", "0", "1"],
-                    diffuse_map : "jaguar_company_tracker_diffuse.png",
-                    emission_color : ["0.05", "0", "0", "1"],
-                    shininess : "5",
-                    specular_color : ["0.2", "0", "0", "1"]
-                }
-            });
-        }
+        if (playerShip.viewDirection !== "VIEW_FORWARD" && p_tracker.material !== "off") {
+            p_tracker.material = "off";
+            /* Make the tracker small. */
+            tracker.scale(0.001);
+            /* Move the tracker so it can't be seen. Centre of the player ship should do it. */
+            tracker.position = playerShip.position;
+        } else if (playerShip.viewDirection === "VIEW_FORWARD") {
+            /* Scale the tracker to it's original size. */
+            tracker.scale(1.0);
+            /* Vector pointing towards the target. */
+            vector = closestPatrolShip.position.subtract(playerShip.position).direction();
 
-        /* Distance in front of the player. */
-        distance = 100 + PS.collisionRadius;
-        /* Keep the tracker in front of the player. */
-        tracker.position = PS.position.add(PS.heading.multiply(distance));
-        /* Angle to the target from current heading. */
-        angle = PS.heading.angleTo(vector);
-        /* Cross vector for rotate. */
-        cross = PS.heading.cross(vector).direction();
-        /* Rotate the tracker by the angle. */
-        tracker.orientation = PS.orientation.rotate(cross, -angle);
+            if (vector.dot(playerShip.heading) >= 0 && p_tracker.material !== "green") {
+                p_tracker.material = "green";
+                /* Change the tracker colour to be green. */
+                tracker.setMaterials({
+                    "jaguar_company_tracker" : {
+                        diffuse_color : ["0", "0.667", "0", "1"],
+                        diffuse_map : "jaguar_company_tracker_diffuse.png",
+                        emission_color : ["0", "0.05", "0", "1"],
+                        shininess : "5",
+                        specular_color : ["0", "0.2", "0", "1"]
+                    }
+                });
+            } else if (vector.dot(playerShip.heading) < 0 && p_tracker.material !== "red") {
+                p_tracker.material = "red";
+                /* Change the tracker colour to be red. */
+                tracker.setMaterials({
+                    "jaguar_company_tracker" : {
+                        diffuse_color : ["0.667", "0", "0", "1"],
+                        diffuse_map : "jaguar_company_tracker_diffuse.png",
+                        emission_color : ["0.05", "0", "0", "1"],
+                        shininess : "5",
+                        specular_color : ["0.2", "0", "0", "1"]
+                    }
+                });
+            }
+
+            /* Distance in front of the player. */
+            distance = 100 + playerShip.collisionRadius;
+            /* Keep the tracker in front of the player. */
+            tracker.position = playerShip.position.add(playerShip.heading.multiply(distance));
+            /* Angle to the target from current heading. */
+            angle = playerShip.heading.angleTo(vector);
+            /* Cross vector for rotate. */
+            cross = playerShip.heading.cross(vector).direction();
+            /* Rotate the tracker by the angle. */
+            tracker.orientation = playerShip.orientation.rotate(cross, -angle);
+        }
     };
-}).call(this);
+}.bind(this)());

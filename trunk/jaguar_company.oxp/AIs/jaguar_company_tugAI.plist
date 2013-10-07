@@ -27,13 +27,13 @@
     CLEAR_STATION =
     {
         /* Set co-ordinates for the buoy position and point towards it. */
-        ENTER = ("sendScriptMessage: $setCoordsForBuoyDropOff", "pauseAI: 5.0");
+        ENTER = ("dropMessages: DESIRED_RANGE_ACHIEVED", "sendScriptMessage: $setCoordsForBuoyDropOff");
         /* This will be caught by $scanForCascadeWeapon which should work for Oolite v1.74+
          * Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed.
          */
         "CASCADE_WEAPON_FOUND" = ("sendScriptMessage: $saveAIState", "setStateTo: CASCADE_WEAPON_FOUND");
         /* Let everyone know that someone is shooting at us.
-         * See $shipIsBeingAttacked in jaguar_company_attackers.js
+         * See $shipIsBeingAttacked in jaguar_company_ships.js
          * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
          * In CLEAR_STATION we ignore the attack call.
          */
@@ -62,11 +62,13 @@
          */
         "JAGUAR_COMPANY_BUOY_DROP_OFF_NOT_FOUND" = ("addFuel: 7", performHyperSpaceExitWithoutReplacing);
         /* Course is OK. */
-        "COURSE_OK" = ("setSpeedFactorTo: 1.0", performFlyToRangeFromDestination);
+        "COURSE_OK" = (setSpeedToCruiseSpeed, performFlyToRangeFromDestination);
         /* Something in the way. */
         "WAYPOINT_SET" = ("setAITo: jaguar_company_waypointAI.plist");
         /* This means we have reached an ideal distance from the set co-ordinates. */
         "DESIRED_RANGE_ACHIEVED" = ("sendScriptMessage: $releaseBuoy", "setStateTo: MOVE_OUT");
+        /* We're taking damage from another ship so move away from it. */
+        "JAGUAR_COMPANY_TAKING_DAMAGE" = ("sendScriptMessage: $saveAIState", "setStateTo: MOVE_AWAY");
         /* Wandered into a wormhole whilst in waypoint AI. */
         WORMHOLE = ("setStateTo: GLOBAL");
         /* Restarted from the intercept AI. */
@@ -74,26 +76,26 @@
         /* Carry on to our saved co-ordinates also scan for attackers and cascade weapons. */
         UPDATE =
         (
-            "pauseAI: 5.0",
-            "sendScriptMessage: $setCoordsForBuoyDropOff",
             "sendScriptMessage: $scanForAttackers",
-            "sendScriptMessage: $scanForCascadeWeapon"
+            "sendScriptMessage: $scanForCascadeWeapon",
+            "sendScriptMessage: $setCoordsForBuoyDropOff",
+            "pauseAI: 5.0"
         );
     };
 
     /* Move away from the buoy. */
     "MOVE_OUT" =
     {
-        /* Put the tug into reverse and then fly to a range of 500m from our current location. */
+        /* Put the tug into reverse and then fly to a range of 1.5km from our current location. */
         ENTER =
         (
-            "setSpeedFactorTo: 1.0",
+            "dropMessages: DESIRED_RANGE_ACHIEVED",
+            setSpeedToCruiseSpeed,
             setDestinationToCurrentLocation,
             "setDesiredRangeTo: 1500.0",
-            performFlyToRangeFromDestination,
-            "pauseAI: 5.0"
+            performFlyToRangeFromDestination
         );
-        /* Combat messages. See CLEAR_STATION. */
+        /* Combat messages. See AI state 'CLEAR_STATION'. */
         "CASCADE_WEAPON_FOUND" = ("sendScriptMessage: $saveAIState", "setStateTo: CASCADE_WEAPON_FOUND");
         "HOSTILE_FIRE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $performJaguarCompanyAttackTarget");
         "INCOMING_MISSILE" =
@@ -102,25 +104,24 @@
             "setStateTo: MISSILE_DETECTED",
             "randomPauseAI: 0.25 0.75"
         );
+        "ATTACKERS_FOUND" = ("sendScriptMessage: $performJaguarCompanyAttackTarget");
         /* Respond to an attack call. Always call 'fightOrFleeHostiles' after setting the intercept AI. */
         "JAGUAR_COMPANY_ATTACK_TARGET" = ("setAITo: jaguar_company_interceptAI.plist", fightOrFleeHostiles);
-        /* Attackers found by '$scanForAttackers'. Let everyone else know.
-         * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
-         */
-        "ATTACKERS_FOUND" = ("sendScriptMessage: $performJaguarCompanyAttackTarget");
         /* Moved out of the way of the buoy. */
         "DESIRED_RANGE_ACHIEVED" = ("setStateTo: GO_TO_STATION");
+        /* We're taking damage from another ship so move away from it. */
+        "JAGUAR_COMPANY_TAKING_DAMAGE" = ("sendScriptMessage: $saveAIState", "setStateTo: MOVE_AWAY");
         /* AI restarted. */
         RESTARTED = ("setStateTo: MOVE_OUT");
         /* Scan for attackers and cascade weapons. */
-        UPDATE = ("pauseAI: 5.0", "sendScriptMessage: $scanForAttackers", "sendScriptMessage: $scanForCascadeWeapon");
+        UPDATE = ("sendScriptMessage: $scanForAttackers", "sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
     };
 
     "GO_TO_STATION" =
     {
-        /* Search for the base and get it's co-ordinates. */
-        ENTER = ("sendScriptMessage: $setCoordsToJaguarCompanyBase", "pauseAI: 5.0");
-        /* Combat messages. See CLEAR_STATION. */
+        /* Search for the buoy or the base and get it's co-ordinates. */
+        ENTER = ("dropMessages: DESIRED_RANGE_ACHIEVED", "sendScriptMessage: $setCoordsToJaguarCompanyBuoy");
+        /* Combat messages. See AI state 'CLEAR_STATION'. */
         "CASCADE_WEAPON_FOUND" = ("sendScriptMessage: $saveAIState", "setStateTo: CASCADE_WEAPON_FOUND");
         "HOSTILE_FIRE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $performJaguarCompanyAttackTarget");
         "INCOMING_MISSILE" =
@@ -129,17 +130,21 @@
             "setStateTo: MISSILE_DETECTED",
             "randomPauseAI: 0.25 0.75"
         );
+        "ATTACKERS_FOUND" = ("sendScriptMessage: $performJaguarCompanyAttackTarget");
         /* Respond to an attack call. Always call 'fightOrFleeHostiles' after setting the intercept AI. */
         "JAGUAR_COMPANY_ATTACK_TARGET" = ("setAITo: jaguar_company_interceptAI.plist", fightOrFleeHostiles);
-        /* Attackers found by '$scanForAttackers'. Let everyone else know.
-         * JAGUAR_COMPANY_ATTACK_TARGET is returned to the caller and other Jaguar Company ships not fighting.
-         */
-        "ATTACKERS_FOUND" = ("sendScriptMessage: $performJaguarCompanyAttackTarget");
-        /* Co-ordinates set to the base so let's set a course to it. */
+        /* Co-ordinates set to the buoy so let's set a course 2km from it. */
+        "JAGUAR_COMPANY_BUOY_FOUND" =
+        (
+            setDestinationFromCoordinates,
+            "setDesiredRangeTo: 2000.0",
+            checkCourseToDestination
+        );
+        /* Co-ordinates set to the base so let's set a course 12km from it. */
         "JAGUAR_COMPANY_BASE_FOUND" =
         (
             setDestinationFromCoordinates,
-            "setDesiredRangeTo: 5000.0",
+            "setDesiredRangeTo: 12000.0",
             checkCourseToDestination
         );
         /* Base has gone.
@@ -152,20 +157,48 @@
         "WAYPOINT_SET" = ("setAITo: jaguar_company_waypointAI.plist");
         /* Start docking procedures. */
         "DESIRED_RANGE_ACHIEVED" = (setTargetToNearestStation, "setAITo: jaguar_company_dockingAI.plist");
+        /* We're taking damage from another ship so move away from it. */
+        "JAGUAR_COMPANY_TAKING_DAMAGE" = ("sendScriptMessage: $saveAIState", "setStateTo: MOVE_AWAY");
         /* Docking was refused, move out of the way. */
         "DOCKING_REFUSED" = ("setStateTo: MOVE_OUT");
         /* Wandered into a wormhole whilst in waypoint AI. */
         WORMHOLE = ("setStateTo: GLOBAL");
         /* Restarted AI after going to a new waypoint. */
         RESTARTED = ("setStateTo: GO_TO_STATION");
-        /* Set a course to the base and check it also scan for attackers and cascade weapons. */
-        UPDATE =
+        /* Scan for attackers and cascade weapons. */
+        UPDATE = ("sendScriptMessage: $scanForAttackers", "sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
+    };
+
+    /* Move away. Target has already been set. */
+    "MOVE_AWAY" =
+    {
+        ENTER =
         (
-            "pauseAI: 5.0",
-            "sendScriptMessage: $setCoordsToJaguarCompanyBase",
-            "sendScriptMessage: $scanForAttackers",
-            "sendScriptMessage: $scanForCascadeWeapon"
+            "dropMessages: DESIRED_RANGE_ACHIEVED",
+            setDestinationToTarget,
+            "setDesiredRangeTo: 2500.0",
+            performFlyToRangeFromDestination
         );
+        /* Combat messages. See AI state 'CLEAR_STATION'. */
+        "CASCADE_WEAPON_FOUND" = ("setStateTo: CASCADE_WEAPON_FOUND");
+        "HOSTILE_FIRE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $performJaguarCompanyAttackTarget");
+        "INCOMING_MISSILE" =
+        (
+            setTargetToPrimaryAggressor,
+            fightOrFleeMissile,
+            "sendScriptMessage: $performJaguarCompanyAttackTarget"
+        );
+        "ATTACKERS_FOUND" = ("sendScriptMessage: $performJaguarCompanyAttackTarget");
+        /* Respond to an attack call. Always call 'fightOrFleeHostiles' after setting the intercept AI. */
+        "JAGUAR_COMPANY_ATTACK_TARGET" = ("setAITo: jaguar_company_interceptAI.plist", fightOrFleeHostiles);
+        /* Got to our desired range. Recall the last state. */
+        "DESIRED_RANGE_ACHIEVED" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
+        /* Not getting anywhere. Recall the last state. */
+        "FRUSTRATED" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
+        /* AI was restarted. Recall the last state. */
+        RESTARTED = ("sendScriptMessage: $recallAIState");
+        /* Scan for attackers and cascade weapons. */
+        UPDATE = ("sendScriptMessage: $scanForAttackers", "sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
     };
 
     /* Either fight or flee from the missile. */
@@ -173,7 +206,8 @@
     {
         /* Check for cascade weapons whilst fleeing to a range of 10km from the missile. */
         ENTER = ("sendScriptMessage: $scanForCascadeWeapon", "setDesiredRangeTo: 10000.0", performFlee);
-        /* Combat messages. See CLEAR_STATION. */
+        /* Combat messages. See AI state 'CLEAR_STATION'. */
+        /* Combat messages. See AI state 'CLEAR_STATION'. */
         "CASCADE_WEAPON_FOUND" = ("setStateTo: CASCADE_WEAPON_FOUND");
         "HOSTILE_FIRE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $performJaguarCompanyAttackTarget");
         /* Break off flee to deal with incoming missile. */
@@ -184,7 +218,7 @@
         /* We have put some distance between us and the missile. Recall the last state. */
         "REACHED_SAFETY" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
         /* Fire the ECM every 10 seconds and check for cascade weapons. */
-        UPDATE = ("pauseAI: 10.0", fightOrFleeMissile, "sendScriptMessage: $scanForCascadeWeapon");
+        UPDATE = (fightOrFleeMissile, "sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 10.0");
     };
 
     /* Deal with incoming missile. */
@@ -205,11 +239,17 @@
     /* Run away (anywhere). Target has already been set */
     "CASCADE_WEAPON_FOUND" =
     {
-        ENTER = (setDestinationToTarget, "setDesiredRangeTo: 25600.0", performFlee, "pauseAI: 2.0");
+        ENTER =
+        (
+            "dropMessages: DESIRED_RANGE_ACHIEVED",
+            setDestinationToTarget,
+            "setDesiredRangeTo: 25600.0",
+            performFlee
+        );
         "CASCADE_WEAPON_FOUND" = ("setStateTo: CASCADE_WEAPON_FOUND");
         "TARGET_LOST" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
         "REACHED_SAFETY" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
         "DESIRED_RANGE_ACHIEVED" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
-        UPDATE = ("pauseAI: 2.0", "sendScriptMessage: $scanForCascadeWeapon");
+        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
     };
 }

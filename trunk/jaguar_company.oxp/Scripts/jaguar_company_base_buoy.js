@@ -1,7 +1,8 @@
-/*jslint indent: 4, maxlen: 120, maxerr: 50, white: true, es5: true, undef: true, regexp: true, newcap: true */
-/*jshint es5: true, undef: true, eqnull: true, noempty: true, eqeqeq: true, boss: true, loopfunc: true, laxbreak: true,
-strict: true, curly: true */
-/*global worldScripts, log, Timer, addFrameCallback, removeFrameCallback, isValidFrameCallback, Vector3D */
+/*jslint bitwise: true, es5: true, newcap: true, nomen: true, regexp: true, unparam: true, todo: true, white: true,
+indent: 4, maxerr: 50, maxlen: 120 */
+/*jshint boss: true, curly: true, eqeqeq: true, eqnull: true, es5: true, evil: true, forin: true, laxbreak: true,
+loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: true */
+/*global Timer, Vector3D, addFrameCallback, isValidFrameCallback, log, removeFrameCallback, system, worldScripts */
 
 /* Jaguar Company Base Buoy
  *
@@ -27,7 +28,7 @@ strict: true, curly: true */
     this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
     this.license = "CC BY-NC-SA 3.0";
     this.description = "Ship script for the Jaguar Company Base Buoy.";
-    this.version = "1.2";
+    this.version = "1.3";
 
     /* Private variable. */
     var p_buoy = {};
@@ -41,26 +42,28 @@ strict: true, curly: true */
      *   Initialise various variables on ship birth.
      */
     this.shipSpawned = function () {
-        /* No longer needed after setting up. */
-        delete this.shipSpawned;
-
         /* Initialise the p_buoy variable object.
          * Encapsulates all private global data.
          */
         p_buoy = {
             /* Cache the world scripts. */
             mainScript : worldScripts["Jaguar Company"],
-            attackersScript : worldScripts["Jaguar Company Attackers"],
+            shipsScript : worldScripts["Jaguar Company Ships"],
             /* Local copies of the logging variables. */
             logging : worldScripts["Jaguar Company"].$logging,
             logExtra : worldScripts["Jaguar Company"].$logExtra
         };
 
         /* Register this buoy as a friendly. */
-        p_buoy.attackersScript.$addFriendly(this.ship);
+        p_buoy.shipsScript.$addFriendly({
+            ship : this.ship
+        });
         /* Wait 5 seconds then find the witchpoint. */
         p_buoy.nextTarget = "WITCHPOINT";
         this.$buoyTimerReference = new Timer(this, this.$buoyTimer, 5);
+
+        /* No longer needed after setting up. */
+        delete this.shipSpawned;
     };
 
     /* NAME
@@ -71,18 +74,24 @@ strict: true, curly: true */
      *
      * INPUT
      *   suppressDeathEvent - boolean
-     *     true - shipDied() will be called
-     *     false - shipDied() will not be called
+     *     true - shipDied() will not be called
+     *     false - shipDied() will be called
      */
     this.shipRemoved = function (suppressDeathEvent) {
+        var base;
+
         if (suppressDeathEvent) {
             return;
         }
 
-        /* Reset the script check. */
-        worldScripts["Jaguar Company"].$buoyOK = false;
-        /* Force a launch of a new buoy. */
-        worldScripts["Jaguar Company"].$buoyLaunched = false;
+        base = worldScripts["Jaguar Company"].$jaguarCompanyBase;
+
+        if (base && base.isValid) {
+            /* Reset the script check. */
+            base.script.$buoyOK = false;
+            /* Force a launch of a new buoy. */
+            base.script.$buoyLaunched = false;
+        }
     };
 
     /* NAME
@@ -92,10 +101,15 @@ strict: true, curly: true */
      *   The base buoy has just become invalid.
      */
     this.entityDestroyed = function () {
-        /* Reset the script check. */
-        worldScripts["Jaguar Company"].$buoyOK = false;
-        /* Force a launch of a new buoy. */
-        worldScripts["Jaguar Company"].$buoyLaunched = false;
+        var base = worldScripts["Jaguar Company"].$jaguarCompanyBase;
+
+        if (base && base.isValid) {
+            /* Reset the script check. */
+            base.script.$buoyOK = false;
+            /* Force a launch of a new buoy. */
+            base.script.$buoyLaunched = false;
+        }
+
         /* Stop and remove the frame callback and timer. */
         this.$removeBuoyTimer();
         this.$removeBuoyFCB();
@@ -115,7 +129,7 @@ strict: true, curly: true */
                 this.$buoyTimerReference.stop();
             }
 
-            delete this.$buoyTimerReference;
+            this.$buoyTimerReference = null;
         }
     };
 
@@ -134,7 +148,7 @@ strict: true, curly: true */
                 removeFrameCallback(this.$buoyFCBReference);
             }
 
-            delete this.$buoyFCBReference;
+            this.$buoyFCBReference = null;
         }
     };
 
@@ -180,7 +194,7 @@ strict: true, curly: true */
      *
      * FUNCTION
      *   Start off with a 'calibration routine' by finding the witchpoint then the planet.
-     *   Once 'calibrated', track Jaguar Company patrol ships every minute.
+     *   Once 'calibrated', track Jaguar Company patrol ships every 2 minutes.
      */
     this.$buoyTimer = function () {
         var buoy = this.ship,
@@ -190,20 +204,28 @@ strict: true, curly: true */
         if (p_buoy.nextTarget === "JAGUAR_COMPANY_PATROL") {
             /* Find the position of then patrol ships. */
             position = this.$findJaguarCompanyPatrol();
+
+            if (p_buoy.logging && p_buoy.logExtra) {
+                log(this.name, "$buoyTimer::Buoy tracking Jaguar Company Patrol ships...");
+            }
         } else if (p_buoy.nextTarget === "PLANET") {
             this.$removeBuoyTimer();
-            /* Wait 30 seconds then track Jaguar Company Patrol every 1 minute. */
+            /* Wait 30 seconds then track Jaguar Company Patrol every 2 minutes. */
             p_buoy.nextTarget = "JAGUAR_COMPANY_PATROL";
-            this.$buoyTimerReference = new Timer(this, this.$buoyTimer, 30, 60);
+            this.$buoyTimerReference = new Timer(this, this.$buoyTimer, 30, 120);
             /* Find the position of the main planet. */
             position = system.mainPlanet.position;
+
+            if (p_buoy.logging && p_buoy.logExtra) {
+                log(this.name, "$buoyTimer::Buoy tracking the main planet...");
+            }
         } else {
             this.$removeBuoyTimer();
 
             if (system.isInterstellarSpace) {
-                /* Wait 30 seconds then track Jaguar Company Patrol every 1 minute. */
+                /* Wait 30 seconds then track Jaguar Company Patrol every 2 minutes. */
                 p_buoy.nextTarget = "JAGUAR_COMPANY_PATROL";
-                this.$buoyTimerReference = new Timer(this, this.$buoyTimer, 30, 60);
+                this.$buoyTimerReference = new Timer(this, this.$buoyTimer, 30, 120);
             } else {
                 /* Wait 30 seconds then find the planet. */
                 p_buoy.nextTarget = "PLANET";
@@ -212,6 +234,10 @@ strict: true, curly: true */
 
             /* Find the position of the witchpoint. */
             position = p_buoy.mainScript.$witchpointBuoy.position;
+
+            if (p_buoy.logging && p_buoy.logExtra) {
+                log(this.name, "$buoyTimer::Buoy tracking the witchpoint...");
+            }
         }
 
         /* Vector pointing towards the target. */
@@ -232,11 +258,6 @@ strict: true, curly: true */
         p_buoy.angle = 0;
         /* Should take about 5 seconds (at 60 FPS). */
         p_buoy.deltaAngle = p_buoy.finalAngle / 300;
-
-        if (p_buoy.logging && p_buoy.logExtra) {
-            log(this.name, "$buoyTimer::Buoy tracking target...");
-        }
-
         /* Use a frame callback to do this smoothly. */
         this.$buoyFCBReference = addFrameCallback(this.$buoyFCB.bind(this));
     };
@@ -278,4 +299,4 @@ strict: true, curly: true */
         /* Update the current angle. */
         p_buoy.angle += p_buoy.deltaAngle;
     };
-}).call(this);
+}.bind(this)());

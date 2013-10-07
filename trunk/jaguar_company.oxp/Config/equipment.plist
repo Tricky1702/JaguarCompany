@@ -13,7 +13,7 @@
  * Equipment list for the Jaguar Company.
  */
 
- (
+(
     (
         /* Can't be bought. */
         99,
@@ -33,6 +33,18 @@
                 thargoidRepairBotChance = 0;
             };
         }
+    ),
+    (
+        /* Can't be bought. */
+        99,
+        0,
+        "Small ECM Hardened Missile",
+        "EQ_JAGUAR_COMPANY_HARDENED_MISSILE_SMALL",
+        "Small ECM Hardened Missile for the splinter ships.",
+        {
+            available_to_all = no;
+            available_to_NPCs = yes;
+            available_to_player = no;
+        }
     )
- )
- 
+)

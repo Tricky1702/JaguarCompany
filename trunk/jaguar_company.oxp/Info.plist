@@ -1,14 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>CFBundleGetInfoString</key>
-    <string>Jaguar Company 2.5</string>
-    <key>CFBundleName</key>
-    <string>Jaguar Company</string>
-    <key>CFBundleShortVersionString</key>
-    <string>2.5</string>
-    <key>NSHumanReadableCopyright</key>
-    <string>Copyright © 2012-2013 Richard Thomas Harrison (Tricky)</string>
-</dict>
-</plist>
+/* Info.plist
+ *
+ * Copyright © 2012-2013 Richard Thomas Harrison (Tricky)
+ *
+ * This work is licensed under the Creative Commons
+ * Attribution-Noncommercial-Share Alike 3.0 Unported License.
+ *
+ * To view a copy of this license, visit
+ * http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
+ * to Creative Commons, 171 Second Street, Suite 300, San Francisco,
+ * California, 94105, USA.
+ *
+ * Info.plist for the Jaguar Company OXP.
+ */
+
+{
+    CFBundleGetInfoString = "Jaguar Company 2.5";
+    CFBundleName = "Jaguar Company";
+    CFBundleShortVersionString = "2.5";
+    NSHumanReadableCopyright = "Copyright © 2012-2013 Richard Thomas Harrison (Tricky)";
+}
