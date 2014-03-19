@@ -23,9 +23,7 @@
     "LOOK_FOR_ROCKS" =
     {
         ENTER = (performIdle);
-        /* This will be caught by $scanForCascadeWeapon which should work for Oolite v1.74+
-         * Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed.
-         */
+        /* Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed. */
         "CASCADE_WEAPON_FOUND" =
         (
             "sendScriptMessage: $saveAIState LOOK_FOR_SPLINTERS",
@@ -57,7 +55,7 @@
         );
         "TARGET_FOUND" = (setTargetToFoundTarget, "setStateTo: BREAK_ROCKS");
         "NOTHING_FOUND" = ("setStateTo: GO_TO_STATION");
-        UPDATE = (scanForRocks, "sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 8.0");
+        UPDATE = (scanForRocks, "pauseAI: 8.0");
     };
 
     "BREAK_ROCKS" =
@@ -90,7 +88,7 @@
         );
         "TARGET_DESTROYED" = ("setStateTo: LOOK_FOR_SPLINTERS");
         "TARGET_LOST" = ("setStateTo: LOOK_FOR_SPLINTERS");
-        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 8.0");
+        UPDATE = ("pauseAI: 8.0");
     };
 
     "LOOK_FOR_SPLINTERS" =
@@ -117,7 +115,7 @@
         "NOTHING_FOUND" = ("setStateTo: LOOK_FOR_ROCKS");
         "HOLD_FULL" = ("setStateTo: GO_TO_STATION");
         "NO_CARGO_BAY" = ("setStateTo: GO_TO_STATION");
-        UPDATE = (scanForLoot, "sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 8.0");
+        UPDATE = (scanForLoot, "pauseAI: 8.0");
     };
 
     "COLLECT_STUFF" =
@@ -153,7 +151,7 @@
         "HOLD_FULL" = ("setStateTo: GO_TO_STATION");
         "TARGET_LOST" = ("setStateTo: LOOK_FOR_SPLINTERS");
         "COLLISION" = ("setStateTo: LOOK_FOR_SPLINTERS");
-        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 8.0");
+        UPDATE = ("pauseAI: 8.0");
     };
 
     "GO_TO_STATION" =
@@ -203,8 +201,7 @@
         "JAGUAR_COMPANY_TAKING_DAMAGE" = ("sendScriptMessage: $saveAIState", "setStateTo: MOVE_AWAY");
         /* Wandered into a wormhole whilst in waypoint AI. */
         WORMHOLE = ("setStateTo: GLOBAL");
-        /* Check for cascade weapons. */
-        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 8.0");
+        UPDATE = ("pauseAI: 8.0");
     };
 
     /* Move away. Target has already been set. */
@@ -230,13 +227,13 @@
         "DESIRED_RANGE_ACHIEVED" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
         /* Not getting anywhere. Recall the last state. */
         "FRUSTRATED" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
-        /* Scan for cascade weapons. */
-        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
+        UPDATE = ("pauseAI: 5.0");
     };
 
     FLEE =
     {
-        ENTER = ("setDesiredRangeTo: 25600", performFlee);
+        /* Flee to a range of 20km from the attacker. */
+        ENTER = ("setDesiredRangeTo: 20000", performFlee);
         /* Combat messages. See AI state 'LOOK_FOR_ROCKS'. */
         "CASCADE_WEAPON_FOUND" = ("setStateTo: CASCADE_WEAPON_FOUND");
         "HOSTILE_FIRE" =
@@ -255,8 +252,8 @@
     /* Either fight or flee from the missile. */
     "FLEE_FOR_MISSILE" =
     {
-        /* Check for cascade weapons whilst fleeing to a range of 10km from the missile. */
-        ENTER = ("sendScriptMessage: $scanForCascadeWeapon", "setDesiredRangeTo: 10000.0", performFlee);
+        /* Flee to a range of 20km from the missile. */
+        ENTER = ("setDesiredRangeTo: 20000.0", performFlee);
         /* Combat messages. See AI state 'LOOK_FOR_ROCKS'. */
         "CASCADE_WEAPON_FOUND" = ("setStateTo: CASCADE_WEAPON_FOUND");
         "HOSTILE_FIRE" = (setTargetToPrimaryAggressor, "sendScriptMessage: $performJaguarCompanyAttackTarget");
@@ -267,8 +264,8 @@
         "TARGET_LOST" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
         /* We have put some distance between us and the missile. Recall the last state. */
         "REACHED_SAFETY" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
-        /* Fire the ECM every 10 seconds and check for cascade weapons. */
-        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", fightOrFleeMissile, "pauseAI: 8.0");
+        /* Fire the ECM every 10 seconds. */
+        UPDATE = (fightOrFleeMissile, "pauseAI: 8.0");
     };
 
     /* Deal with incoming missile. */
@@ -298,6 +295,6 @@
         "TARGET_LOST" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
         "REACHED_SAFETY" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
         "DESIRED_RANGE_ACHIEVED" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
-        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
+        UPDATE = ("pauseAI: 5.0");
     };
 }

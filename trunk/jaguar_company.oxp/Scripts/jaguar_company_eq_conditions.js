@@ -24,9 +24,7 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
 
     /* Standard public variables for OXP scripts. */
     this.name = "jaguar_company_eq_conditions.js";
-    this.author = "Tricky";
-    this.copyright = "© 2013 Richard Thomas Harrison (Tricky)";
-    this.license = "CC BY-NC-SA 3.0";
+    this.copyright = "© 2013=2014 Richard Thomas Harrison (Tricky)";
     this.description = "Condition script for Jaguar Company equipment.";
     this.version = "1.0";
 

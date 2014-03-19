@@ -27,10 +27,7 @@
 
     "AWAIT_COORDS" =
     {
-        ENTER = ("sendScriptMessage: $scanForCascadeWeapon");
-        /* This will be caught by $scanForCascadeWeapon which should work for Oolite v1.74+
-         * Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed.
-         */
+        /* Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed. */
         "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
         /* Someone is pinging us with a laser.
          * See $shipIsBeingAttacked in jaguar_company_ships.js
@@ -54,19 +51,12 @@
         "RESTART_DOCKING" = ("setStateTo: GLOBAL");
         "TOO_BIG_TO_DOCK" = (abortDocking, "exitAIWithMessage: DOCKING_REFUSED");
         DOCKED = (exitAI);
-        UPDATE = (requestDockingCoordinates, "sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 2.0");
+        UPDATE = (requestDockingCoordinates, "pauseAI: 2.0");
     };
 
     STATIONKEEPING =
     {
-        ENTER =
-        (
-            setDestinationToTarget,
-            performFaceDestination,
-            "setSpeedTo: 0.0",
-            "sendScriptMessage: $scanForCascadeWeapon",
-            "pauseAI: 10.0"
-        );
+        ENTER = (setDestinationToTarget, performFaceDestination, "setSpeedTo: 0.0", "pauseAI: 10.0");
         /* See AI state 'AWAIT_COORDS' for next 4 messages. */
         "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
         "HOSTILE_FIRE" = (abortDocking, "exitAIWithMessage: HOSTILE_FIRE");
@@ -77,13 +67,7 @@
 
     APPROACH =
     {
-        ENTER =
-        (
-            recallDockingInstructions,
-            setSpeedToCruiseSpeed,
-            checkCourseToDestination,
-            "sendScriptMessage: $scanForCascadeWeapon"
-        );
+        ENTER = (recallDockingInstructions, setSpeedToCruiseSpeed, checkCourseToDestination);
         /* See AI state 'AWAIT_COORDS' for next 4 messages. */
         "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
         "HOSTILE_FIRE" = (abortDocking, "exitAIWithMessage: HOSTILE_FIRE");
@@ -99,14 +83,7 @@
 
     RETREAT =
     {
-        ENTER =
-        (
-            recallDockingInstructions,
-            "setSpeedTo: 0.0",
-            setDestinationToDockingAbort,
-            performFaceDestination,
-            "sendScriptMessage: $scanForCascadeWeapon"
-        );
+        ENTER = (recallDockingInstructions, "setSpeedTo: 0.0", setDestinationToDockingAbort, performFaceDestination);
         /* See AI state 'AWAIT_COORDS' for next 4 messages. */
         "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
         "HOSTILE_FIRE" = (abortDocking, "exitAIWithMessage: HOSTILE_FIRE");
@@ -121,7 +98,7 @@
 
     "GO_TO_COORDS" =
     {
-        ENTER = (performFaceDestination, "sendScriptMessage: $scanForCascadeWeapon");
+        ENTER = (performFaceDestination);
         /* See AI state 'AWAIT_COORDS' for next 4 messages. */
         "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
         "HOSTILE_FIRE" = (abortDocking, "exitAIWithMessage: HOSTILE_FIRE");
@@ -138,14 +115,7 @@
 
     ABORT =
     {
-        ENTER =
-        (
-            abortDocking,
-            "setSpeedTo: 0.0",
-            setDestinationToDockingAbort,
-            performFaceDestination,
-            "sendScriptMessage: $scanForCascadeWeapon"
-        );
+        ENTER = (abortDocking, "setSpeedTo: 0.0", setDestinationToDockingAbort, performFaceDestination);
         /* See AI state 'AWAIT_COORDS' for next 4 messages. */
         "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
         "HOSTILE_FIRE" = (abortDocking, "exitAIWithMessage: HOSTILE_FIRE");
@@ -160,7 +130,7 @@
     /* Go to the new waypoint. */
     "NEW_WAYPOINT" =
     {
-        ENTER = (setDesiredRangeForWaypoint, checkCourseToDestination, "sendScriptMessage: $scanForCascadeWeapon");
+        ENTER = (setDesiredRangeForWaypoint, checkCourseToDestination);
         /* See AI state 'AWAIT_COORDS' for next 4 messages. */
         "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
         "HOSTILE_FIRE" = (abortDocking, "exitAIWithMessage: HOSTILE_FIRE");
@@ -172,12 +142,6 @@
         "FRUSTRATED" = ("setStateTo: APPROACH", "pauseAI: 2.0");
         /* This will stop us from flying into the planet. (Hopefully) */
         "AEGIS_CLOSE_TO_MAIN_PLANET" = ("setStateTo: APPROACH", "pauseAI: 2.0");
-        UPDATE =
-        (
-            performFlyToRangeFromDestination,
-            checkCourseToDestination,
-            "sendScriptMessage: $scanForCascadeWeapon",
-            "pauseAI: 5.0"
-        );
+        UPDATE = (performFlyToRangeFromDestination, checkCourseToDestination, "pauseAI: 5.0");
     };
 }

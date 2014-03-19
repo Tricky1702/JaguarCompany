@@ -28,9 +28,7 @@
     {
         /* Drop any 'DESIRED_RANGE_ACHIEVED' messages. */
         ENTER = ("dropMessages: DESIRED_RANGE_ACHIEVED", "sendScriptMessage: $findLurkCoordinates");
-        /* This will be caught by $scanForCascadeWeapon which should work for Oolite v1.74+
-         * Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed.
-         */
+        /* Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed. */
         "CASCADE_WEAPON_FOUND" = ("sendScriptMessage: $saveAIState", "setStateTo: CASCADE_WEAPON_FOUND");
         /* Let everyone know that someone is shooting at us.
          * See $shipIsBeingAttacked in jaguar_company_ships.js
@@ -68,8 +66,8 @@
         WORMHOLE = ("setStateTo: MOVE_AWAY_FROM_WITCHPOINT");
         /* AI restarted. */
         RESTARTED = ("dropMessages: DESIRED_RANGE_ACHIEVED", "sendScriptMessage: $findLurkCoordinates");
-        /* Scan for attackers and cascade weapons. */
-        UPDATE = ("sendScriptMessage: $scanForAttackers", "sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
+        /* Scan for attackers. */
+        UPDATE = ("sendScriptMessage: $scanForAttackers", "pauseAI: 5.0");
     };
 
     "HEAD_FOR_BASE" =
@@ -113,8 +111,8 @@
         WORMHOLE = ("setStateTo: MOVE_AWAY_FROM_WITCHPOINT");
         /* AI restarted. */
         RESTARTED = ("setStateTo: HEAD_FOR_BASE");
-        /* Scan for attackers and cascade weapons. */
-        UPDATE = ("sendScriptMessage: $scanForAttackers", "sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
+        /* Scan for attackers. */
+        UPDATE = ("sendScriptMessage: $scanForAttackers", "pauseAI: 5.0");
     };
 
     /* Move away from the witchpoint before heading for the base. */
@@ -148,8 +146,8 @@
         "FRUSTRATED" = ("setStateTo: HEAD_FOR_BASE", "pauseAI: 2.0");
         /* AI was restarted. */
         RESTARTED = ("setStateTo: MOVE_AWAY_FROM_WITCHPOINT");
-        /* Scan for attackers and cascade weapons. */
-        UPDATE = ("sendScriptMessage: $scanForAttackers", "sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
+        /* Scan for attackers. */
+        UPDATE = ("sendScriptMessage: $scanForAttackers", "pauseAI: 5.0");
     };
 
     /* Move away. Target has already been set. */
@@ -179,8 +177,8 @@
         "FRUSTRATED" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
         /* AI was restarted. Recall the last state. */
         RESTARTED = ("sendScriptMessage: $recallAIState");
-        /* Scan for attackers and cascade weapons. */
-        UPDATE = ("sendScriptMessage: $scanForAttackers", "sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
+        /* Scan for attackers. */
+        UPDATE = ("sendScriptMessage: $scanForAttackers", "pauseAI: 5.0");
     };
 
     /* Run away (anywhere). Target has already been set */
@@ -197,6 +195,6 @@
         "TARGET_LOST" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
         "REACHED_SAFETY" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
         "DESIRED_RANGE_ACHIEVED" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
-        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 2.0");
+        UPDATE = ("pauseAI: 2.0");
     };
 }

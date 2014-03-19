@@ -230,7 +230,7 @@
 
     "jaguar_company_base_no_black_box2" =
     (
-        "[jaguar_company_base_fit_black_box1]"
+        "[jaguar_company_base_fit_black_box1] [jaguar_company_base_fit_black_box2] [jaguar_company_base_fit_black_box3]"
     );
 
     "jaguar_company_base_fit_black_box1" =
@@ -243,17 +243,17 @@
         "Cycle the advanced space compass to beacon code 'T' after activation."
     );
 
+    "jaguar_company_base_fit_black_box3" =
+    (
+        "You can also use the mode key 'B' to activate the holo-tracker."
+    );
+
     "jaguar_company_base_fix_black_box" =
     (
         "Our base master has noticed that your black box locator is damaged and has tasked his workers to fix it."
     );
 
-    "jaguar_company_base_no_locator1" =
-    (
-        "[jaguar_company_base_fit_locator] and then select the equipment page."
-    );
-
-    "jaguar_company_base_no_locator2" =
+    "jaguar_company_base_no_locator" =
     (
         "[jaguar_company_base_fit_locator]. All bases are highlighted with a cyan coloured box."
     );

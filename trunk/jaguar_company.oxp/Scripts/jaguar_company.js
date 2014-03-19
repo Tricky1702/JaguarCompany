@@ -24,7 +24,7 @@ missionVariables, oolite, player, system, worldScripts */
 
     /* Standard public variables for OXP scripts. */
     this.name = "Jaguar Company";
-    this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
+    this.copyright = "© 2012-2014 Richard Thomas Harrison (Tricky)";
     this.description = "Script to initialise the Jaguar Company.";
 
     /* Private variables. */
@@ -165,6 +165,13 @@ missionVariables, oolite, player, system, worldScripts */
             configurable : true,
             enumerable : true
         },
+        /* value will be 'true' if using Oolite v1.79 and newer, false if older. */
+        "$gte_v1_79" : {
+            value : (0 >= oolite.compareVersion("1.79")),
+            writable : false,
+            configurable : true,
+            enumerable : true
+        },
         /* Maximum number of Jaguar Company patrol ships allowed. */
         "$maxPatrolShips" : {
             value : 4,
@@ -202,7 +209,7 @@ missionVariables, oolite, player, system, worldScripts */
             configurable : true,
             enumerable : true
         },
-        /* Set value to 'true' to use visual effects. Ignored if using Oolite v1.76.1 and older. */
+        /* Set value to 'true' to use visual effects. */
         "$visualEffects" : {
             value : true,
             writable : false,
@@ -293,15 +300,7 @@ missionVariables, oolite, player, system, worldScripts */
         }
 
         if (cclVersion === 14 && this.$gte_v1_77) {
-            /* Oolite v1.77 and newer. */
             this.$killSelf(" -> Cabal Common Library is too old for Oolite v1.77 (and newer Oolite versions).");
-
-            return;
-        }
-
-        if (cclVersion > 14 && !this.$gte_v1_77) {
-            /* Oolite v1.76.1 and older. */
-            this.$killSelf(" -> Cabal Common Library is too new for Oolite v1.76.1 (and older Oolite versions).");
 
             return;
         }
@@ -379,7 +378,7 @@ missionVariables, oolite, player, system, worldScripts */
         p_main.closestNavyShip = null;
         /* Check if we need to create Jaguar Company in this system. Delay it. */
         this.$setUpCompanyTimerReference = new Timer(this, this.$setUpCompany, 2);
-        /* Add the interface system if Oolite v1.77 and newer is used. */
+        /* Add the interface system. */
         this.$addInterface();
 
         log(this.name + " " + this.version + " loaded.");
@@ -408,7 +407,7 @@ missionVariables, oolite, player, system, worldScripts */
      *   Player is about to launch from a station.
      */
     this.shipWillLaunchFromStation = function () {
-        /* Remove the interface system if Oolite v1.77 and newer is used. */
+        /* Remove the interface system. */
         this.$removeInterface();
     };
 
@@ -465,7 +464,7 @@ missionVariables, oolite, player, system, worldScripts */
             }
         }
 
-        /* Add the interface system if Oolite v1.77 and newer is used. */
+        /* Add the interface system. */
         this.$addInterface();
     };
 
@@ -626,52 +625,44 @@ missionVariables, oolite, player, system, worldScripts */
             return;
         }
 
-        if (this.$gte_v1_77) {
-            /* Oolite v1.77 and newer. */
-            if (to === "GUI_SCREEN_LONG_RANGE_CHART") {
-                /* Add the marked systems to the long range chart. */
-                length = this.$jaguarCompanySystemIDs.length;
+        if (to === "GUI_SCREEN_LONG_RANGE_CHART") {
+            /* Add the marked systems to the long range chart. */
+            length = this.$jaguarCompanySystemIDs.length;
 
-                for (counter = 0; counter < length; counter += 1) {
-                    mission.markSystem({
-                        system : this.$jaguarCompanySystemIDs[counter],
-                        name : this.name,
-                        markerColor : "orangeColor",
-                        markerScale : 1.5,
-                        markerShape : "MARKER_SQUARE"
-                    });
-                }
-
-                player.consoleMessage("Orange coloured squares show Jaguar Company Base locations.", 5);
-
-                if (player.ship.docked) {
-                    player.consoleMessage("Press F4 for a list of Jaguar Company Base locations.", 5);
-                } else {
-                    player.consoleMessage("Press F7 then F5 for a list of Jaguar Company Base locations.", 5);
-                }
+            for (counter = 0; counter < length; counter += 1) {
+                mission.markSystem({
+                    system : this.$jaguarCompanySystemIDs[counter],
+                    name : this.name,
+                    markerColor : "orangeColor",
+                    markerScale : 1.5,
+                    markerShape : "MARKER_SQUARE"
+                });
             }
 
-            if (from === "GUI_SCREEN_LONG_RANGE_CHART") {
-                /* Remove the marked systems from the long range chart. */
-                length = this.$jaguarCompanySystemIDs.length;
+            player.consoleMessage("Orange coloured squares show Jaguar Company Base locations.", 5);
 
-                for (counter = 0; counter < length; counter += 1) {
-                    mission.unmarkSystem({
-                        system : this.$jaguarCompanySystemIDs[counter],
-                        name : this.name
-                    });
-                }
-            }
-        } else {
-            /* Oolite v1.76.1 and older. */
-            if (to === "GUI_SCREEN_LONG_RANGE_CHART") {
+            if (player.ship.docked) {
+                player.consoleMessage("Press F4 for a list of Jaguar Company Base locations.", 5);
+            } else {
                 player.consoleMessage("Press F7 then F5 for a list of Jaguar Company Base locations.", 5);
             }
         }
 
+        if (from === "GUI_SCREEN_LONG_RANGE_CHART") {
+            /* Remove the marked systems from the long range chart. */
+            length = this.$jaguarCompanySystemIDs.length;
+
+            for (counter = 0; counter < length; counter += 1) {
+                mission.unmarkSystem({
+                    system : this.$jaguarCompanySystemIDs[counter],
+                    name : this.name
+                });
+            }
+        }
+
         if (from === "GUI_SCREEN_SYSTEM_DATA" && to === "GUI_SCREEN_STATUS") {
-            if (this.$gte_v1_77 && player.ship.docked) {
-                /* Oolite v1.77 and newer use the interface screen when docked. */
+            if (player.ship.docked) {
+                /* Ignore when docked. */
                 return;
             }
 
@@ -972,11 +963,11 @@ missionVariables, oolite, player, system, worldScripts */
      *   $addInterface
      *
      * FUNCTION
-     *   Add the interface system if Oolite v1.77 and newer is used and
-     *   docked and the software patch is uploaded to the black box (which has to be present).
+     *   Add the interface system if docked and the software patch is uploaded
+     *   to the black box (which has to be present).
      */
     this.$addInterface = function () {
-        if (this.$gte_v1_77 && player.ship.docked &&
+        if (player.ship.docked &&
             player.ship.equipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX") === "EQUIPMENT_OK" &&
             this.$playerVar.locationsActivated[galaxyNumber]) {
             player.ship.dockedStation.setInterface("jaguar_company_base_list", {
@@ -992,11 +983,11 @@ missionVariables, oolite, player, system, worldScripts */
      *   $removeInterface
      *
      * FUNCTION
-     *   Remove the interface system if Oolite v1.77 and newer is used.
+     *   Remove the interface system.
      */
     this.$removeInterface = function () {
-        if (this.$gte_v1_77 && player.ship.docked) {
-            /* Oolite v1.77 and newer and docked. */
+        if (player.ship.docked) {
+            /* Remove if docked. */
             player.ship.dockedStation.setInterface("jaguar_company_base_list", null);
         }
     };
@@ -1022,7 +1013,6 @@ missionVariables, oolite, player, system, worldScripts */
             title : "Jaguar Company Base locations",
             message : locations + "\n",
             choicesKey : choicesKey,
-            /* exitScreen is ignored by Oolite v1.76.1 and older. */
             exitScreen : "GUI_SCREEN_INTERFACES"
         }, this.$locationChoices, this);
     };
@@ -1147,7 +1137,6 @@ missionVariables, oolite, player, system, worldScripts */
             title : "Jaguar Company Base locations",
             message : locations + "\n",
             choicesKey : choicesKey,
-            /* exitScreen is ignored by Oolite v1.76.1 and older. */
             exitScreen : "GUI_SCREEN_INTERFACES"
         }, this.$locationChoices, this);
     };
@@ -1194,28 +1183,14 @@ missionVariables, oolite, player, system, worldScripts */
                 lname = this.$ccl.strToWidth(list[start + i], 15, " ");
                 /* Right column. Truncated. */
                 rname = this.$ccl.strToWidth(list[start + i + lines], 15);
-
                 /* Create the row. */
-                if (this.$gte_v1_77) {
-                    /* Oolite v1.77 and newer. */
-                    row = this.$ccl.strAdd2Columns(lname, 1, rname, 17);
-                } else {
-                    /* Oolite v1.76.1 and older. */
-                    row = " " + lname + " " + rname;
-                }
+                row = this.$ccl.strAdd2Columns(lname, 1, rname, 17);
             } else {
                 /* One column layout. */
                 /* Left column. Truncated. */
                 lname = this.$ccl.strToWidth(list[start + i], 31);
-
                 /* Create the row. */
-                if (this.$gte_v1_77) {
-                    /* Oolite v1.77 and newer. */
-                    row = this.$ccl.strAddIndentedText(lname, 1);
-                } else {
-                    /* Oolite v1.76.1 and older. */
-                    row = " " + lname;
-                }
+                row = this.$ccl.strAddIndentedText(lname, 1);
             }
 
             columnized += row + "\n";
@@ -1723,8 +1698,6 @@ missionVariables, oolite, player, system, worldScripts */
          * $swapBase will be reset in the 'shipSpawned' base ship script once the base has fully spawned.
          */
         this.$swapBase = true;
-        /* Create a new base. */
-        //        newBase = base.spawnOne(newBaseRole);
         /* Remove the original base quietly: don't trigger 'shipDied' in the ship script. */
         base.remove(true);
         /* Setup the new base with the original properties. */
@@ -1847,9 +1820,8 @@ missionVariables, oolite, player, system, worldScripts */
     this.$blackboxHoloSet = function (showMsg) {
         var patrolShips = system.shipsWithPrimaryRole("jaguar_company_patrol", player.ship);
 
-        if (this.$visualEffects && this.$gte_v1_77 &&
-            patrolShips.length && (!this.$visualTracker || !this.$visualTracker.isValid)) {
-            /* Visual effect for Oolite v1.77 and newer. */
+        if (this.$visualEffects && patrolShips.length &&
+            (!this.$visualTracker || !this.$visualTracker.isValid)) {
             this.$visualTracker = system.addVisualEffect("jaguar_company_tracker", player.ship.position);
 
             if (showMsg && this.$visualTracker && this.$visualTracker.isValid) {
@@ -1894,7 +1866,7 @@ missionVariables, oolite, player, system, worldScripts */
      *     false - do not show console message
      */
     this.$blackboxHoloReset = function (showMsg) {
-        if (this.$visualEffects && this.$gte_v1_77 && this.$visualTracker && this.$visualTracker.isValid) {
+        if (this.$visualEffects && this.$visualTracker && this.$visualTracker.isValid) {
             /* Remove the visual tracker. */
             this.$visualTracker.remove();
             this.$visualTrackerOK = false;
@@ -1952,11 +1924,10 @@ missionVariables, oolite, player, system, worldScripts */
                     player.ship.setEquipmentStatus("EQ_JAGUAR_COMPANY_BLACK_BOX", "EQUIPMENT_OK");
                 } else {
                     /* No black box locator. */
-                    if (this.$visualEffects && this.$gte_v1_77) {
-                        /* Oolite v1.77 and newer. */
+                    if (this.$visualEffects) {
                         welcome += expandMissionText("jaguar_company_base_no_black_box2");
                     } else {
-                        /* Visual effects off or Oolite v1.76.1 and older. */
+                        /* Visual effects off. */
                         welcome += expandMissionText("jaguar_company_base_no_black_box1");
                     }
 
@@ -1981,16 +1952,9 @@ missionVariables, oolite, player, system, worldScripts */
         if (reputation >= locationsLevel && !this.$playerVar.locationsActivated[galaxyNumber]) {
             /* Upload the software patch to the black box. */
             this.$playerVar.locationsActivated[galaxyNumber] = true;
-            /* Add the interface system if Oolite v1.77 and newer is used. */
+            /* Add the interface system. */
             this.$addInterface();
-
-            if (this.$gte_v1_77) {
-                /* Oolite v1.77 and newer. */
-                welcome += expandMissionText("jaguar_company_base_no_locator2");
-            } else {
-                /* Oolite v1.76.1 and older. */
-                welcome += expandMissionText("jaguar_company_base_no_locator1");
-            }
+            welcome += expandMissionText("jaguar_company_base_no_locator");
         }
 
         if (reputation >= helperLevel && !system.isInterstellarSpace) {

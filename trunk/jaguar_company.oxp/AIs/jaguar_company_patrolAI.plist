@@ -54,9 +54,7 @@
     {
         /* Target Jaguar Company base. */
         ENTER = ("dropMessages: DESIRED_RANGE_ACHIEVED", "sendScriptMessage: $setCoordsToJaguarCompanyBuoy");
-        /* This will be caught by $scanForCascadeWeapon which should work for Oolite v1.74+
-         * Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed.
-         */
+        /* Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed. */
         "CASCADE_WEAPON_FOUND" = ("sendScriptMessage: $saveAIState", "setStateTo: CASCADE_WEAPON_FOUND");
         /* Let everyone know that someone is shooting at us.
          * See $shipIsBeingAttacked in jaguar_company_ships.js
@@ -122,8 +120,8 @@
         "JAGUAR_COMPANY_TAKING_DAMAGE" = ("sendScriptMessage: $saveAIState", "setStateTo: MOVE_AWAY");
         /* AI restarted. */
         RESTARTED = ("setStateTo: CLEAR_STATION");
-        /* Scan for attackers and cascade weapons. */
-        UPDATE = ("sendScriptMessage: $scanForAttackers", "sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
+        /* Scan for attackers. */
+        UPDATE = ("sendScriptMessage: $scanForAttackers", "pauseAI: 5.0");
     };
 
     /* Wait for all members of Jaguar Company to be present before re-grouping. */
@@ -180,11 +178,10 @@
         WORMHOLE = ("setStateTo: GLOBAL");
         /* AI restarted. */
         RESTARTED = ("setStateTo: WAIT_FOR_REGROUP");
-        /* Scan for attackers and cascade weapons. */
+        /* Scan for attackers. */
         UPDATE =
         (
             "sendScriptMessage: $scanForAttackers",
-            "sendScriptMessage: $scanForCascadeWeapon",
             "sendScriptMessage: $scanForAllJaguarCompany",
             "pauseAI: 5.0"
         );
@@ -248,11 +245,10 @@
         "APPROACHING_PLANET" = ("setStateTo: FINISHED_ROUTE");
         "AEGIS_CLOSE_TO_MAIN_PLANET" = ("setStateTo: FINISHED_ROUTE", "pauseAI: 2.0");
         "CLOSE_TO_PLANET" = ("setStateTo: FINISHED_ROUTE", "pauseAI: 2.0");
-        /* Scan for attackers and cascade weapons. */
+        /* Scan for attackers. */
         UPDATE =
         (
             "sendScriptMessage: $scanForAttackers",
-            "sendScriptMessage: $scanForCascadeWeapon",
             "sendScriptMessage: $scanForJaguarCompany",
             "pauseAI: 5.0"
         );
@@ -312,11 +308,10 @@
         WORMHOLE = ("setStateTo: GLOBAL");
         /* AI restarted. */
         RESTARTED = ("setStateTo: WAIT_FOR_REGROUP");
-        /* Scan for attackers and cascade weapons. */
+        /* Scan for attackers. */
         UPDATE =
         (
             "sendScriptMessage: $scanForAttackers",
-            "sendScriptMessage: $scanForCascadeWeapon",
             "sendScriptMessage: $setCoordsToWitchpoint",
             "pauseAI: 5.0"
         );
@@ -379,11 +374,10 @@
         WORMHOLE = ("setStateTo: GLOBAL");
         /* AI restarted. */
         RESTARTED = ("setStateTo: WAIT_FOR_REGROUP");
-        /* Scan for attackers and cascade weapons. */
+        /* Scan for attackers. */
         UPDATE =
         (
             "sendScriptMessage: $scanForAttackers",
-            "sendScriptMessage: $scanForCascadeWeapon",
             "sendScriptMessage: $setCoordsToNavyShips",
             "pauseAI: 5.0"
         );
@@ -449,11 +443,10 @@
         "APPROACHING_PLANET" = ("setStateTo: FINISHED_ROUTE");
         "AEGIS_CLOSE_TO_MAIN_PLANET" = ("setStateTo: FINISHED_ROUTE", "pauseAI: 2.0");
         "CLOSE_TO_PLANET" = ("setStateTo: FINISHED_ROUTE", "pauseAI: 2.0");
-        /* Scan for attackers and cascade weapons. */
+        /* Scan for attackers. */
         UPDATE =
         (
             "sendScriptMessage: $scanForAttackers",
-            "sendScriptMessage: $scanForCascadeWeapon",
             checkAegis,
             "sendScriptMessage: $setCoordsToMainPlanet",
             "pauseAI: 5.0"
@@ -515,11 +508,10 @@
         WORMHOLE = ("setStateTo: GLOBAL");
         /* AI restarted. */
         RESTARTED = ("setStateTo: WAIT_FOR_REGROUP");
-        /* Scan for attackers and cascade weapons. */
+        /* Scan for attackers. */
         UPDATE =
         (
             "sendScriptMessage: $scanForAttackers",
-            "sendScriptMessage: $scanForCascadeWeapon",
             "sendScriptMessage: $setCoordsToWitchpoint",
             "pauseAI: 5.0"
         );
@@ -580,11 +572,10 @@
         WORMHOLE = ("setStateTo: GLOBAL");
         /* AI restarted. */
         RESTARTED = ("setStateTo: WAIT_FOR_REGROUP");
-        /* Scan for attackers and cascade weapons. */
+        /* Scan for attackers. */
         UPDATE =
         (
             "sendScriptMessage: $scanForAttackers",
-            "sendScriptMessage: $scanForCascadeWeapon",
             "sendScriptMessage: $setCoordsToWitchpoint",
             "pauseAI: 5.0"
         );
@@ -660,11 +651,10 @@
         WORMHOLE = ("setStateTo: GLOBAL");
         /* AI restarted. */
         RESTARTED = ("setStateTo: WAIT_FOR_REGROUP");
-        /* Scan for attackers and cascade weapons. */
+        /* Scan for attackers. */
         UPDATE =
         (
             "sendScriptMessage: $scanForAttackers",
-            "sendScriptMessage: $scanForCascadeWeapon",
             "sendScriptMessage: $setCoordsToJaguarCompanyBuoy",
             "pauseAI: 5.0"
         );
@@ -743,11 +733,10 @@
         "APPROACHING_PLANET" = ("setStateTo: FINISHED_ROUTE");
         "AEGIS_CLOSE_TO_MAIN_PLANET" = ("setStateTo: FINISHED_ROUTE");
         "CLOSE_TO_PLANET" = ("setStateTo: FINISHED_ROUTE");
-        /* Scan for attackers and cascade weapons. */
+        /* Scan for attackers. */
         UPDATE =
         (
             "sendScriptMessage: $scanForAttackers",
-            "sendScriptMessage: $scanForCascadeWeapon",
             checkAegis,
             "sendScriptMessage: $checkJaguarCompanyClosestDistance 250.0",
             "pauseAI: 5.0"
@@ -797,11 +786,10 @@
         "APPROACHING_PLANET" = ("setStateTo: FINISHED_ROUTE");
         "AEGIS_CLOSE_TO_MAIN_PLANET" = ("setStateTo: FINISHED_ROUTE", "pauseAI: 2.0");
         "CLOSE_TO_PLANET" = ("setStateTo: FINISHED_ROUTE", "pauseAI: 2.0");
-        /* Scan for attackers and cascade weapons. */
+        /* Scan for attackers. */
         UPDATE =
         (
             "sendScriptMessage: $scanForAttackers",
-            "sendScriptMessage: $scanForCascadeWeapon",
             checkAegis,
             "sendScriptMessage: $checkJaguarCompanyClosestDistance 250.0",
             "pauseAI: 5.0"
@@ -822,6 +810,6 @@
         "TARGET_LOST" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
         "REACHED_SAFETY" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
         "DESIRED_RANGE_ACHIEVED" = ("sendScriptMessage: $recallAIState", "pauseAI: 2.0");
-        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
+        UPDATE = ("pauseAI: 5.0");
     };
 }

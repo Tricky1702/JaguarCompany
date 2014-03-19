@@ -23,11 +23,9 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
 
     /* Standard public variables for OXP scripts. */
     this.name = "jaguar_company_tracker.js";
-    this.author = "Tricky";
-    this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
-    this.license = "CC BY-NC-SA 3.0";
+    this.copyright = "© 2012-2014 Richard Thomas Harrison (Tricky)";
     this.description = "Ship script for the Jaguar Company Tracker.";
-    this.version = "1.2";
+    this.version = "1.3";
 
     /* Private variable. */
     var p_tracker = {};
@@ -38,7 +36,7 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
      *   shipSpawned
      *
      * FUNCTION
-     *   Initialise various variables on ship birth. Oolite v1.76.1 and older.
+     *   Initialise various variables on ship birth.
      */
     this.shipSpawned = function () {
         /* Common setup. */
@@ -56,7 +54,7 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
      *   effectSpawned
      *
      * FUNCTION
-     *   Initialise various variables on effect birth. Oolite v1.77 and newer.
+     *   Initialise various variables on effect birth.
      */
     this.effectSpawned = function () {
         /* Common setup. */
@@ -76,7 +74,7 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
      * FUNCTION
      *   Patrol tracker was destroyed.
      *
-     *   Not triggered for Oolite v1.77 and newer visual effects.
+     *   Not triggered for visual effects.
      *
      * INPUTS
      *   whom - entity that caused the death
@@ -219,8 +217,6 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
      * FUNCTION
      *   Tracker frame callback.
      *
-     *   Used by Oolite v1.76.1 and older.
-     *
      * INPUT
      *   delta - amount of game clock time past since the last frame
      */
@@ -263,8 +259,6 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
      *
      * FUNCTION
      *   Tracker frame callback.
-     *
-     *   Used by Oolite v1.77 and newer for visual effects.
      *
      * INPUT
      *   delta - amount of game clock time past since the last frame

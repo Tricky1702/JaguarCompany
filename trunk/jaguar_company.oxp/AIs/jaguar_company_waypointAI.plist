@@ -20,7 +20,7 @@
 
     "GO_TO_WAYPOINT" =
     {
-        ENTER = ("setSpeedFactorTo: 0.75", "sendScriptMessage: $scanForCascadeWeapon");
+        ENTER = ("setSpeedFactorTo: 0.75");
         /* Combat messages. */
         "CASCADE_WEAPON_FOUND" = ("exitAIWithMessage: CASCADE_WEAPON_FOUND");
         "HOSTILE_FIRE" = ("exitAIWithMessage: HOSTILE_FIRE");
@@ -46,7 +46,6 @@
         "CLOSE_TO_PLANET" = ("exitAIWithMessage: CLOSE_TO_PLANET");
         UPDATE =
         (
-            "sendScriptMessage: $scanForCascadeWeapon",
             performFlyToRangeFromDestination,
             checkCourseToDestination,
             "pauseAI: 5.0"
@@ -55,13 +54,12 @@
 
     "NEW_WAYPOINT" =
     {
-        /* Stop moving, set range and check course. Also check for cascade weapons. */
+        /* Stop moving, set range and check course. */
         ENTER =
         (
             "setSpeedFactorTo: 0.0",
             setDesiredRangeForWaypoint,
-            checkCourseToDestination,
-            "sendScriptMessage: $scanForCascadeWeapon"
+            checkCourseToDestination
         );
         /* Combat messages. */
         "CASCADE_WEAPON_FOUND" = ("exitAIWithMessage: CASCADE_WEAPON_FOUND");

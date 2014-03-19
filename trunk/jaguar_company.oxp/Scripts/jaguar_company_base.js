@@ -23,9 +23,7 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
 
     /* Standard public variables for OXP scripts. */
     this.name = "jaguar_company_base.js";
-    this.author = "Tricky";
-    this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
-    this.license = "CC BY-NC-SA 3.0";
+    this.copyright = "© 2012-2014 Richard Thomas Harrison (Tricky)";
     this.description = "Ship script for the Jaguar Company Base.";
     this.version = "1.5";
 

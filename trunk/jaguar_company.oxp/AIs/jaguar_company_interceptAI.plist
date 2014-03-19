@@ -18,10 +18,8 @@
     GLOBAL =
     {
         /* Switch the running lights on and enter attack or flee mode. */
-        ENTER = (switchLightsOn, "sendScriptMessage: $scanForCascadeWeapon");
-        /* This will be caught by $scanForCascadeWeapon which should work for Oolite v1.74+
-         * Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed.
-         */
+        ENTER = (switchLightsOn);
+        /* Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed. */
         "CASCADE_WEAPON_FOUND" = ("setStateTo: EXIT_AI_FOR_CASCADE_WEAPON");
         /* Always set the target and do a fightOrFleeHostiles before starting this AI-state. */
         FIGHTING = ("setStateTo: ATTACK_SHIP");
@@ -53,9 +51,7 @@
          * In ATTACK_SHIP we drop a few AI messages that we can ignore and go into attack mode.
          */
         ENTER = ("dropMessages: FRIENDLY_FIRE, TARGET_DESTROYED, TARGET_LOST", performAttack);
-        /* This will be caught by $scanForCascadeWeapon which should work for Oolite v1.74+
-         * Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed.
-         */
+        /* Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed. */
         "CASCADE_WEAPON_FOUND" = ("setStateTo: EXIT_AI_FOR_CASCADE_WEAPON");
         /* Let everyone know that someone is shooting at us and re-enter ATTACK_SHIP.
          * See $shipIsBeingAttacked in jaguar_company_ships.js
@@ -94,18 +90,16 @@
         );
         /* Regroup. */
         "JAGUAR_COMPANY_REGROUP" = ("setStateTo: EXIT_AI");
-        /* Check every 5 seconds for cascade weapons. */
-        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", "sendScriptMessage: $checkTargetIsValid", "pauseAI: 5.0");
+        /* Check every 5 seconds for a valid target. */
+        UPDATE = ("sendScriptMessage: $checkTargetIsValid", "pauseAI: 5.0");
     };
 
     /* General purpose fight or flee state. */
     FLEE =
     {
-        /* Check for cascade weapons whilst fleeing to a range of 10km from the attacker. */
-        ENTER = ("sendScriptMessage: $scanForCascadeWeapon", "setDesiredRangeTo: 10000.0", performFlee);
-        /* This will be caught by $scanForCascadeWeapon which should work for Oolite v1.74+
-         * Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed.
-         */
+        /* Flee to a range of 10km from the attacker. */
+        ENTER = ("setDesiredRangeTo: 10000.0", performFlee);
+        /* Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed. */
         "CASCADE_WEAPON_FOUND" = ("setStateTo: EXIT_AI_FOR_CASCADE_WEAPON");
         /* Let everyone know that someone is shooting at us and re-enter GLOBAL.
          * See $shipIsBeingAttacked in jaguar_company_ships.js
@@ -124,18 +118,15 @@
         "ENERGY_FULL" = ("setStateTo: ATTACK_SHIP", "sendScriptMessage: $scanForAttackers");
         /* Regroup. */
         "JAGUAR_COMPANY_REGROUP" = ("setStateTo: EXIT_AI");
-        /* Check every 5 seconds for cascade weapons. */
-        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 5.0");
+        UPDATE = ("pauseAI: 5.0");
     };
 
     /* Either fight or flee from the missile. */
     "FLEE_FOR_MISSILE" =
     {
-        /* Check for cascade weapons whilst fleeing to a range of 10km from the missile. */
-        ENTER = ("sendScriptMessage: $scanForCascadeWeapon", "setDesiredRangeTo: 10000.0", performFlee);
-        /* This will be caught by $scanForCascadeWeapon which should work for Oolite v1.74+
-         * Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed.
-         */
+        /* Flee to a range of 10km from the missile. */
+        ENTER = ("setDesiredRangeTo: 10000.0", performFlee);
+        /* Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed. */
         "CASCADE_WEAPON_FOUND" = ("setStateTo: EXIT_AI_FOR_CASCADE_WEAPON");
         /* Let everyone know that someone is shooting at us and re-enter GLOBAL.
          * See $shipIsBeingAttacked in jaguar_company_ships.js
@@ -153,8 +144,8 @@
         "REACHED_SAFETY" = ("setStateTo: ATTACK_SHIP", "sendScriptMessage: $scanForAttackers");
         /* Regroup. */
         "JAGUAR_COMPANY_REGROUP" = ("setStateTo: EXIT_AI");
-        /* Fire the ECM every 10 seconds and check for cascade weapons. */
-        UPDATE = ("sendScriptMessage: $scanForCascadeWeapon", fightOrFleeMissile, "pauseAI: 10.0");
+        /* Fire the ECM every 10 seconds. */
+        UPDATE = (fightOrFleeMissile, "pauseAI: 10.0");
     };
 
     /* Deal with incoming missile. */

@@ -24,11 +24,9 @@ worldScripts */
 
     /* Standard public variables for OXP scripts. */
     this.name = "Jaguar Company Ships";
-    this.author = "Tricky";
-    this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
-    this.license = "CC BY-NC-SA 3.0";
+    this.copyright = "© 2012-2014 Richard Thomas Harrison (Tricky)";
     this.description = "Script to initialise the Jaguar Company ships.";
-    this.version = "1.4";
+    this.version = "1.5";
 
     /* Private variable. */
     var p_ships = {};
@@ -64,15 +62,7 @@ worldScripts */
         }
 
         if (cclVersion === 14 && mainScript.$gte_v1_77) {
-            /* Oolite v1.77 and newer. */
             this.$killSelf(" -> Cabal Common Library is too old for Oolite v1.77 (and newer Oolite versions).");
-
-            return;
-        }
-
-        if (cclVersion > 14 && !mainScript.$gte_v1_77) {
-            /* Oolite v1.76.1 and older. */
-            this.$killSelf(" -> Cabal Common Library is too new for Oolite v1.76.1 (and older Oolite versions).");
 
             return;
         }
@@ -595,14 +585,43 @@ worldScripts */
         this.$friendList.push(shipKey);
 
         /* Save the original ship script event handler hooks. */
+        ship.script.$ships_cascadeWeaponDetected = ship.script.cascadeWeaponDetected;
         ship.script.$ships_entityDestroyed = ship.script.entityDestroyed;
         ship.script.$ships_shipAttackedWithMissile = ship.script.shipAttackedWithMissile;
         ship.script.$ships_shipBeingAttacked = ship.script.shipBeingAttacked;
+        ship.script.$ships_shipBeingAttackedUnsuccessfully = ship.script.shipBeingAttackedUnsuccessfully;
         ship.script.$ships_shipDied = ship.script.shipDied;
         ship.script.$ships_shipTakingDamage = ship.script.shipTakingDamage;
         ship.script.$ships_shipTargetDestroyed = ship.script.shipTargetDestroyed;
 
         /* New ship script event handler hooks. */
+
+        /* NAME
+         *   cascadeWeaponDetected
+         *
+         * FUNCTION
+         *   The cascadeWeaponDetected handler fires when a Q-bomb (or equivalent device) detonates within
+         *   scanner range of the player. The stock Q-mine (and potentially OXP equivalents) will also send
+         *   this handler at the start of the countdown, giving ships more time to react.
+         *
+         *   Reacts with a 'CASCADE_WEAPON_FOUND' AI message rather than 'CASCADE_WEAPON_DETECTED'
+         *   used by Oolite v1.77 and newer.
+         *
+         *   Inlined this function because it doesn't call functions within the OXP.
+         *
+         * INPUT
+         *   weapon - entity of the cascade weapon
+         */
+        ship.script.cascadeWeaponDetected = function (weapon) {
+            /* Set the target and send a CASCADE_WEAPON_FOUND message to the AI. */
+            this.ship.target = weapon;
+            this.ship.reactToAIMessage("CASCADE_WEAPON_FOUND");
+
+            if (this.$ships_cascadeWeaponDetected) {
+                /* Call the original. */
+                this.$ships_cascadeWeaponDetected.apply(this, arguments);
+            }
+        };
 
         /* NAME
          *   entityDestroyed
@@ -653,6 +672,24 @@ worldScripts */
             if (this.$ships_shipBeingAttacked) {
                 /* Call the original. */
                 this.$ships_shipBeingAttacked.apply(this, arguments);
+            }
+        };
+
+        /* NAME
+         *   shipBeingAttackedUnsuccessfully
+         *
+         * FUNCTION
+         *   A ship is being unsuccessfully attacked.
+         *
+         * INPUT
+         *   attacker - entity of the attacker
+         */
+        ship.script.shipBeingAttackedUnsuccessfully = function (attacker) {
+            worldScripts["Jaguar Company Ships"].$shipIsBeingAttackedUnsuccessfully(this.ship, attacker);
+
+            if (this.$ships_shipBeingAttackedUnsuccessfully) {
+                /* Call the original. */
+                this.$ships_shipBeingAttackedUnsuccessfully.apply(this, arguments);
             }
         };
 
@@ -866,107 +903,6 @@ worldScripts */
         ship.script.$scanForAttackers = function () {
             worldScripts["Jaguar Company Ships"].$scanForAttackers(this.ship);
         };
-
-        if (p_ships.mainScript.$gte_v1_77) {
-            /* Oolite v1.77 and newer. */
-
-            /* NAME
-             *   $scanForCascadeWeapon
-             *
-             * FUNCTION
-             *   Do nothing. The real magic is done in the 'cascadeWeaponDetected' ship event function.
-             */
-            ship.script.$scanForCascadeWeapon = function () {
-                return;
-            };
-
-            /* Save the original ship event hooks. */
-            ship.script.$ships_cascadeWeaponDetected = ship.script.cascadeWeaponDetected;
-            ship.script.$ships_shipBeingAttackedUnsuccessfully = ship.script.shipBeingAttackedUnsuccessfully;
-
-            /* NAME
-             *   cascadeWeaponDetected
-             *
-             * FUNCTION
-             *   The cascadeWeaponDetected handler fires when a Q-bomb (or equivalent device) detonates within
-             *   scanner range of the player. The stock Q-mine (and potentially OXP equivalents) will also send
-             *   this handler at the start of the countdown, giving ships more time to react.
-             *
-             *   Reacts with a 'CASCADE_WEAPON_FOUND' AI message rather than 'CASCADE_WEAPON_DETECTED'
-             *   used by Oolite v1.77 and newer.
-             *
-             *   Inlined this function because it doesn't call functions within the OXP.
-             *
-             * INPUT
-             *   weapon - entity of the cascade weapon
-             */
-            ship.script.cascadeWeaponDetected = function (weapon) {
-                /* Set the target and send a CASCADE_WEAPON_FOUND message to the AI. */
-                this.ship.target = weapon;
-                this.ship.reactToAIMessage("CASCADE_WEAPON_FOUND");
-
-                if (this.$ships_cascadeWeaponDetected) {
-                    /* Call the original. */
-                    this.$ships_cascadeWeaponDetected.apply(this, arguments);
-                }
-            };
-
-            /* NAME
-             *   shipBeingAttackedUnsuccessfully
-             *
-             * FUNCTION
-             *   A ship is being unsuccessfully attacked.
-             *
-             * INPUT
-             *   attacker - entity of the attacker
-             */
-            ship.script.shipBeingAttackedUnsuccessfully = function (attacker) {
-                worldScripts["Jaguar Company Ships"].$shipIsBeingAttackedUnsuccessfully(this.ship, attacker);
-
-                if (this.$ships_shipBeingAttackedUnsuccessfully) {
-                    /* Call the original. */
-                    this.$ships_shipBeingAttackedUnsuccessfully.apply(this, arguments);
-                }
-            };
-        } else {
-            /* Oolite v1.76.1 and older. */
-
-            /* NAME
-             *   $scanForCascadeWeapon
-             *
-             * FUNCTION
-             *   Scan for cascade weapons. Won't be needed when v1.78 comes out.
-             *   Reacts with a 'CASCADE_WEAPON_FOUND' AI message rather than 'CASCADE_WEAPON_DETECTED'
-             *   used by Oolite v1.77 and newer.
-             *
-             *   Inlined this function because it doesn't call functions within the OXP.
-             */
-            ship.script.$scanForCascadeWeapon = function () {
-                /* This is modified from some code in Random Hits spacebar ship script. */
-                var cascadeWeaponRoles = [
-                    "EQ_QC_MINE",
-                    "EQ_CASCADE_MISSILE",
-                    "EQ_LAW_MISSILE",
-                    "EQ_OVERRIDE_MISSILE",
-                    "energy-bomb",
-                    "RANDOM_HITS_MINE"
-                ],
-                cascadeWeapons;
-
-                /* Search for any cascade weapons within maximum scanner range of the caller ship. */
-                cascadeWeapons = system.filteredEntities(this, function (entity) {
-                        return (cascadeWeaponRoles.indexOf(entity.primaryRole) !== -1);
-                    }, this.ship, this.ship.scannerRange);
-
-                if (cascadeWeapons.length) {
-                    /* Found at least one. First one in the cascadeWeapons array is the closest.
-                     * Set the target and send a CASCADE_WEAPON_FOUND message to the AI.
-                     */
-                    this.ship.target = cascadeWeapons[0];
-                    this.ship.reactToAIMessage("CASCADE_WEAPON_FOUND");
-                }
-            };
-        }
     };
 
     /* NAME
@@ -1988,8 +1924,6 @@ worldScripts */
      *   $shipIsBeingAttackedUnsuccessfully
      *
      * FUNCTION
-     *   Oolite v1.77 and newer.
-     *
      *   A ship is being unsuccessfully attacked.
      *
      *   The AI will send an ATTACKER_MISSED message to this ship.

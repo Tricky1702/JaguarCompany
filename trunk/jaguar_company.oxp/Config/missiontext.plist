@@ -19,8 +19,7 @@
     "jaguar_company_base_no_black_box2" = "[jaguar_company_base_no_black_box2]\n\n";
     "jaguar_company_base_fix_black_box" = "[jaguar_company_base_fix_black_box]\n\n";
 
-    "jaguar_company_base_no_locator1" = "[jaguar_company_base_no_locator1]\n\n";
-    "jaguar_company_base_no_locator2" = "[jaguar_company_base_no_locator2]\n\n";
+    "jaguar_company_base_no_locator" = "[jaguar_company_base_no_locator]\n\n";
 
     "jaguar_company_base_market" = "[jaguar_company_base_market]\n";
     "jaguar_company_base_market_want" = "[jaguar_company_base_market_want]\n";
