@@ -30,6 +30,7 @@
 
         accuracy = 7.5;
         aft_eject_position = "0.0 -17.0 -40.0";
+        cargo_type = "CARGO_NOT_CARGO";
         /* Was 4. Now 3 * 2.6 = 7.8 */
         energy_recharge_rate = 7.8;
         exhaust =
@@ -71,7 +72,7 @@
         auto_ai = no;
         materials =
         {
-            "jaguar_company_griff_cobra_mk3_mainhull_diffuse_spec.png" =
+            "jaguar_company_griff_cobra_mk3_mainhull" =
             {
                 /* Material dictionary. */
                 diffuse_map = "jaguar_company_griff_cobra_mk3_mainhull_diffuse_spec.png";
@@ -222,7 +223,7 @@
         auto_ai = no;
         materials =
         {
-            "jaguar_company_griff_cobra_mk3_scuffed_mainhull_diffuse_spec.png" =
+            "jaguar_company_griff_cobra_mk3_scuffed_mainhull" =
             {
                 /* Material dictionary. */
                 diffuse_map = "jaguar_company_griff_cobra_mk3_scuffed_mainhull_diffuse_spec.png";
@@ -376,7 +377,7 @@
         smooth = no;
         shaders =
         {
-            "jaguar_company_griff_cobra_mk3_front_gun_diffuse_spec.png" =
+            "jaguar_company_griff_cobra_mk3_front_gun" =
             {
                 /* Shader dictionary. */
                 vertex_shader = "jaguar_company_griff_normalmap_ships.vert.glsl";
@@ -422,7 +423,7 @@
         smooth = no;
         shaders =
         {
-            "jaguar_company_griff_cobra_mk3_scuffed_front_gun_diffuse_spec.png" =
+            "jaguar_company_griff_cobra_mk3_scuffed_front_gun" =
             {
                 /* Shader dictionary. */
                 vertex_shader = "jaguar_company_griff_normalmap_ships.vert.glsl";
@@ -468,7 +469,7 @@
         forward_weapon_type = "WEAPON_NONE";
         materials =
         {
-            "jaguar_company_griff_ECM_Proof_missile_diffuse.png" =
+            "jaguar_company_griff_ECM_Proof_missile" =
             {
                 /* Material dictionary. */
                 diffuse_map = "jaguar_company_griff_ECM_Proof_missile_diffuse.png";
@@ -533,7 +534,7 @@
         missiles = 0;
         model = "jaguar_company_griff_ECM_Proof_missile.dat";
         name = "ECM Hardened Missile";
-        roles = "missile EQ_HARDENED_MISSILE";
+        roles = "missile(0) EQ_HARDENED_MISSILE";
         scan_class = "CLASS_MISSILE";
         smooth = yes;
         thrust = 250;
@@ -552,7 +553,7 @@
         forward_weapon_type = "WEAPON_NONE";
         materials =
         {
-            "jaguar_company_griff_ECM_Proof_missile_diffuse.png" =
+            "jaguar_company_griff_ECM_Proof_missile" =
             {
                 /* Material dictionary. */
                 diffuse_map = "jaguar_company_griff_ECM_Proof_missile_diffuse.png";
@@ -617,7 +618,7 @@
         missiles = 0;
         model = "jaguar_company_griff_ECM_Proof_missile_small.dat";
         name = "Small ECM Hardened Missile";
-        roles = "missile EQ_JAGUAR_COMPANY_HARDENED_MISSILE_SMALL";
+        roles = "missile(0) EQ_JAGUAR_COMPANY_HARDENED_MISSILE_SMALL";
         scan_class = "CLASS_MISSILE";
         smooth = yes;
         thrust = 200;
@@ -657,6 +658,21 @@
         has_escape_pod = yes;
         has_scoop = yes;
         hyperspace_motor = yes;
+        materials =
+        {
+            "jaguar_company_griff_transporter" =
+            {
+                diffuse_map = "jaguar_company_griff_transporter_diffuse.png";
+                specular_color = (0.2, 0.2, 0.2, 1);
+                shininess = 5;
+                emission_map =
+                {
+                    name = "jaguar_company_griff_transporter_diffuse.png";
+                    extract_channel = "a";
+                };
+                emission_modulate_color = (0.75, 0.80, 0.80, 1);
+            };
+        };
         max_cargo = 9;
         max_energy = 150;
         max_flight_pitch = 1;
@@ -677,20 +693,6 @@
 
         ai_type = "jaguar_company_tugAI.plist";
         auto_ai = no;
-        materials =
-        {
-            "jaguar_company_griff_transporter_diffuse.png" =
-            {
-                specular_color = (0.2, 0.2, 0.2, 1);
-                shininess = 5;
-                emission_map =
-                {
-                    name = "jaguar_company_griff_transporter_diffuse.png";
-                    extract_channel = "a";
-                };
-                emission_modulate_color = (0.75, 0.80, 0.80, 1);
-            };
-        };
         name = "Jaguar Company Tug";
         roles = "jaguar_company_tug jaguar_company";
         script = "jaguar_company_tug.js";
@@ -720,20 +722,6 @@
         accuracy = 8;
         ai_type = "jaguar_company_minerAI.plist";
         auto_ai = no;
-        materials =
-        {
-            "jaguar_company_griff_transporter_diffuse.png" =
-            {
-                specular_color = (0.2, 0.2, 0.2, 1);
-                shininess = 5;
-                emission_map =
-                {
-                    name = "jaguar_company_griff_transporter_diffuse.png";
-                    extract_channel = "a";
-                };
-                emission_modulate_color = (0.75, 0.80, 0.80, 1);
-            };
-        };
         name = "Jaguar Company Mining Ship";
         roles = "jaguar_company_miner jaguar_company";
         script = "jaguar_company_miner.js";
@@ -1033,7 +1021,7 @@
         model = "jaguar_company_invisible_tracker.dat";
         name = "Tracker: Jaguar Company Patrol";
         roles = "jaguar_company_tracker";
-        scan_class = "CLASS_NO_DRAW";
+        scan_class = "CLASS_NOT_SET";
         script = "jaguar_company_tracker.js";
         smooth = no;
         thrust = 0;
@@ -1057,7 +1045,7 @@
         has_ecm = yes;
         has_escape_pod = no;
         has_npc_traffic = yes;
-        has_patrols_ships = no;
+        has_patrol_ships = no;
         has_scoop = no;
         has_shipyard = 0.0;
         interstellar_undocking = yes;

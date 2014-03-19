@@ -1,4 +1,4 @@
-Jaguar Company 2.5 (2013-??-??)
+Jaguar Company 2.5r29 (2013-11-10)
 
 Sometime ago I posted some images on the Screenshots thread ( http://aegidian.org/bb/viewtopic.php?f=2&t=4494 ) of the
 Oolite BB ( http://aegidian.org/bb/ ), of what is possible with Griff's multi-decal Player Cobra Mk III OXP.
@@ -12,7 +12,6 @@ Requirements
 Optional OXPs
 Install
 Uninstall
-Oolite v1.77 and newer
 Version History
 Credits
     Griff
@@ -45,20 +44,18 @@ This is highly recommended.
 
 Install
 -------
-After unzipping, move or copy the folder, "jaguar_company_2.5.oxp", into your AddOns directory.
+*** Only place one of these in your AddOns directory! ***
+    Zip file - After unzipping, move or copy the folder, "Jaguar_Company_2.5.oxp", into your AddOns directory.
+    OXZ file - Just place this file in your AddOns directory.
 
 Uninstall
 ---------
-Delete the directory, "jaguar_company_2.5.oxp", from your AddOns directory.
-
-Oolite v1.77 and newer
-----------------------
-Use visual effect code for Oolite v1.77 and newer by setting 'this.$visualEffects' to true in 'jaguar_company.js' found
-in the Scripts directory.
+Delete the directory, "Jaguar_Company_2.5.oxp", or the OXZ file, "Jaguar_Company_2.5r29.oxz", from your AddOns
+directory.
 
 Version History
 ---------------
-v2.5 (2013-??-??)
+v2.5r29 (2013-11-10)
     *** This OXP now requires Cabal Common Library. ***
     Bug fix for a typo in the main script.
     Bug fix for a typo in the black box script.

@@ -16,15 +16,14 @@
 (
     (
         /* Can't be bought. */
-        99,
-        0,
-        "Jaguar Company Black Box",
+        100, 100000, "Jaguar Company Black Box",
         "EQ_JAGUAR_COMPANY_BLACK_BOX",
         "Black box locator for Jaguar Company.",
         {
             available_to_all = yes;
             available_to_NPCs = no;
             available_to_player = yes;
+            condition_script = "jaguar_company_eq_conditions.js";
             portable_between_ships = yes;
             script = "jaguar_company_blackbox.js";
             script_info =
@@ -36,15 +35,15 @@
     ),
     (
         /* Can't be bought. */
-        99,
-        0,
-        "Small ECM Hardened Missile",
+        100, 5000, "Small ECM Hardened Missile",
         "EQ_JAGUAR_COMPANY_HARDENED_MISSILE_SMALL",
         "Small ECM Hardened Missile for the splinter ships.",
         {
-            available_to_all = no;
+            available_to_all = yes;
             available_to_NPCs = yes;
             available_to_player = no;
+            condition_script = "jaguar_company_eq_conditions.js";
+            requires_empty_pylon = yes;
         }
     )
 )

@@ -31,7 +31,17 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
     this.version = "1.5";
 
     /* Private variable. */
-    var p_base = {};
+    var p_base = {},
+    p_const = {};
+
+    Object.defineProperties(p_const, {
+        "glowasteroids" : {
+            value : false,
+            writable : false,
+            configurable : true,
+            enumerable : true
+        }
+    });
 
     /* Ship script event handlers. */
 
@@ -45,7 +55,8 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
         var num,
         vector,
         cross,
-        angle;
+        angle,
+        loop;
 
         /* Initialise the p_base variable object.
          * Encapsulates all private global data.
@@ -94,10 +105,10 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
             p_base.shipsScript.$addFriendly({
                 ship : this.ship,
                 /* Get a unique name for the base.
-                 * Maximum length for the base's name is 32 characters.
-                 * Fits perfectly into the mission screen title header.
+                 * Maximum length for the base's name is 17 characters.
+                 * Fits into the mission screen and commodities title header.
                  */
-                shipName : p_base.mainScript.$uniqueShipName(true, 32)
+                shipName : p_base.mainScript.$uniqueShipName(true, 17)
             });
 
             if (!system.isInterstellarSpace) {
@@ -120,7 +131,33 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
              * - gives the miners something to do. (Also apparently any Thargoids!)
              */
             num = Math.floor(system.scrambledPseudoRandomNumber(p_base.mainScript.$salt) * 8) + 20;
-            system.addShips("jaguar_company_asteroid", num, this.ship.position, 20000);
+
+            if (p_const.glowasteroids) {
+                for (loop = 0; loop < num; loop += 1) {
+                    switch (Math.floor(Math.random() * 8)) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                        system.addShips("glowasteroid", 1, this.ship.position, 20000);
+                        break;
+                    case 5:
+                    case 6:
+                        system.addShips("glowmossasteroid", 1, this.ship.position, 20000);
+                        break;
+                    case 7:
+                        system.addShips("jaguar_company_asteroid", 1, this.ship.position, 20000);
+                        break;
+                    default:
+                        system.addShips("jaguar_company_asteroid", 1, this.ship.position, 20000);
+                        break;
+                    }
+                }
+            } else {
+                system.addShips("jaguar_company_asteroid", num, this.ship.position, 20000);
+            }
+
             num = Math.floor(system.scrambledPseudoRandomNumber(p_base.mainScript.$salt / 2) * 8) + 10;
             system.addShips("jaguar_company_boulder", num, this.ship.position, 20000);
 
@@ -424,6 +461,7 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
                     if (patrolShip.script.name !== "jaguar_company_patrol.js") {
                         /* Reload the ship script. */
                         patrolShip.setScript("jaguar_company_patrol.js");
+                        patrolShip.script.shipSpawned();
 
                         if (p_base.logging && p_base.logExtra) {
                             log(this.name, "Script sanity check - fixed a patrol ship.");
@@ -459,6 +497,7 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
                     if (splinterShip.script.name !== "jaguar_company_ship_splinter.js") {
                         /* Reload the ship script. */
                         splinterShip.setScript("jaguar_company_ship_splinter.js");
+                        splinterShip.script.shipSpawned();
 
                         if (p_base.logging && p_base.logExtra) {
                             log(this.name, "Script sanity check - fixed a splinter ship.");
@@ -482,6 +521,7 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
             if (tug.script.name !== "jaguar_company_tug.js") {
                 /* Reload the ship script. */
                 tug.setScript("jaguar_company_tug.js");
+                tug.script.shipSpawned();
 
                 if (p_base.logging && p_base.logExtra) {
                     log(this.name, "Script sanity check - fixed the tug.");
@@ -499,6 +539,7 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
             if (buoy.script.name !== "jaguar_company_base_buoy.js") {
                 /* Reload the ship script. */
                 buoy.setScript("jaguar_company_base_buoy.js");
+                buoy.script.shipSpawned();
 
                 if (p_base.logging && p_base.logExtra) {
                     log(this.name, "Script sanity check - fixed the buoy.");
@@ -517,6 +558,7 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
                 if (miner.script.name !== "jaguar_company_miner.js") {
                     /* Reload the ship script. */
                     miner.setScript("jaguar_company_miner.js");
+                    miner.script.shipSpawned();
 
                     if (p_base.logging && p_base.logExtra) {
                         log(this.name, "Script sanity check - fixed the miner.");

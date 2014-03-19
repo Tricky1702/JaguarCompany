@@ -1472,6 +1472,7 @@ missionVariables, oolite, player, system, worldScripts */
             if (base.script.name !== "jaguar_company_base.js") {
                 /* Reload the ship script. */
                 base.setScript("jaguar_company_base.js");
+                base.script.shipSpawned();
 
                 if (this.$logging && this.$logExtra) {
                     log(this.name, "Script sanity check - fixed the base.");
@@ -1500,6 +1501,7 @@ missionVariables, oolite, player, system, worldScripts */
                     if (asteroid.script.name !== "jaguar_company_asteroid.js") {
                         /* Reload the ship script. */
                         asteroid.setScript("jaguar_company_asteroid.js");
+                        asteroid.script.shipSpawned();
 
                         if (this.$logging && this.$logExtra) {
                             log(this.name, "Script sanity check - fixed an asteroid.");
@@ -1557,6 +1559,7 @@ missionVariables, oolite, player, system, worldScripts */
                 if (this.$tracker.script.name !== "jaguar_company_tracker.js") {
                     /* Reload the ship script. */
                     this.$tracker.setScript("jaguar_company_tracker.js");
+                    this.$tracker.script.shipSpawned();
 
                     if (this.$logging && this.$logExtra) {
                         log(this.name, "Script sanity check - fixed the tracker.");
@@ -1572,6 +1575,7 @@ missionVariables, oolite, player, system, worldScripts */
                 if (this.$visualTracker.script.name !== "jaguar_company_tracker.js") {
                     /* Reload the ship script. */
                     this.$visualTracker.setScript("jaguar_company_tracker.js");
+                    this.$visualTracker.script.effectSpawned();
 
                     if (this.$logging && this.$logExtra) {
                         log(this.name, "Script sanity check - fixed the visual tracker.");
@@ -2492,6 +2496,7 @@ missionVariables, oolite, player, system, worldScripts */
         var index,
         salt = this.$salt,
         randf,
+        prefix,
         name;
 
         if (typeof maxNameLength !== "number") {
@@ -2547,8 +2552,14 @@ missionVariables, oolite, player, system, worldScripts */
             }
         }
 
+        if (isBase) {
+            prefix = "JC Base#" ;
+        } else {
+            prefix = "JC#";
+        }
+
         /* Return the new name. */
-        return name;
+        return prefix + Math.floor(randf * 10000).toString() + "-" + system.name.substring(0, 2) + ": " + name;
     };
 
     /* NAME
