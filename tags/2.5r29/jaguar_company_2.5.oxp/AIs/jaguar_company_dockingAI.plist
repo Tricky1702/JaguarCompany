@@ -1,0 +1,184 @@
+/* jaguar_company_dockingAI.plist
+ *
+ * Copyright © 2012-2013 Richard Thomas Harrison (Tricky)
+ *
+ * This work is licensed under the Creative Commons
+ * Attribution-Noncommercial-Share Alike 3.0 Unported License.
+ *
+ * To view a copy of this license, visit
+ * http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
+ * to Creative Commons, 171 Second Street, Suite 300, San Francisco,
+ * California, 94105, USA.
+ *
+ * Docking AI for the Jaguar Company.
+ * Based on dockingAI.plist Copyright © 2004-2013 Giles C Williams and contributors.
+ */
+
+{
+    GLOBAL =
+    {
+        ENTER =
+        (
+            "dropMessages: DOCKING_ABORTED, FACING_DESTINATION",
+            "setSpeedTo: 0.0",
+            requestDockingCoordinates,
+            "setStateTo: AWAIT_COORDS"
+        );
+    };
+
+    "AWAIT_COORDS" =
+    {
+        ENTER = ("sendScriptMessage: $scanForCascadeWeapon");
+        /* This will be caught by $scanForCascadeWeapon which should work for Oolite v1.74+
+         * Emulates the Oolite v1.77 and newer method of supplying a message for cascade weapons being deployed.
+         */
+        "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
+        /* Someone is pinging us with a laser.
+         * See $shipIsBeingAttacked in jaguar_company_ships.js
+         */
+        "HOSTILE_FIRE" = (abortDocking, "exitAIWithMessage: HOSTILE_FIRE");
+        /* Missile fired at us. */
+        "INCOMING_MISSILE" = (abortDocking, "exitAIWithMessage: INCOMING_MISSILE");
+        /* Help needed in a fight. */
+        "JAGUAR_COMPANY_ATTACK_TARGET" = (abortDocking, "exitAIWithMessage: JAGUAR_COMPANY_ATTACK_TARGET");
+        /* Messages returned by requestDockingCoordinates. */
+        "APPROACH" = ("setStateTo: APPROACH");
+        "APPROACH_COORDINATES" = ("setStateTo: GO_TO_COORDS");
+        "BACK_OFF" = ("setStateTo: RETREAT");
+        "HOLD_POSITION" = ("setStateTo: STATIONKEEPING");
+        "TRY_AGAIN_LATER" = ("pauseAI: 30.0", "setStateTo: ABORT");
+        "NO_STATION_FOUND" = ("exitAIWithMessage: NO_STATION_FOUND");
+        /* Other messages that can be received whilst awaiting co-ordinates. */
+        "DOCKING_REFUSED" = (abortDocking, "exitAIWithMessage: DOCKING_REFUSED");
+        "DOCKING_ABORTED" = ("setStateTo: ABORT");
+        "COLLISION" = ("setStateTo: ABORT");
+        "RESTART_DOCKING" = ("setStateTo: GLOBAL");
+        "TOO_BIG_TO_DOCK" = (abortDocking, "exitAIWithMessage: DOCKING_REFUSED");
+        DOCKED = (exitAI);
+        UPDATE = (requestDockingCoordinates, "sendScriptMessage: $scanForCascadeWeapon", "pauseAI: 2.0");
+    };
+
+    STATIONKEEPING =
+    {
+        ENTER =
+        (
+            setDestinationToTarget,
+            performFaceDestination,
+            "setSpeedTo: 0.0",
+            "sendScriptMessage: $scanForCascadeWeapon",
+            "pauseAI: 10.0"
+        );
+        /* See AI state 'AWAIT_COORDS' for next 4 messages. */
+        "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
+        "HOSTILE_FIRE" = (abortDocking, "exitAIWithMessage: HOSTILE_FIRE");
+        "INCOMING_MISSILE" = (abortDocking, "exitAIWithMessage: INCOMING_MISSILE");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = (abortDocking, "exitAIWithMessage: JAGUAR_COMPANY_ATTACK_TARGET");
+        UPDATE = (requestDockingCoordinates, "setStateTo: AWAIT_COORDS");
+    };
+
+    APPROACH =
+    {
+        ENTER =
+        (
+            recallDockingInstructions,
+            setSpeedToCruiseSpeed,
+            checkCourseToDestination,
+            "sendScriptMessage: $scanForCascadeWeapon"
+        );
+        /* See AI state 'AWAIT_COORDS' for next 4 messages. */
+        "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
+        "HOSTILE_FIRE" = (abortDocking, "exitAIWithMessage: HOSTILE_FIRE");
+        "INCOMING_MISSILE" = (abortDocking, "exitAIWithMessage: INCOMING_MISSILE");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = (abortDocking, "exitAIWithMessage: JAGUAR_COMPANY_ATTACK_TARGET");
+        "COURSE_OK" = (performFlyToRangeFromDestination);
+        "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
+        "DESIRED_RANGE_ACHIEVED" = (requestDockingCoordinates, "setStateTo: AWAIT_COORDS");
+        "DOCKING_ABORTED" = ("setStateTo: ABORT");
+        "COLLISION" = ("setStateTo: ABORT");
+        "RESTART_DOCKING" = ("setStateTo: GLOBAL");
+    };
+
+    RETREAT =
+    {
+        ENTER =
+        (
+            recallDockingInstructions,
+            "setSpeedTo: 0.0",
+            setDestinationToDockingAbort,
+            performFaceDestination,
+            "sendScriptMessage: $scanForCascadeWeapon"
+        );
+        /* See AI state 'AWAIT_COORDS' for next 4 messages. */
+        "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
+        "HOSTILE_FIRE" = (abortDocking, "exitAIWithMessage: HOSTILE_FIRE");
+        "INCOMING_MISSILE" = (abortDocking, "exitAIWithMessage: INCOMING_MISSILE");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = (abortDocking, "exitAIWithMessage: JAGUAR_COMPANY_ATTACK_TARGET");
+        "FACING_DESTINATION" = (setSpeedToCruiseSpeed, "setDesiredRangeTo: 500.0", performFlyToRangeFromDestination);
+        "DESIRED_RANGE_ACHIEVED" = ("setSpeedTo: 0.0", requestDockingCoordinates, "setStateTo: AWAIT_COORDS");
+        "DOCKING_ABORTED" = ("setStateTo: ABORT");
+        "COLLISION" = ("setStateTo: ABORT");
+        "RESTART_DOCKING" = ("setStateTo: GLOBAL");
+    };
+
+    "GO_TO_COORDS" =
+    {
+        ENTER = (performFaceDestination, "sendScriptMessage: $scanForCascadeWeapon");
+        /* See AI state 'AWAIT_COORDS' for next 4 messages. */
+        "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
+        "HOSTILE_FIRE" = (abortDocking, "exitAIWithMessage: HOSTILE_FIRE");
+        "INCOMING_MISSILE" = (abortDocking, "exitAIWithMessage: INCOMING_MISSILE");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = (abortDocking, "exitAIWithMessage: JAGUAR_COMPANY_ATTACK_TARGET");
+        "FRUSTRATED" = (performFaceDestination);
+        "FACING_DESTINATION" = (recallDockingInstructions, "setDesiredRangeTo: 5.0", performFlyToRangeFromDestination);
+        "DESIRED_RANGE_ACHIEVED" = (requestDockingCoordinates, "setStateTo: AWAIT_COORDS");
+        "DOCKING_ABORTED" = ("setStateTo: ABORT");
+        "COLLISION" = ("setStateTo: ABORT");
+        "RESTART_DOCKING" = ("setStateTo: GLOBAL");
+        DOCKED = (exitAI);
+    };
+
+    ABORT =
+    {
+        ENTER =
+        (
+            abortDocking,
+            "setSpeedTo: 0.0",
+            setDestinationToDockingAbort,
+            performFaceDestination,
+            "sendScriptMessage: $scanForCascadeWeapon"
+        );
+        /* See AI state 'AWAIT_COORDS' for next 4 messages. */
+        "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
+        "HOSTILE_FIRE" = (abortDocking, "exitAIWithMessage: HOSTILE_FIRE");
+        "INCOMING_MISSILE" = (abortDocking, "exitAIWithMessage: INCOMING_MISSILE");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = (abortDocking, "exitAIWithMessage: JAGUAR_COMPANY_ATTACK_TARGET");
+        "FACING_DESTINATION" = (setSpeedToCruiseSpeed, "setDesiredRangeTo: 500.0", performFlyToRangeFromDestination);
+        "RESTART_DOCKING" = ("setStateTo: GLOBAL");
+        "REACHED_SAFETY" = (performIdle, "setStateTo: GLOBAL");
+        "DESIRED_RANGE_ACHIEVED" = (performIdle, "setStateTo: GLOBAL");
+    };
+
+    /* Go to the new waypoint. */
+    "NEW_WAYPOINT" =
+    {
+        ENTER = (setDesiredRangeForWaypoint, checkCourseToDestination, "sendScriptMessage: $scanForCascadeWeapon");
+        /* See AI state 'AWAIT_COORDS' for next 4 messages. */
+        "CASCADE_WEAPON_FOUND" = (abortDocking, "exitAIWithMessage: CASCADE_WEAPON_FOUND");
+        "HOSTILE_FIRE" = (abortDocking, "exitAIWithMessage: HOSTILE_FIRE");
+        "INCOMING_MISSILE" = (abortDocking, "exitAIWithMessage: INCOMING_MISSILE");
+        "JAGUAR_COMPANY_ATTACK_TARGET" = (abortDocking, "exitAIWithMessage: JAGUAR_COMPANY_ATTACK_TARGET");
+        "WAYPOINT_SET" = ("setStateTo: NEW_WAYPOINT");
+        "COURSE_OK" = ("setStateTo: APPROACH", "pauseAI: 2.0");
+        "DESIRED_RANGE_ACHIEVED" = ("setStateTo: APPROACH", "pauseAI: 2.0");
+        "FRUSTRATED" = ("setStateTo: APPROACH", "pauseAI: 2.0");
+        /* This will stop us from flying into the planet. (Hopefully) */
+        "AEGIS_CLOSE_TO_MAIN_PLANET" = ("setStateTo: APPROACH", "pauseAI: 2.0");
+        UPDATE =
+        (
+            performFlyToRangeFromDestination,
+            checkCourseToDestination,
+            "sendScriptMessage: $scanForCascadeWeapon",
+            "pauseAI: 5.0"
+        );
+    };
+}

@@ -1,4 +1,4 @@
-Jaguar Company 2.5r29 (2013-11-10)
+Jaguar Company 3.0 (2014-??-??)
 
 Sometime ago I posted some images on the Screenshots thread ( http://aegidian.org/bb/viewtopic.php?f=2&t=4494 ) of the
 Oolite BB ( http://aegidian.org/bb/ ), of what is possible with Griff's multi-decal Player Cobra Mk III OXP.
@@ -30,7 +30,7 @@ Galactic Naval convoy in the system.
 
 Requirements
 ------------
-    Oolite 1.75+
+    Oolite 1.77+
     Cabal Common Library
 
 Optional OXPs
@@ -44,46 +44,19 @@ This is highly recommended.
 
 Install
 -------
-*** Only place one of these in your AddOns directory! ***
-    Zip file - After unzipping, move or copy the folder, "Jaguar_Company_2.5.oxp", into your AddOns directory.
-    OXZ file - Just place this file in your AddOns directory.
+    Oolite v1.77+ - Zip file - After unzipping, move or copy the folder, "Jaguar_Company_3.0.oxp", into your AddOns
+        directory.
+    Oolite v1.79+ - OXZ file - Download from the OXZ file manager within the game.
 
 Uninstall
 ---------
-Delete the directory, "Jaguar_Company_2.5.oxp", or the OXZ file, "Jaguar_Company_2.5r29.oxz", from your AddOns
-directory.
+    Oolite v1.77+ - Delete the directory, "Jaguar_Company_3.0.oxp", from your AddOns directory.
+    Oolite v1.79+ - Remove using the OXZ file manager within the game.
 
 Version History
 ---------------
-v2.5r29 (2013-11-10)
-    *** This OXP now requires Cabal Common Library. ***
-    Bug fix for a typo in the main script.
-    Bug fix for a typo in the black box script.
-    Proper integration for Oolite v1.77 and newer with the interface screen for base locations.
-    Added check for blackbox + software patch for base locations in the $addInterface() function.
-    Renamed the vertex and fragment shaders.
-    Rewritten $listNames() to use Cabal Common Library for truncating, padding and creating columns.
-        Oolite v1.76.1 and older use the original method of padding rows. (Spaces)
-        Oolite v1.77 and newer use Cabal Common Library v1.7 strAdd2Columns() and strAddIndentedText() to create the
-          rows.
-    Removed some dead/unused code.
-    Fixed ghost messages appearing on the player's console. I forgot player.consoleMessage() isn't distance dependant.
-      It obviously isn't, however these minor bugettes happen from time to time. ;)
-    Multiple rescue news implementation.
-    Clean up of code in guiScreenChanged().
-    Changed key combination to show list of base locations to F7, F5.
-        Oolite v1.77 and newer use the interface API when docked.
-    Lowered max cargo space to 10TC to explain extra speed.
-    AI tweaks.
-    New ship to patrol the area around the base.
-    Allow auto dock with the base once you have the black box.
-    Only use one mission variable. Old mission variables will be converted.
-    Changed the operation of the black box tracker.
-        'n' toggles the ASC tracker on or off.
-        'b' toggles the holo tracker on or off.
-    'jaguar_company_attackers.js' now called jaguar_company_ships.js
-        Common code moved here and is hooked in to the ship script when a ship is spawned.
-    Check the Patrol ships, tug, buoy and miner within the code for the base.
+v3.0 (2014-??-??)
+    *** Oolite v1.77+ now needed. ***
 
 For a full version history see jaguar_company_changelog.txt in the directory you loaded this readme file from.
 
@@ -115,12 +88,11 @@ Spara
 
 Copyright
 ---------
-Copyright © 2012-2013 Richard Thomas Harrison (Tricky)
+Copyright © 2012-2014 Richard Thomas Harrison (Tricky)
 
 This work is licensed under the Creative Commons
-Attribution-Noncommercial-Share Alike 3.0 Unported License.
+Attribution-Noncommercial-Share Alike 4.0 International (CC BY-NC-SA 4.0)
 
 To view a copy of this license, visit
-http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
-to Creative Commons, 171 Second Street, Suite 300, San Francisco,
-California, 94105, USA.
+http://creativecommons.org/licenses/by-nc-sa/4.0/ or send an email
+to info@creativecommons.org

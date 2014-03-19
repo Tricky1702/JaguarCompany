@@ -1,0 +1,67 @@
+/* jaguar_company_base.vert.glsl for the Jaguar Company Base.
+ *
+ * Copyright © 2012-2013 Richard Thomas Harrison (Tricky)
+ *
+ * This work is licensed under the Creative Commons
+ * Attribution-Noncommercial-Share Alike 3.0 Unported License.
+ *
+ * To view a copy of this license, visit
+ * http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
+ * to Creative Commons, 171 Second Street, Suite 300, San Francisco,
+ * California, 94105, USA.
+ *
+ * Vertex shader for the Jaguar Company Base.
+ */
+
+#define MAX_LIGHTS 8
+#define NUM_LIGHTS 2
+
+#ifdef IS_OOLITE
+#define BASE_LIGHT 1
+#else
+#define BASE_LIGHT 0
+#endif
+
+#ifdef OO_TANGENT_ATTR
+attribute vec3  tangent;
+#else
+const vec3      tangent = vec3(1.0, 0.0, 0.0);
+#endif
+
+varying vec2    vTexCoord;
+varying vec3    vEyeVector; /* These are all in tangent space. */
+varying vec3    vLightVectors[MAX_LIGHTS]; 
+
+void main()
+{
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    vTexCoord = gl_MultiTexCoord0.xy;
+
+    /* Build tangent basis. */
+    vec3 n = normalize(gl_NormalMatrix * gl_Normal);
+    vec3 t = normalize(gl_NormalMatrix * tangent);
+    vec3 b = cross(n, t);
+
+    vec3 v;
+    vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+
+#ifdef OO_LIGHT_0_FIX
+    int i = 0;
+#else
+    int i = BASE_LIGHT;
+#endif
+    for (; i < NUM_LIGHTS; i++)
+    {
+        vec3 lVec = gl_LightSource[i].position.xyz - vVertex;
+        v.x = dot(lVec, t);
+        v.y = dot(lVec, b);
+        v.z = dot(lVec, n);
+        vLightVectors[i] = v;
+    }
+
+    vec3 vVec = -vVertex;
+    v.x = dot(vVec, t);
+    v.y = dot(vVec, b);
+    v.z = dot(vVec, n);
+    vEyeVector = v;
+}

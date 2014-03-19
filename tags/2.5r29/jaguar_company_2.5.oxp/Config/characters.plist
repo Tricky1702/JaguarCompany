@@ -1,0 +1,27 @@
+/* characters.plist for the Jaguar Company.
+ *
+ * Copyright © 2012-2013 Richard Thomas Harrison (Tricky)
+ *
+ * This work is licensed under the Creative Commons
+ * Attribution-Noncommercial-Share Alike 3.0 Unported License.
+ *
+ * To view a copy of this license, visit
+ * http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
+ * to Creative Commons, 171 Second Street, Suite 300, San Francisco,
+ * California, 94105, USA.
+ *
+ * Characters for the Jaguar Company.
+ */
+
+{
+    jaguar-company-pilot =
+    {
+        name = "a pilot of Jaguar Company";
+        /* Show a rescue message. Actual insurance set in script. */
+        insurance = 500;
+        bounty = 0;
+        legal_status = 0;
+        role = "jaguar_company";
+        script = "jaguar_company_pilot.js";
+    };
+}

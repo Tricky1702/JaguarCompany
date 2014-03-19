@@ -6,7 +6,7 @@ loopfunc: true, noarg: true, noempty: true, strict: true, nonew: true, undef: tr
 
 /* Jaguar Company Equipment Conditions
  *
- * Copyright © 2013 Richard Thomas Harrison (Tricky)
+ * Copyright © 2013-2014 Richard Thomas Harrison (Tricky)
  *
  * This work is licensed under the Creative Commons
  * Attribution-Noncommercial-Share Alike 3.0 Unported License.

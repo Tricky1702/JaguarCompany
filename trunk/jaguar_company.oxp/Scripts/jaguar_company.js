@@ -7,15 +7,14 @@ missionVariables, oolite, player, system, worldScripts */
 
 /* Jaguar Company
  *
- * Copyright © 2012-2013 Richard Thomas Harrison (Tricky)
+ * Copyright © 2012-2014 Richard Thomas Harrison (Tricky)
  *
  * This work is licensed under the Creative Commons
- * Attribution-Noncommercial-Share Alike 3.0 Unported License.
+ * Attribution-Noncommercial-Share Alike 4.0 International (CC BY-NC-SA 4.0)
  *
  * To view a copy of this license, visit
- * http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter
- * to Creative Commons, 171 Second Street, Suite 300, San Francisco,
- * California, 94105, USA.
+ * http://creativecommons.org/licenses/by-nc-sa/4.0/ or send an email
+ * to info@creativecommons.org
  *
  * World script to setup Jaguar Company.
  */
@@ -25,11 +24,8 @@ missionVariables, oolite, player, system, worldScripts */
 
     /* Standard public variables for OXP scripts. */
     this.name = "Jaguar Company";
-    this.author = "Tricky";
     this.copyright = "© 2012-2013 Richard Thomas Harrison (Tricky)";
-    this.license = "CC BY-NC-SA 3.0";
     this.description = "Script to initialise the Jaguar Company.";
-    this.version = "2.5";
 
     /* Private variables. */
     var p_main = {},
