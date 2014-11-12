@@ -2,19 +2,19 @@
 Sometime ago I posted some images on the [Screenshots thread](http://aegidian.org/bb/viewtopic.php?f=2&t=4494) of the [Oolite BB](http://aegidian.org/bb/), of what is possible with Griff's multi-decal Player Cobra Mk III OXP. I mentioned that I have a lioness on the back of my Cobbie 3 hunters. Someone else suggested that jaguars might be better. This formed an idea in my head and Jaguar Company was born.
 
 # TOC
-- Overview
-- Requirements
-- Optional OXPs
-- Install
-- Uninstall
-- Version History
-- Credits
-  - Griff
-  - Thargoid
-  - Little Bear
-  - Eric Walch
-  - Spara
-- Copyright
+- [Overview](#overview)
+- [Requirements](#requirements)
+- [Optional OXPs](#optional-oxps)
+- [Install](#install)
+- [Uninstall](#uninstall)
+- [Version History](#version-history)
+- [Credits](#credits)
+  - [Griff](#griff)
+  - [Thargoid](#thargoid)
+  - [Little Bear](#little-bear)
+  - [Eric Walch](#eric-walch)
+  - [Spara](#spara)
+- [Copyright](#copyright)
 
 # Overview
 Adds in an Elite group of pilots to patrol the space lanes in Anarchy, Feudal and Multi-Government systems.
