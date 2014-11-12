@@ -45,7 +45,7 @@ This is highly recommended.
 v3.0 (2014-??-??)
 - **Oolite v1.77+ now needed.**
 
-For a full version history see [jaguar_company_changelog.txt](trunk/jaguar_company_changelog.txt) in the directory you loaded this readme file from.
+For a full version history see the [changelog](trunk/jaguar_company_changelog.txt).
 
 # Credits
 An addon for Oolite by Giles Williams, Jens Ayton & contributors.
