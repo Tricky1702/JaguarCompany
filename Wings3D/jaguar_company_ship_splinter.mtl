@@ -1,0 +1,11 @@
+# Exported from Wings 3D 1.5.0.2013-03-24---09-42.mlab
+newmtl jaguar_company_ship_splinter
+Ns 20.0
+d 1.0
+illum 2
+Kd 1.0 1.0 1.0
+Ka 1.0 1.0 1.0
+Ks 0.2 0.2 0.2
+Ke 0.001 0.001 0.001
+map_Kd jaguar_company_ship_splinter_diffuse.png
+

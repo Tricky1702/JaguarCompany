@@ -1,0 +1,45 @@
+/* manifest.plist
+ *
+ * Copyright $COPYRIGHT$
+ *
+ * This work is licensed under the Creative Commons
+ * $LICENSE_FULL$ ($LICENSE$)
+ *
+ * To view a copy of this license, visit
+ * $LICENSE_URL$ or send an email
+ * to info@creativecommons.org
+ *
+ * manifest.plist for the $TITLE$ OXP.
+ */
+
+    {
+    author = "$AUTHOR$";
+    category = "$CATEGORY$";
+    description = "$DESCRIPTION$";
+    download_url = "$DOWNLOAD_URL$";
+    identifier = $IDENTIFIER$;
+    information_url = "$INFORMATION_URL$";
+    license = "$LICENSE$";
+    optional_oxps = (
+        {
+        description = "Logging control of this OXP.";
+        identifier = oolite.oxp.Svengali.OXPConfig;
+        version = 2.3.1;
+        },
+        {
+        description = "News alerts from various sources including Jaguar Company pilots.";
+        identifier = oolite.oxp.Svengali.Snoopers;
+        version = 2.5;
+        }
+    );
+    required_oolite_version = $REQUIRED_OOLITE_VERSION$;
+    requires_oxps = (
+        {
+        description = "Depends on Cabal Common Library.";
+        identifier = oolite.oxp.Svengali.CCL;
+        version = 1.7.1;
+        }
+    );
+    title = "$TITLE$";
+    version = $VERSION$;
+    }

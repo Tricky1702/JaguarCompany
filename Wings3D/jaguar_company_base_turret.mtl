@@ -1,0 +1,30 @@
+# Exported from Wings 3D 1.4.1.2011-09-24---17-38.mlab
+newmtl default
+Ns 100.0
+d 1.0
+illum 2
+Kd 0.7898538076923077 0.8133333333333334 0.6940444444444445
+Ka 0.7898538076923077 0.8133333333333334 0.6940444444444445
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
+
+newmtl jaguar_company_base_turret_ball
+Ns 100.0
+d 1.0
+illum 2
+Kd 1.0 1.0 1.0
+Ka 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
+map_Kd jaguar_company_base_turret_ball_diffuse.png
+
+newmtl jaguar_company_base_turret_gun
+Ns 100.0
+d 1.0
+illum 2
+Kd 1.0 1.0 1.0
+Ka 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
+map_Kd jaguar_company_base_turret_gun_diffuse.png
+

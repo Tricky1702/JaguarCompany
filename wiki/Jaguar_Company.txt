@@ -1,0 +1,420 @@
+{{OXPLevel|0}}
+{{Infobox OXPb
+|title = Jaguar Company
+|version = 3.0
+|release = 2014-??-??
+|license = CC BY-NC-SA 4.0
+|features = New patrol
+|category = Mechanics OXPs
+|author = [[User:Tricky|Tricky]]
+|feedback = [http://aegidian.org/bb/viewtopic.php?f=4&t=12033 BB-Link]
+}}
+----
+{{Infobox OXP
+|title = Jaguar Company
+|image = [[Image:Jaguar Company.png|128px]]
+|download = [[Jaguar Company#Downloads|Download Links]]
+|version = 3.0 (2014-??-??)
+|story = [[Jaguar Company#Version History|Version History]]
+|stations = [[Jaguar Company#Jaguar Company Base|Jaguar Company Base]]
+|ships = [[Jaguar Company#Jaguar Company|Jaguar Company]]
+|mission = None
+|equipment = None
+|alternativeHUD = None
+|soundSet = None
+|category = Mechanics OXPs
+|author = [[User:Tricky|Tricky]]
+}}
+[[Image:OXPConfig_logo.png|100px|left]]
+Sometime ago I posted some images on the [http://www.aegidian.org/bb/viewtopic.php?f=2&t=4494&start=3075#p172216 Screenshots thread] of the [http://aegidian.org/bb/ Oolite BB], of what is possible with [[Griff_Industries#Griff.27s_Normalmapped_Ships_OXPs|Griff's multi-decal Player Cobra Mk III]] OXP. I mentioned that I have a lioness on the back of my [[Cobra_Mk.3_(Oolite)|Cobbie 3]] hunters. [[User:El_Viejo|El Viejo]] suggested that jaguars might be better. This formed an idea in my head and Jaguar Company was born.
+
+
+== Overview ==
+Adds in an Elite group of pilots to patrol the space lanes in Anarchy, Feudal and Multi-Government systems. Jaguar Company can also be found sometimes in interstellar space.
+
+The members of Jaguar Company are part-time reservists so there is a chance that they will appear if there is a major Galactic Naval convoy in the system.
+
+== Requirements ==
+* [[Oolite]] 1.77+
+* [[Cabal_Common_Library|Cabal Common Library]]
+
+== Optional OXPs ==
+* [[OXPConfig]] - For log control of this OXP.
+* [[Snoopers|Snoopers OXP]] - For news alerts from various sources including Jaguar Company pilots.
+* [[Galactic_Navy|Galactic Navy]] - Jaguar Company sometimes patrol with the Galactic Navy.
+
+This is highly recommended.
+* [[Talkative_Space_Compass]] - Easy identification of Jaguar Company beacon codes. (Or a HUD that does similar reporting.)
+
+== Jaguar Company ==
+{|cellspacing="3" align="center" border="0" text-align="center"
+|-
+|align="center" width="256" height="175"|[[Image:Jaguar_Company_3.png|200px]]<br />&nbsp;
+|align="center" width="256" height="175"|[[Image:Jaguar_Company_1.png|200px]]<br />Half of Jaguar Company
+|align="center" width="256" height="175"|[[Image:Jaguar_Company_2.png|200px]]<br />Jaguar Company
+|}
+
+== Jaguar Company Base ==
+[[Image:Jaguar_Company_Base.png|thumb|center|640px|On docking approach]]
+
+=== Markets ===
+The market of any of the bases depends on the reputation of the player. Reputation is built-up by helping out Jaguar Company in combat.
+
+{| border="1" cellpadding="5" cellspacing="0" align="left"
+|+'''Normal Market'''
+|-
+! Commodity
+! colspan="3" | Prices
+! colspan="3" | Quantities
+|-
+| &nbsp;
+| Low
+| Avg
+| High
+| Low
+| Avg
+| High
+|-
+| Food
+| 4.0&#8354;
+| 6.8&#8354;
+| 9.6&#8354;
+| 0TC
+| 4TC
+| 8TC
+|-
+| Textiles
+| 6.4&#8354;
+| 8.4&#8354;
+| 10.4&#8354;
+| 0TC
+| 5TC
+| 10TC
+|-
+| Radioactives
+| 12.4&#8354;
+| 18.0&#8354;
+| 23.6&#8354;
+| 7TC
+| 21TC
+| 35TC
+|-
+| Slaves
+| 0.4&#8354;
+| 6.2&#8354;
+| 12.0&#8354;
+| 0TC
+| 0TC
+| 0TC
+|-
+| Liquor/Wines
+| 24.4&#8354;
+| 34.4&#8354;
+| 44.4&#8354;
+| 0TC
+| 4TC
+| 9TC
+|-
+| Luxuries
+| 81.2&#8354;
+| 91.6&#8354;
+| 102.0&#8354;
+| 0TC
+| 3TC
+| 7TC
+|-
+| Narcotics
+| 0.4&#8354;
+| 5.2&#8354;
+| 10.0&#8354;
+| 0TC
+| 0TC
+| 0TC
+|-
+| Computers
+| 65.6&#8354;
+| 83.8&#8354;
+| 102.0&#8354;
+| 0TC
+| 5TC
+| 11TC
+|-
+| Machinery
+| 50.8&#8354;
+| 60.6&#8354;
+| 70.4&#8354;
+| 0TC
+| 3TC
+| 7TC
+|-
+| Alloys
+| 28.8&#8354;
+| 36.4&#8354;
+| 44.0&#8354;
+| 15TC
+| 34TC
+| 53TC
+|-
+| Firearms
+| 41.6&#8354;
+| 61.2&#8354;
+| 80.8&#8354;
+| 18TC
+| 29TC
+| 40TC
+|-
+| Furs
+| 48.4&#8354;
+| 73.6&#8354;
+| 98.8&#8354;
+| 0TC
+| 8TC
+| 16TC
+|-
+| Minerals
+| 8.0&#8354;
+| 10.0&#8354;
+| 12.0&#8354;
+| 53TC
+| 58TC
+| 63TC
+|-
+| Gold
+| 26.4&#8354;
+| 29.2&#8354;
+| 32.0&#8354;
+| 5kg
+| 12kg
+| 19kg
+|-
+| Platinum
+| 58.0&#8354;
+| 67.0&#8354;
+| 76.0&#8354;
+| 4kg
+| 33kg
+| 63kg
+|-
+| Gem-Stones
+| 11.2&#8354;
+| 15.6&#8354;
+| 20.0&#8354;
+| 3g
+| 10g
+| 17g
+|-
+| Alien Items
+| 27.6&#8354;
+| 50.0&#8354;
+| 72.4&#8354;
+| 0TC
+| 0TC
+| 0TC
+|}
+{| border="1" cellpadding="5" cellspacing="0" align="left"
+|+'''Extended Market'''
+|-
+! Commodity
+! colspan="3" | Prices
+! colspan="3" | Quantities
+|-
+| &nbsp;
+| Low
+| Avg
+| High
+| Low
+| Avg
+| High
+|-
+| Food
+| 5.2&#8354;
+| 8.0&#8354;
+| 10.8&#8354;
+| 0TC
+| 7TC
+| 15TC
+|-
+| Textiles
+| 7.6&#8354;
+| 9.6&#8354;
+| 11.6&#8354;
+| 0TC
+| 8TC
+| 17TC
+|-
+| Radioactives
+| 8.4&#8354;
+| 14.0&#8354;
+| 19.6&#8354;
+| 15TC
+| 29TC
+| 43TC
+|-
+| Slaves
+| 0.4&#8354;
+| 6.2&#8354;
+| 12.0&#8354;
+| 0TC
+| 0TC
+| 0TC
+|-
+| Liquor/Wines
+| 29.2&#8354;
+| 39.2&#8354;
+| 49.2&#8354;
+| 0TC
+| 8TC
+| 17TC
+|-
+| Luxuries
+| 86.8&#8354;
+| 94.4&#8354;
+| 102.0&#8354;
+| 0TC
+| 7TC
+| 15TC
+|-
+| Narcotics
+| 0.4&#8354;
+| 5.2&#8354;
+| 10.0&#8354;
+| 0TC
+| 0TC
+| 0TC
+|-
+| Computers
+| 74.0&#8354;
+| 88.0&#8354;
+| 102.0&#8354;
+| 0TC
+| 9TC
+| 18TC
+|-
+| Machinery
+| 54.8&#8354;
+| 64.6&#8354;
+| 74.4&#8354;
+| 0TC
+| 6TC
+| 13TC
+|-
+| Alloys
+| 25.2&#8354;
+| 32.8&#8354;
+| 40.4&#8354;
+| 25TC
+| 44TC
+| 63TC
+|-
+| Firearms
+| 36.0&#8354;
+| 55.6&#8354;
+| 75.2&#8354;
+| 27TC
+| 38TC
+| 49TC
+|-
+| Furs
+| 51.6&#8354;
+| 76.8&#8354;
+| 102.0&#8354;
+| 0TC
+| 12TC
+| 25TC
+|-
+| Minerals
+| 6.0&#8354;
+| 8.0&#8354;
+| 10.0&#8354;
+| 56TC
+| 59TC
+| 63TC
+|-
+| Gold
+| 31.2&#8354;
+| 34.0&#8354;
+| 36.8&#8354;
+| 13kg
+| 20kg
+| 27kg
+|-
+| Platinum
+| 54.4&#8354;
+| 63.4&#8354;
+| 72.4&#8354;
+| 11kg
+| 37kg
+| 63kg
+|-
+| Gem-Stones
+| 7.2&#8354;
+| 11.6&#8354;
+| 16.0&#8354;
+| 15g
+| 22g
+| 29g
+|-
+| Alien Items
+| 38.4&#8354;
+| 60.8&#8354;
+| 83.2&#8354;
+| 0TC
+| 0TC
+| 0TC
+|}
+<div style="clear: both">&nbsp;</div>
+== Downloads ==
+* [http://rockthehalo.org.uk/oolite/OXPs/Jaguar_Company_3.0.zip rockthehalo.org.uk]
+* [http://rockthehalo.org.uk/oolite/OXPs/Jaguar_Company_3.0.oxz rockthehalo.org.uk] - '''New OXZ format!'''
+* [https://www.box.com/s/f0jdqd6vw13cgrv9zo1r box.com]
+* [https://dl.dropbox.com/u/31706855/Oolite/OXPs/jaguar_company_3.0.zip dropbox.com]
+* [https://dl.dropbox.com/u/31706855/Oolite/OXPs/jaguar_company_3.0.oxz dropbox.com] - '''New OXZ format!'''
+* rsync://rockthehalo.org.uk/jaguar_company_3.0 or rockthehalo.org.uk::jaguar_company_3.0 (rsync)
+
+== Install ==
+* Oolite v1.77+ - Zip file - After unzipping, move or copy the folder, "Jaguar_Company_3.0.oxp", into your AddOns directory.
+* Oolite v1.79+ - OXZ file - Download from the OXZ file manager within the game.
+
+== Uninstall ==
+* Oolite v1.77+ - Delete the directory, "Jaguar_Company_3.0.oxp", from your AddOns directory.
+* Oolite v1.79+ - Remove using the OXZ file manager within the game.
+
+== Version History ==
+'''v3.0 (2014-??-??)'''
+* '''Oolite v1.77+ now needed.'''
+
+For a full version history see [[Jaguar Company/Version History|Version History]].
+
+== Credits ==
+An addon for [[Oolite]] by [[Giles_Williams|Giles Williams]], [[User:Ahruman|Jens Ayton]] & contributors.
+
+Based on [[Category:Classic|Elite]] by [[Ian_Bell|Ian Bell]] and [[David_Braben|David Braben]].
+=== [[User:Griff|Griff]] ===
+* Models, textures and shaders for the Cobra MkIII, ECM proof missile and Transporter.
+** Both regular and scuffed versions of the multi-decal Cobra MkIII are used.
+=== [[User:Thargoid|Thargoid]] ===
+* External missile code found in Griff's example for missile sub-entities on a Cobra MkIII.
+* Code example to stop Jaguar Company from breaking a core mission for the player if they ''accidently'' help out.
+** Various OXPs.
+* Inspiration for the invisible tracker from [[Tracker_OXP|Tracker OXP]].
+* AI inspiration from [[Hired_Guns_OXP|Hired Guns OXP]].
+=== [[User:LittleBear|Little Bear]] ===
+* Examples of messages for ''friendly fire'' and ''hostile fire'' from [[Random_Hits_OXP|Random Hits OXP]].
+=== [[User:Eric_Walch|Eric Walch]] ===
+* Buoy positioning code examples from [[BuoyRepair|Buoy Repair OXP]].
+=== [[User:Spara|Spara]] ===
+* Inspiration for multi-column lists from [[Trophy_Collector|Trophy Collector OXP]].
+
+== Copyright ==
+Copyright © 2012-2014 Richard Thomas Harrison (Tricky)
+
+This work is licensed under the Creative Commons License
+Attribution-Noncommercial-Share Alike 4.0 International (CC BY-NC-SA 4.0)
+
+To view a copy of this license, visit
+[http://creativecommons.org/licenses/by-nc-sa/4.0/] or send an email
+to [mailto:info@creativecommons.org]
+
+== OXP Categories ==
+[[Category:Oolite]] [[Category:Oolite expansion packs]] {{mechanics-OXP}} {{Required_OXP|Cabal_Common_Library}} [[Category:OXPConfig-compatible OXPs]]
+
