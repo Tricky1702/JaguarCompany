@@ -52,24 +52,24 @@ An addon for Oolite by Giles Williams, Jens Ayton & contributors.
 
 Based on Elite by Ian Bell and David Braben.
 
-## Griff
+## [Griff](http://wiki.alioth.net/index.php/User:Griff)
 - Models, textures and shaders for the Cobra MkIII, ECM proof missile and Transporter.
   - Both regular and scuffed versions of the multi-decal Cobra MkIII are used.
 
-## Thargoid
+## [Thargoid](http://wiki.alioth.net/index.php/User:Thargoid)
 - External missile code found in Griff's example for missile sub-entities on a Cobra MkIII.
 - Code example to stop Jaguar Company from breaking a core mission for the player if they 'accidently' help out.
   - Various OXPs.
 - Inspiration for the invisible tracker from Tracker OXP.
 - AI inspiration from Hired Guns OXP.
 
-## Little Bear
+## [Little Bear](http://wiki.alioth.net/index.php/User:LittleBear)
 - Examples of messages for 'friendly fire' and 'hostile fire' from Random Hits OXP.
 
-## Eric Walch
+## [Eric Walch](http://wiki.alioth.net/index.php/User:Eric_Walch)
 - Buoy positioning code examples from Buoy Repair OXP.
 
-## Spara
+## [Spara](http://wiki.alioth.net/index.php/User:Spara)
 - Inspiration for multi-column lists from Trophy Collector OXP.
 
 # Copyright
